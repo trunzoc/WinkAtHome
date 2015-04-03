@@ -45,33 +45,33 @@ namespace WinkAtHome.Controls
                 if (lblType != null) lblType.Text = device.type;
 
                 List<Wink.DeviceStatus> status = device.status;
-                IList<string> keys = status.Select(p => p.desired_state).ToList();
+                IList<string> keys = status.Select(p => p.name).ToList();
                 string state = string.Empty;
                 string degree = "n/a";
 
                 if (keys.Contains("powered") || keys.Contains("locked"))
                 {
-                    Wink.DeviceStatus stat = status.Single(p => p.desired_state == "powered" || p.desired_state == "locked");
+                    Wink.DeviceStatus stat = status.Single(p => p.name == "powered" || p.name == "locked");
                     state = stat.current_status.ToLower();
-                    hfMainCommand.Value = stat.desired_state;
+                    hfMainCommand.Value = stat.name;
                     hfCurrentStatus.Value = state;
                 }
 
                 if (keys.Contains("brightness") || keys.Contains("position"))
                 {
-                    Wink.DeviceStatus stat = status.Single(p => p.desired_state == "brightness" || p.desired_state == "position");
+                    Wink.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position");
                     degree = (Convert.ToDouble(stat.current_status) * 100).ToString();
-                    hfLevelCommand.Value = stat.desired_state;
+                    hfLevelCommand.Value = stat.name;
                 }
 
 
                 if (devicetype == "light_bulbs" || devicetype == "binary_switches")
                 {
-                    img.ImageUrl = "~/Images/Lights/" + state.ToString() + ".png";
+                    img.ImageUrl = "~/Images/Lights/" + state + ".png";
                 }
                 else if (devicetype == "locks")
                 {
-                    img.ImageUrl = "~/Images/Locks/" + state.ToString() + ".png";
+                    img.ImageUrl = "~/Images/Locks/" + state + ".png";
                 }
 
 
@@ -111,12 +111,12 @@ namespace WinkAtHome.Controls
             Wink.sendDeviceCommand(deviceID, command);
 
             Wink.Device device = Wink.Device.getDeviceByID(deviceID);
-            Wink.DeviceStatus status = device.status.Single(p => p.desired_state == hfMainCommand.Value);
+            Wink.DeviceStatus status = device.status.Single(p => p.name == hfMainCommand.Value);
             status.current_status = newstate;
 
             if (!string.IsNullOrWhiteSpace(newlevel))
             {
-                Wink.DeviceStatus statuslvl = device.status.Single(p => p.desired_state == "brightness");
+                Wink.DeviceStatus statuslvl = device.status.Single(p => p.name == hfLevelCommand.Value);
                 statuslvl.current_status = "1";
             }
 
@@ -143,10 +143,10 @@ namespace WinkAtHome.Controls
 
 
             Wink.Device device = Wink.Device.getDeviceByID(deviceID);
-            Wink.DeviceStatus status = device.status.Single(p => p.desired_state == hfMainCommand.Value);
+            Wink.DeviceStatus status = device.status.Single(p => p.name == hfMainCommand.Value);
             status.current_status = newstate;
 
-            Wink.DeviceStatus statuslvl = device.status.Single(p => p.desired_state == hfLevelCommand.Value);
+            Wink.DeviceStatus statuslvl = device.status.Single(p => p.name == hfLevelCommand.Value);
             statuslvl.current_status = newlevel.ToString();
 
             BindData();

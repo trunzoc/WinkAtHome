@@ -12,7 +12,7 @@
         <asp:TableCell>
             <asp:ListBox ID="lbMenu" runat="server" SelectionMode="Single" Width="100%" style="border:hidden" OnSelectedIndexChanged="lbMenu_SelectedIndexChanged" AutoPostBack="true" Font-Size="medium" BackColor="#eeeeee" Rows="6" >
                 <asp:ListItem Text="Devices" Value="Devices" />
-                <asp:ListItem Text="Groups (Coming Soon)" Value="Groups" />
+                <asp:ListItem Text="Groups" Value="Groups" />
                 <asp:ListItem Text="Shortcuts" Value="Shortcuts" />
                 <asp:ListItem Text="Robots (Coming Soon)" Value="Robots" />
             </asp:ListBox>

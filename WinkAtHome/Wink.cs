@@ -85,6 +85,13 @@ public class Wink
 
             return devices;
         }
+    }
+    public class DeviceStatus
+    {
+        public string id;
+        public string name;
+        public string current_status;
+        public DateTime? last_updated;
 
         public static void clearDeviceStatus(string deviceID)
         {
@@ -92,13 +99,6 @@ public class Wink
             device.status = null;
             device.status = new List<DeviceStatus>();
         }
-    }
-    public class DeviceStatus
-    {
-        public string id;
-        public string desired_state;
-        public string current_status;
-        public DateTime? last_updated;
     }
     public static List<Device> Devices
     {
@@ -166,7 +166,7 @@ public class Wink
                             {
                                 DeviceStatus deviceStatus = new DeviceStatus();
                                 deviceStatus.id = device.id;
-                                deviceStatus.desired_state = reading.Key;
+                                deviceStatus.name = reading.Key;
                                 deviceStatus.current_status = reading.Value.ToString();
 
                                 string lastupdated = readings[reading.Key + "_updated_at"].ToString();
@@ -194,7 +194,7 @@ public class Wink
             Device device = Device.getDeviceByID(deviceID);
             if (device != null)
             {
-                string url = ConfigurationManager.AppSettings["winkRootURL"] + "/" + device.type + "/" + device.id;
+                string url = ConfigurationManager.AppSettings["winkRootURL"] + device.type + "/" + device.id;
                 winkCallAPI(url, "PUT", command);
             }
         }
@@ -210,21 +210,21 @@ public class Wink
             Device device = Device.getDeviceByID(deviceID);
             if (device != null)
             {
-                string url = "https://winkapi.quirky.com/" + device.type + "/" + device.id;
+                string url = ConfigurationManager.AppSettings["winkRootURL"] + device.type + "/" + device.id;
                 JObject json = winkCallAPI(url);
 
                 JToken data = json["data"]["last_reading"];
                 JObject readings = JObject.Parse(data.ToString());
                 if (readings != null)
                 {
-                    Device.clearDeviceStatus(device.id);
+                    DeviceStatus.clearDeviceStatus(device.id);
                     foreach (var reading in readings)
                     {
                         if (!reading.Key.Contains("_updated_at"))
                         {
                             DeviceStatus deviceStatus = new DeviceStatus();
                             deviceStatus.id = device.id;
-                            deviceStatus.desired_state = reading.Key;
+                            deviceStatus.name = reading.Key;
                             deviceStatus.current_status = reading.Value.ToString();
 
                             string lastupdated = readings[reading.Key + "_updated_at"].ToString();
@@ -282,7 +282,6 @@ public class Wink
         }
     }
     private static List<Shortcut> _shortcuts;
-    //UPDATE GROUPS.
     private static List<Shortcut> winkGetShortcuts()
     {
         try
@@ -340,7 +339,7 @@ public class Wink
 
             if (shortcut != null)
             {
-                string url = ConfigurationManager.AppSettings["winkRootURL"] + "/scenes/" + shortcut.id + "/activate/";
+                string url = ConfigurationManager.AppSettings["winkRootURL"] + "scenes/" + shortcut.id + "/activate/";
                 winkCallAPI(url, "POST");
 
                 List<ShortcutMember> members = shortcut.members;
@@ -350,6 +349,18 @@ public class Wink
 
                     if (member.type == "group")
                     {
+                        Group groups = Group.getGroupByID(member.id);
+                        foreach (KeyValuePair<string, string> entry in member.actions)
+                        {
+                            GroupStatus status = groups.status.SingleOrDefault(n => n.name == entry.Key);
+                            if (status != null)
+                                status.current_status = entry.Value;
+                        }
+
+                        foreach(GroupMember groupmember in groups.members)
+                        {
+                            devices.Add(Device.getDeviceByID(groupmember.id));
+                        }
                     }
                     else
                     {
@@ -360,7 +371,7 @@ public class Wink
                     {
                         foreach (KeyValuePair<string, string> entry in member.actions)
                         {
-                            DeviceStatus status = device.status.SingleOrDefault(p => p.desired_state == entry.Key);
+                            DeviceStatus status = device.status.SingleOrDefault(p => p.name == entry.Key);
                             if (status != null)
                                 status.current_status = entry.Value;
                         }
@@ -374,13 +385,15 @@ public class Wink
         }
     }
     #endregion
-
-    #region Group
+    
+    //MAKE GROUP CHANGE UPDATE INCLUDED DEVICES
+    #region Group 
     public class Group
     {
         public string id;
         public string name;
         public List<GroupMember> members = new List<GroupMember>();
+        public List<GroupStatus> status = new List<GroupStatus>();
 
         public static Group getGroupByID(string GroupID)
         {
@@ -397,7 +410,20 @@ public class Wink
     {
         public string id;
         public string type;
-        public Dictionary<string, string> actions = new Dictionary<string, string>();
+        public List<string> actions = new List<string>();
+    }
+    public class GroupStatus
+    {
+        public string id;
+        public string name;
+        public string current_status;
+        public DateTime? last_updated;
+        public static void clearGroupStatus(string groupID)
+        {
+            Group group = Groups.SingleOrDefault(g => g.id.Equals(groupID));
+            group.status = null;
+            group.status = new List<GroupStatus>();
+        }
     }
 
     public static List<Group> Groups
@@ -444,20 +470,34 @@ public class Wink
                             var states = member["desired_state"];
                             foreach (JProperty state in states)
                             {
-                                newmember.actions.Add(state.Name.ToString(), state.Value.ToString());
+                                if (!state.Name.Contains("_updated_at"))
+                                    newmember.actions.Add(state.Name.ToString());
                             }
                             group.members.Add(newmember);
                         }
                     }
 
+                    if (keys.Contains("reading_aggregation"))
+                    {
+                        JToken readings = data["reading_aggregation"];
+                        foreach (JProperty reading in readings)
+                        {
+                            GroupStatus newreading = new GroupStatus();
+                            newreading.id = group.id;
+                            newreading.name = reading.Name;
+                            newreading.last_updated = FromUnixTime(reading.Value["updated_at"].ToString());
+
+                            if (reading.Value["true_count"] != null)
+                                newreading.current_status = reading.Value["true_count"].ToString();
+                            else if (reading.Value["average"] != null)
+                                newreading.current_status = reading.Value["average"].ToString();
+
+                            group.status.Add(newreading);
+                        }
+                    }
+
                     Groups.Add(group);
                 }
-
-                List<Device> lights = Device.getDevicesByType(new List<string>() { "light_bulbs", "binary_switches", "suckit" });
-
-                Group allGroup = new Group();
-                allGroup.id = "1234567890";
-                allGroup.name = "All Lights";
 
                 _groups = Groups.OrderBy(c => c.name).ToList();
             }
@@ -468,6 +508,57 @@ public class Wink
             throw e;
         }
     }
+    internal static void sendGroupCommand(string groupID, string command)
+    {
+        try
+        {
+            Group group = Group.getGroupByID(groupID);
+            if (group != null)
+            {
+                string url = ConfigurationManager.AppSettings["winkRootURL"] + "groups/" + groupID + "/activate/";
+                winkCallAPI(url, "POST", command);
+            }
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    internal static void getGroupStatus(string groupID)
+    {
+        try
+        {
+            Group group = Group.getGroupByID(groupID);
+            if (group != null)
+            {
+                string url = ConfigurationManager.AppSettings["winkRootURL"] + "/groups/" + group.id;
+                JObject json = winkCallAPI(url);
+
+                JToken readings = json["reading_aggregation"];
+                foreach (JProperty reading in readings)
+                {
+                    GroupStatus newreading = new GroupStatus();
+                    newreading.id = group.id;
+                    newreading.name = reading.Name;
+                    newreading.last_updated = FromUnixTime(reading.Value["updated_at"].ToString());
+
+                    if (reading.Value["true_count"] != null)
+                        newreading.current_status = reading.Value["true_count"].ToString();
+                    else if (reading.Value["average"] != null)
+                        newreading.current_status = reading.Value["average"].ToString();
+
+                    group.status.Add(newreading);
+                }
+
+            }
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
     #endregion
 
     public static void clearWink()
@@ -475,12 +566,14 @@ public class Wink
         _winkToken = null;
         _devices = null;
         _shortcuts = null;
+        _groups = null;
     }
     public static void reloadWink()
     {
         clearWink();
         winkGetDevices();
         winkGetShortcuts();
+        winkGetGroups();
     }
     public static Dictionary<string, string>[] winkGetServerStatus()
     {

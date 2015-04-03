@@ -25,7 +25,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td align="center" style="padding-bottom:60px">
+                            <td align="center" style="padding-bottom:30px">
                                 <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Device)Container.DataItem).name %>' Font-Size="small" />
                                 <%--<br /><asp:Label ID="lblType" runat="server" Font-Size="small" />--%>
                             </td>
