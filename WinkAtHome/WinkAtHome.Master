@@ -1,18 +1,48 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="WinkAtHome.master.cs" Inherits="WinkAtHome.WinkAtHome" %>
 <%@ Register Src="~/Controls/winkStatus.ascx" TagName="ucWinkStatus" TagPrefix="ucWS" %>
 <%@ Register Src="~/Controls/Menu.ascx" TagName="ucMenu" TagPrefix="ucM" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxtoolkit" %>
 
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title><%: Page.Title %> - Wink@Home</title>
+    
     <style type="text/css">
         *
         {
                 font-family: Tahoma;
         }
     </style>
+
+    <script type="text/javascript">
+        function BeginProcess() {
+            // Create an iframe.
+            var iframe = document.createElement("iframe");
+
+            // Point the iframe to the location of the long running process.
+            iframe.src = "UpdateWink.aspx";
+
+            // Make the iframe invisible.
+            iframe.style.display = "none";
+
+            // Add the iframe to the DOM.  The process will begin execution at this point.
+            document.body.appendChild(iframe);
+        }
+
+        function UpdateProgress(PercentComplete, Message) {
+            document.getElementById('trigger').value = Message; //PercentComplete + '%: ' + 
+            if (PercentComplete == 100) {
+                location.reload();
+            }
+        }
+
+        function clickTrigger()
+        {
+            document.getElementById('trigger').click();
+        }
+    </script>
 </head>
 <body style="background-color:#eeeeee;">
     <form id="form1" runat="server">
@@ -30,11 +60,16 @@
                             <td align="right" style="vertical-align:middle">
                                 <asp:LinkButton ID="lbDashboard" runat="server" Text="Dashboard" ForeColor="White" Font-Size="XX-Large" OnClick="lbDashboard_Click" style="text-decoration: none;" />
                             </td>
-                            <td align="right" width="100px">
+                            <td align="right" width="90px">
                                 <asp:ImageButton ID="ibRefresh" runat="server" ImageUrl="~/Images/refresh.png" Height="75px" OnClick="ibRefresh_Click" />
                             </td>
-                            <td>
-                                <asp:Label ID="lblStatus" runat="server" Text="Label" Visible="false" />
+                            <td align="left" width="225px">
+                                <input type="submit" value='<% ="Last Refreshed: " + DateTime.Now.ToString("")%>' id="trigger" onclick="BeginProcess(); return false;" style="color:white; background-color:#22b9ec;border:0;" />
+
+                                <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+                                    <ContentTemplate>
+                                    </ContentTemplate>
+                                </asp:UpdatePanel> 
                             </td>
                         </tr>
                     </table>

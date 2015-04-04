@@ -46,5 +46,11 @@ namespace WinkAtHome
         {
             Response.Redirect("~/Default.aspx");
         }
+
+        protected void Timer1_Tick(object sender, EventArgs e)
+        {
+            ScriptManager.RegisterStartupScript(Page, typeof(Page), "refresh", "clickTrigger()", true); 
+        }
+
     }
 }

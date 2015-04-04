@@ -27,41 +27,6 @@ namespace WinkAtHome.Controls
             dlGroups.DataBind();
         }
 
-        protected void imgIcon_Click(object sender, ImageClickEventArgs e)
-        {
-            ImageButton ib = (ImageButton)sender;
-            DataListItem li = (DataListItem)ib.Parent;
-            string groupID = ib.CommandArgument;
-            string command = string.Empty;
-
-            HiddenField hfMainCommand = (HiddenField)li.FindControl("hfMainCommand");
-            HiddenField hfCurrentStatus = (HiddenField)li.FindControl("hfCurrentStatus");
-            HiddenField hfLevelCommand = (HiddenField)li.FindControl("hfLevelCommand");
-
-            string newstate = (!Convert.ToBoolean(hfCurrentStatus.Value)).ToString().ToLower();
-            string newlevel = string.Empty;
-
-            if (hfLevelCommand.Value == "brightness" && newstate == "true")
-            {
-                newlevel = ",\"brightness\":1";
-            }
-
-            command = "{\"desired_state\": {\"" + hfMainCommand.Value + "\":" + newstate + newlevel + "}}";
-            Wink.sendGroupCommand(groupID, command);
-
-            Wink.Group group = Wink.Group.getGroupByID(groupID);
-            Wink.GroupStatus status = group.status.Single(p => p.name == hfMainCommand.Value);
-            status.current_status = newstate == "true" ? "1" : "0";
-
-            if (!string.IsNullOrWhiteSpace(newlevel))
-            {
-                Wink.GroupStatus statuslvl = group.status.Single(p => p.name == hfLevelCommand.Value);
-                statuslvl.current_status = "1";
-            }
-
-            BindData();
-        }
-
         protected void dlGroups_ItemDataBound(object sender, DataListItemEventArgs e)
         {
             if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
@@ -113,6 +78,35 @@ namespace WinkAtHome.Controls
             }
         }
 
+        protected void imgIcon_Click(object sender, ImageClickEventArgs e)
+        {
+            ImageButton ib = (ImageButton)sender;
+            DataListItem li = (DataListItem)ib.Parent;
+            string groupID = ib.CommandArgument;
+            string command = string.Empty;
+
+            HiddenField hfMainCommand = (HiddenField)li.FindControl("hfMainCommand");
+            HiddenField hfCurrentStatus = (HiddenField)li.FindControl("hfCurrentStatus");
+            HiddenField hfLevelCommand = (HiddenField)li.FindControl("hfLevelCommand");
+
+            string newstate = (!Convert.ToBoolean(hfCurrentStatus.Value)).ToString().ToLower();
+            string newlevel = string.Empty;
+            string newlevelcommand = string.Empty;
+
+            if (newstate == "true") 
+                newlevel = "1";
+            else
+                newlevel="0";
+
+            if (hfLevelCommand.Value == "brightness")
+                newlevelcommand = ",\"brightness\":" + newlevel;
+
+            command = "{\"desired_state\": {\"" + hfMainCommand.Value + "\":" + newstate + newlevelcommand + "}}";
+            Wink.sendGroupCommand(groupID, command);
+
+            updateStuff(groupID, hfMainCommand.Value, newstate, hfLevelCommand.Value, newlevel);
+        }
+
         protected void rsBrightness_ValueChanged(object sender, EventArgs e)
         {
             RadSlider rs = (RadSlider)sender;
@@ -120,7 +114,7 @@ namespace WinkAtHome.Controls
             ImageButton ib = (ImageButton)li.FindControl("imgIcon"); ;
             string groupID = ib.CommandArgument;
             string command = string.Empty;
-            Decimal newlevel = rs.Value / 100;
+            Decimal newlevel = Math.Round(rs.Value) / 100;
 
             HiddenField hfMainCommand = (HiddenField)li.FindControl("hfMainCommand");
             HiddenField hfCurrentStatus = (HiddenField)li.FindControl("hfCurrentStatus");
@@ -131,15 +125,42 @@ namespace WinkAtHome.Controls
             command = "{\"desired_state\": {\"" + hfMainCommand.Value + "\":" + newstate + ",\"" + hfLevelCommand.Value + "\":" + newlevel + "}}";
             Wink.sendGroupCommand(groupID, command);
 
+            updateStuff(groupID, hfMainCommand.Value, newstate, hfLevelCommand.Value, newlevel.ToString());
+        }
 
+        protected void updateStuff(string groupID, string maincommand, string newstate, string levelcommand, string newlevel = "")
+        {
             Wink.Group group = Wink.Group.getGroupByID(groupID);
-            Wink.GroupStatus status = group.status.Single(p => p.name == hfMainCommand.Value);
+            Wink.GroupStatus status = group.status.Single(p => p.name == maincommand);
             status.current_status = newstate == "true" ? "1" : "0";
 
-            Wink.GroupStatus statuslvl = group.status.Single(p => p.name == hfLevelCommand.Value);
-            statuslvl.current_status = newlevel.ToString();
+            Wink.GroupStatus statuslvl = group.status.Single(p => p.name == levelcommand);
+            if (statuslvl != null)
+                statuslvl.current_status = newlevel;
 
-            BindData();
+            foreach (Wink.GroupMember member in group.members)
+            {
+                Wink.Device device = Wink.Device.getDeviceByID(member.id);
+                if (device != null)
+                {
+                    Wink.DeviceStatus devstatp = device.status.SingleOrDefault(p => p.name == maincommand);
+                    if (devstatp != null)
+                        devstatp.current_status = newstate;
+
+                    Wink.DeviceStatus devstatd = device.status.SingleOrDefault(p => p.name == levelcommand);
+                    if (devstatd != null)
+                        devstatd.current_status = newlevel;
+                }
+            }
+
+            if (Request.RawUrl.ToLower().Contains("default.aspx"))
+            {
+                Response.Redirect(Request.RawUrl);
+            }
+            else
+            {
+                BindData();
+            }
         }
     }
 }
