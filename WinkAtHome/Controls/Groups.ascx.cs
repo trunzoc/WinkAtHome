@@ -94,7 +94,7 @@ namespace WinkAtHome.Controls
                 if (keys.Contains("brightness") || keys.Contains("position"))
                 {
                     Wink.GroupStatus stat = status.Single(p => p.name == "brightness" || p.name == "position");
-                    degree = (Convert.ToDouble(stat.current_status) * 100).ToString();
+                    degree = Math.Round(Convert.ToDouble(stat.current_status) * 100).ToString();
                     hfLevelCommand.Value = stat.name;
                 }
 
