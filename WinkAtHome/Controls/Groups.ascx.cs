@@ -103,7 +103,7 @@ namespace WinkAtHome.Controls
                 if (degree != "n/a" && state)
                 {
                     rs.Visible = true;
-                    rs.Value = Convert.ToInt32(degree);
+                    rs.Value = Convert.ToDecimal(degree);
                     rs.ToolTip = degree + "%";
                 }
                 else if (degree == "n/a")
