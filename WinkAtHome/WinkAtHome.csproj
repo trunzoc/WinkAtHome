@@ -77,6 +77,8 @@
     <Content Include="DLLs\Telerik.Web.UI.dll" />
     <Content Include="Global.asax" />
     <Content Include="Groups.aspx" />
+    <Content Include="Images\Groups\false.png" />
+    <Content Include="Images\Groups\true.png" />
     <Content Include="Images\Hub\false.png" />
     <Content Include="Images\Hub\true.png" />
     <Content Include="Images\Lights\false.png" />
