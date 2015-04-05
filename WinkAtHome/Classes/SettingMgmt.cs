@@ -31,7 +31,10 @@ namespace WinkAtHome
         public static string getSetting(string KeyName)
         {
             Setting setting = Settings.SingleOrDefault(s => s.key.ToLower().Equals(KeyName.ToLower()));
-            return setting.value;
+            if (setting != null)
+                return setting.value;
+            else
+                return null;
         }
 
         public static List<Setting> loadSettings()

@@ -6,13 +6,13 @@
             <asp:Label ID="lblHeader" runat="server" Text="Devices" ForeColor="White" />
         </asp:TableHeaderCell>
         <asp:TableCell BackColor="#22b9ec" HorizontalAlign="right">
-            <asp:Label ID="Label1" runat="server" Text="Columns" ForeColor="White" />
-            <asp:TextBox ID="tbColumns" runat="server" OnTextChanged="tbColumns_TextChanged" />
+            <asp:Label ID="Label1" runat="server" Text="Columns: " ForeColor="White" />
+            <asp:TextBox ID="tbColumns" runat="server" Text="3" OnTextChanged="tbColumns_TextChanged" Width="20px" />
         </asp:TableCell>
     </asp:TableHeaderRow>
     <asp:TableRow>
         <asp:TableCell style="padding:10px;" ColumnSpan="2">
-            <asp:DataList ID="dlDevices" runat="server" RepeatColumns="4" RepeatDirection="Horizontal" OnItemDataBound="dlDevices_ItemDataBound" Width="100%">
+            <asp:DataList ID="dlDevices" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" OnItemDataBound="dlDevices_ItemDataBound" Width="100%">
                 <ItemStyle Width="225" Height="100px" />
                 <ItemTemplate>
                     <table>

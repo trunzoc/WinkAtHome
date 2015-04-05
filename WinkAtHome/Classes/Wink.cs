@@ -51,6 +51,7 @@ public class Wink
         }
         catch (Exception e)
         {
+            HttpContext.Current.Response.Redirect("~/Settings.aspx");
             return null;
         }
     }
