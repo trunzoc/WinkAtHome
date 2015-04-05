@@ -18,7 +18,7 @@
     </asp:TableHeaderRow>
         <asp:TableRow>
             <asp:TableCell ColumnSpan="2">
-                <asp:Repeater ID="rptSettings" runat="server">
+                <asp:DataList ID="rptSettings" runat="server">
                     <HeaderTemplate>
                         <table>
                     </HeaderTemplate>
@@ -28,7 +28,7 @@
                                 <asp:Label ID="lblKey" runat="server" Text='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).key %>' />
                             </td>
                             <td>
-                                <asp:TextBox ID="tbValue" runat="server" Text='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).value %>' Width="400" />
+                                <asp:TextBox ID="tbValue" runat="server" Text='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).value %>' Width="250" />
                                 <asp:HiddenField ID="hfValue" runat="server" Value='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).value %>' />
                             </td>
                         </tr>
@@ -36,7 +36,7 @@
                     <FooterTemplate>
                         </table>
                     </FooterTemplate>
-                </asp:Repeater>
+                </asp:DataList>
             </asp:TableCell>
         </asp:TableRow>
         <asp:TableRow>
@@ -64,7 +64,7 @@
         </asp:TableRow>
         <asp:TableRow ID="rowEdit" Visible="false">
             <asp:TableCell ColumnSpan="3">
-                <asp:TextBox ID="tbEdit" runat="server" TextMode="MultiLine" Height="300px" Width="100%" />
+                <asp:TextBox ID="tbEdit" runat="server" TextMode="MultiLine" Height="250px" Width="100%" />
                 <br />
                 <asp:Button ID="btnSaveEdit" runat="server" Text="Save Edit" OnClick="btnSaveEdit_Click" OnClientClick="if ( ! saveConfirmation()) return false;" />
             </asp:TableCell>
