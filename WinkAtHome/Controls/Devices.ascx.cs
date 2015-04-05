@@ -5,6 +5,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using Telerik.Web.UI;
 
+
 namespace WinkAtHome.Controls
 {
     public partial class Devices : System.Web.UI.UserControl
@@ -150,6 +151,12 @@ namespace WinkAtHome.Controls
             statuslvl.current_status = newlevel.ToString();
 
             BindData();
+        }
+
+        protected void tbColumns_TextChanged(object sender, EventArgs e)
+        {
+
+            //Properties.Settings.Default.winkClientID = "test";
         }
     }
 }

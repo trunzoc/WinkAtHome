@@ -98,12 +98,14 @@
     <Content Include="OtherStuff.aspx" />
     <Content Include="Robots.aspx" />
     <Content Include="Shortcuts.aspx" />
+    <Content Include="Settings.txt" />
     <Content Include="UpdateWink.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common.cs" />
     <Compile Include="Controls\Devices.ascx.cs">
       <DependentUpon>Devices.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -171,11 +173,6 @@
       <DependentUpon>OtherStuff.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
     <Compile Include="Robots.aspx.cs">
       <DependentUpon>Robots.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -183,7 +180,6 @@
     <Compile Include="Robots.aspx.designer.cs">
       <DependentUpon>Robots.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
     <Compile Include="Shortcuts.aspx.cs">
       <DependentUpon>Shortcuts.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -210,10 +206,6 @@
   <ItemGroup>
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\Publish.pubxml" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -222,7 +214,6 @@
     </None>
     <Content Include="WinkAtHome.Master" />
   </ItemGroup>
-  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

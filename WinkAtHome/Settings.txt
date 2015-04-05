@@ -1,0 +1,6 @@
+﻿{
+	"winkUsername":"Enter Your Wink Username Here"
+	, "winkPassword":"Enter Your Wink Password Here"
+	, "winkClientID":"quirky_wink_android_app"
+	, "winkClientSecret":"e749124ad386a5a35c0ab554a4f2c045"
+}

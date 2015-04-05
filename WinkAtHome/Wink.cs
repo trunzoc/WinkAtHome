@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Web;
+using WinkAtHome;
 using WinkAtHome.Properties;
 
 public class Wink
@@ -170,7 +171,7 @@ public class Wink
                                 deviceStatus.current_status = reading.Value.ToString();
 
                                 string lastupdated = readings[reading.Key + "_updated_at"].ToString();
-                                deviceStatus.last_updated = FromUnixTime(lastupdated);
+                                deviceStatus.last_updated = Common.FromUnixTime(lastupdated);
                                 device.status.Add(deviceStatus);
                             }
                         }
@@ -228,7 +229,7 @@ public class Wink
                             deviceStatus.current_status = reading.Value.ToString();
 
                             string lastupdated = readings[reading.Key + "_updated_at"].ToString();
-                            deviceStatus.last_updated = FromUnixTime(lastupdated);
+                            deviceStatus.last_updated = Common.FromUnixTime(lastupdated);
                             device.status.Add(deviceStatus);
                         }
                     }
@@ -485,7 +486,7 @@ public class Wink
                             GroupStatus newreading = new GroupStatus();
                             newreading.id = group.id;
                             newreading.name = reading.Name;
-                            newreading.last_updated = FromUnixTime(reading.Value["updated_at"].ToString());
+                            newreading.last_updated = Common.FromUnixTime(reading.Value["updated_at"].ToString());
 
                             if (reading.Value["true_count"] != null)
                                 newreading.current_status = reading.Value["true_count"].ToString();
@@ -541,7 +542,7 @@ public class Wink
                     GroupStatus newreading = new GroupStatus();
                     newreading.id = group.id;
                     newreading.name = reading.Name;
-                    newreading.last_updated = FromUnixTime(reading.Value["updated_at"].ToString());
+                    newreading.last_updated = Common.FromUnixTime(reading.Value["updated_at"].ToString());
 
                     if (reading.Value["true_count"] != null)
                         newreading.current_status = reading.Value["true_count"].ToString();
@@ -634,13 +635,5 @@ public class Wink
 
         jsonResponse = JObject.Parse(responseString);
         return jsonResponse;
-    }
-
-    private static DateTime FromUnixTime(string unixTime)
-    {
-        Double longTime;
-        bool converted = Double.TryParse(unixTime, out longTime);
-        var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        return epoch.AddSeconds(longTime);
     }
 }
