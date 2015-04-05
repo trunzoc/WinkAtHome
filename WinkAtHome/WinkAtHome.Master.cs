@@ -14,6 +14,23 @@ namespace WinkAtHome
             
             if (!IsPostBack)
             {
+                hfCurrentURL.Value = Request.RawUrl;
+
+                string timerrefresh = SettingMgmt.getSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
+                if (timerrefresh != null)
+                {
+                    tbTimer.Text = timerrefresh;
+                    tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
+                }
+
+                string timerenabled = SettingMgmt.getSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
+                if (timerenabled != null)
+                {
+                    rblenabled.SelectedValue = timerenabled;
+                    tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
+                }
+
+
                 if (Request.UrlReferrer != null)
                 {
                     string referrer = Request.FilePath;
@@ -39,8 +56,7 @@ namespace WinkAtHome
 
         protected void ibRefresh_Click(object sender, ImageClickEventArgs e)
         {
-            Wink.clearWink();
-            Response.Redirect(Request.RawUrl);
+            tmrRefresh.Interval = 500;
         }
 
         protected void lbDashboard_Click(object sender, EventArgs e)
@@ -48,14 +64,27 @@ namespace WinkAtHome
             Response.Redirect("~/Default.aspx");
         }
 
-        protected void Timer1_Tick(object sender, EventArgs e)
+        protected void tmrRefresh_Tick(object sender, EventArgs e)
         {
+            tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
             ScriptManager.RegisterStartupScript(Page, typeof(Page), "refresh", "clickTrigger()", true); 
         }
 
         protected void lbSettings_Click(object sender, EventArgs e)
         {
             Response.Redirect("~/Settings.aspx");
+        }
+
+        protected void tbTimer_TextChanged(object sender, EventArgs e)
+        {
+            tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
+            SettingMgmt.saveSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), tbTimer.Text);
+        }
+
+        protected void rblenabled_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
+            SettingMgmt.saveSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), rblenabled.SelectedValue);
         }
 
     }

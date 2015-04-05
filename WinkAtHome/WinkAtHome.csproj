@@ -80,6 +80,7 @@
     <Content Include="DLLs\AjaxControlToolkit.dll" />
     <Content Include="DLLs\Newtonsoft.Json.dll" />
     <Content Include="DLLs\Telerik.Web.UI.dll" />
+    <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Groups.aspx" />
     <Content Include="Images\Groups\false.png" />
@@ -226,6 +227,9 @@
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />

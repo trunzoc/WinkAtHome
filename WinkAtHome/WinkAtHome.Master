@@ -15,7 +15,8 @@
                 font-family: Tahoma;
         }
     </style>
-
+</head>
+<body style="background-color:#eeeeee;">
     <script type="text/javascript">
         function BeginProcess() {
             // Create an iframe.
@@ -34,21 +35,19 @@
         function UpdateProgress(PercentComplete, Message) {
             document.getElementById('trigger').value = Message; //PercentComplete + '%: ' + 
             if (PercentComplete == 100) {
-                location.reload();
+
+                window.location = document.getElementById('<%= hfCurrentURL.ClientID%>').value;
             }
         }
 
-        function clickTrigger()
-        {
+        function clickTrigger() {
             document.getElementById('trigger').click();
         }
     </script>
-</head>
-<body style="background-color:#eeeeee;">
     <form id="form1" runat="server">
     <div>
         <telerik:RadScriptManager ID="RadScriptManager1" runat="server"/>
-
+        <asp:HiddenField ID="hfCurrentURL" runat="server" />
         <asp:Table ID="Table1" runat="server" BorderWidth="0" CellPadding="0" CellSpacing="0" Width="100%">
             <asp:TableRow>
                 <asp:TableCell ColumnSpan="2" style="padding-bottom:20px" VerticalAlign="Top">
@@ -57,23 +56,52 @@
                             <td align="left" width="170px">
                                 <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/WinkatHome.png" Height="75px" />
                             </td>
-                            <td align="right" style="vertical-align:middle">
+                            <td align="center" style="vertical-align:middle">
                                 <asp:LinkButton ID="lbDashboard" runat="server" Text="Dashboard" ForeColor="White" Font-Size="XX-Large" OnClick="lbDashboard_Click" style="text-decoration: none;" />
                             </td>
-                            <td align="right" style="vertical-align:middle">
+                            <td align="center" style="vertical-align:middle">
                                 <asp:LinkButton ID="lbSettings" runat="server" Text="Settings" ForeColor="White" Font-Size="XX-Large" OnClick="lbSettings_Click" style="text-decoration: none;" />
                             </td>
-                            <td align="right" width="90px">
-                                <asp:ImageButton ID="ibRefresh" runat="server" ImageUrl="~/Images/refresh.png" Height="75px" OnClick="ibRefresh_Click" />
+                            <td align="left" width="50">
+                                <asp:ImageButton ID="ibRefresh" runat="server" ImageUrl="~/Images/refresh.png" Height="50px" OnClick="ibRefresh_Click" />
                             </td>
-                            <td align="left" width="225px">
-                                <input type="submit" value='<% ="Last Refreshed: " + DateTime.Now.ToString("")%>' id="trigger" onclick="BeginProcess(); return false;" style="color:white; background-color:#22b9ec;border:0;" />
+                            <td align="left" width="250px">
+                                <table cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td>
+                                            <asp:Label ID="Label2" runat="server" Text="Auto-Refresh: " ForeColor="White" Font-Size="Small" />
+                                        </td>
+                                        <td>
+                                            <asp:RadioButtonList ID="rblenabled" runat="server" ForeColor="White" Font-Size="Small" RepeatDirection="Horizontal" OnSelectedIndexChanged="rblenabled_SelectedIndexChanged" AutoPostBack="true">
+                                                <asp:ListItem Text="Enabled" Value="true" Selected="True" />
+                                                <asp:ListItem Text="Disabled" Value="false" />
+                                            </asp:RadioButtonList>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <asp:Label ID="Label1" runat="server" Font-Size="Small"  Text="Refresh Rate: " ForeColor="White" />
+                                        </td>
+                                        <td>
+                                            <asp:TextBox ID="tbTimer" runat="server" Font-Size="Small"  Text="5" OnTextChanged="tbTimer_TextChanged" Width="20px" AutoPostBack="true" />
+                                            <asp:Label ID="Label3" runat="server" Font-Size="Small"  Text=" minutes" ForeColor="White" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <asp:Label ID="Label4" runat="server" Text="Last refreshed: " ForeColor="White" Font-Size="Small" />
+                                        </td>
+                                        <td>
+                                            <input type="submit" value='<% =DateTime.Now.ToString("")%>' id="trigger" onclick="BeginProcess(); return false;" style="color:white; background-color:#22b9ec;border:0;" />
+                                            <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+                                                <ContentTemplate>
+                                                    <asp:Timer ID="tmrRefresh" runat="server" OnTick="tmrRefresh_Tick" Interval="300000" />
+                                                </ContentTemplate>
+                                            </asp:UpdatePanel> 
+                                        </td>
+                                    </tr>
+                                </table>
 
-                                <asp:UpdatePanel ID="UpdatePanel1" runat="server">
-                                    <ContentTemplate>
-                                        <asp:Timer ID="Timer1" runat="server" OnTick="Timer1_Tick" Interval="300000" />
-                                    </ContentTemplate>
-                                </asp:UpdatePanel> 
                             </td>
                         </tr>
                     </table>

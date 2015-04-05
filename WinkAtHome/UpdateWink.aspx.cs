@@ -25,7 +25,7 @@ namespace WinkAtHome
             UpdateProgress(40, "Getting Groups...");
             List<Wink.Group> groups = Wink.Groups;
 
-            UpdateProgress(100, "Last Refreshed: " + DateTime.Now.ToString(""));
+            UpdateProgress(100, DateTime.Now.ToString(""));
         }
 
         protected void UpdateProgress(int PercentComplete, string Message)

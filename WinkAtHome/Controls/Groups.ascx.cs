@@ -15,6 +15,10 @@ namespace WinkAtHome.Controls
             if (!IsPostBack)
             {
                 BindData();
+                
+                string columns = SettingMgmt.getSetting("Groups-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns");
+                if (columns != null)
+                    tbColumns.Text = columns;
             }
         }
 
@@ -25,10 +29,6 @@ namespace WinkAtHome.Controls
 
             dlGroups.DataSource = Wink.Groups;
             dlGroups.DataBind();
-
-            string columns = SettingMgmt.getSetting("Groups-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns");
-            if (columns != null)
-                tbColumns.Text = columns;
         }
 
         protected void dlGroups_ItemDataBound(object sender, DataListItemEventArgs e)

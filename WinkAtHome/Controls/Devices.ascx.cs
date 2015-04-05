@@ -24,6 +24,7 @@ namespace WinkAtHome.Controls
                 {
                     lblHeader.Text = "All Devices";
                 }
+
                 string columns = SettingMgmt.getSetting("Devices-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + ControllableOnly.ToString() + "Columns");
                 if (columns != null)
                     tbColumns.Text = columns;

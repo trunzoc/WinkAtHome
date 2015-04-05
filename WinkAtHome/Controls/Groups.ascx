@@ -7,7 +7,7 @@
         </asp:TableHeaderCell>
         <asp:TableCell BackColor="#22b9ec" HorizontalAlign="right">
             <asp:Label ID="Label1" runat="server" Text="Columns: " ForeColor="White" />
-            <asp:TextBox ID="tbColumns" runat="server" Text="5" OnTextChanged="tbColumns_TextChanged" Width="20px" />
+            <asp:TextBox ID="tbColumns" runat="server" Text="5" OnTextChanged="tbColumns_TextChanged" Width="20px" AutoPostBack="true" />
         </asp:TableCell>
     </asp:TableHeaderRow>
     <asp:TableRow>
