@@ -31,10 +31,13 @@ public class Wink
         {
             if (_winkToken == null)
             {
-                string winkUsername = "";//Settings.Default.winkUsername;
-                string winkPassword = "";//Settings.Default.winkPassword;
-                string winkClientID = "";//Settings.Default.winkClientID;
-                string winkClientSecret = "";//Settings.Default.winkClientSecret;
+                string winkUsername = SettingMgmt.getSetting("winkUsername");
+                string winkPassword = SettingMgmt.getSetting("winkPassword");
+                string winkClientID = SettingMgmt.getSetting("winkClientID");
+                string winkClientSecret = SettingMgmt.getSetting("winkClientSecret");
+
+                if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password")
+                    HttpContext.Current.Response.Redirect("~/Settings.aspx"); 
 
                 string oAuthURL = ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkOAuthURL"];
                 string sendstring = "{\"client_id\":\"" + winkClientID + "\",\"client_secret\":\"" + winkClientSecret + "\",\"username\":\"" + winkUsername + "\",\"password\":\"" + winkPassword + "\",\"grant_type\":\"password\"}";

@@ -11,8 +11,6 @@ namespace WinkAtHome
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if ((SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password") && !Request.RawUrl.ToLower().Contains("settings.aspx"))
-                Response.Redirect("~/Settings.aspx"); 
             
             if (!IsPostBack)
             {
