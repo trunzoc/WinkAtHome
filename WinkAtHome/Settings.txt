@@ -1,6 +1,1 @@
-﻿{
-	"winkUsername":"Enter Your Wink Username Here"
-	, "winkPassword":"Enter Your Wink Password Here"
-	, "winkClientID":"quirky_wink_android_app"
-	, "winkClientSecret":"e749124ad386a5a35c0ab554a4f2c045"
-}
+G0jcrO47R9yXr5LVoO+vsag+0NXaNJj7YgRk+/j32j/E24PNiYtdc4w7cIoT/VZppZ2hK2Oo6nUEJA5MeKAh+50MsqwWxOc4nTDFMB4TdyAxwAHjRhXGZPInsl6q1IjmTMYeiymKmwNTItvCfAU2wCcHaPGifpVp7Nyv3jT7b3BLza2u8cyaXlarlSOlRkd8wfqATx4rCag=

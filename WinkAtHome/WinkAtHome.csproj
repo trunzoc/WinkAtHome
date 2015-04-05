@@ -96,16 +96,18 @@
     <Content Include="Images\WinkatHome.png" />
     <Content Include="Images\WinkHouse.png" />
     <Content Include="OtherStuff.aspx" />
+    <None Include="Settings.txt" />
     <Content Include="Robots.aspx" />
+    <Content Include="Settings.aspx" />
     <Content Include="Shortcuts.aspx" />
-    <Content Include="Settings.txt" />
     <Content Include="UpdateWink.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common.cs" />
+    <Compile Include="Classes\Common.cs" />
+    <Compile Include="Classes\Settings.cs" />
     <Compile Include="Controls\Devices.ascx.cs">
       <DependentUpon>Devices.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -180,6 +182,13 @@
     <Compile Include="Robots.aspx.designer.cs">
       <DependentUpon>Robots.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Settings.aspx.cs">
+      <DependentUpon>Settings.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Settings.aspx.designer.cs">
+      <DependentUpon>Settings.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Shortcuts.aspx.cs">
       <DependentUpon>Shortcuts.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -194,7 +203,7 @@
     <Compile Include="UpdateWink.aspx.designer.cs">
       <DependentUpon>UpdateWink.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Wink.cs" />
+    <Compile Include="Classes\Wink.cs" />
     <Compile Include="WinkAtHome.Master.cs">
       <DependentUpon>WinkAtHome.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

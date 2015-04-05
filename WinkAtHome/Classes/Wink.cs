@@ -8,7 +8,6 @@ using System.Net;
 using System.Text;
 using System.Web;
 using WinkAtHome;
-using WinkAtHome.Properties;
 
 public class Wink
 {
@@ -32,10 +31,10 @@ public class Wink
         {
             if (_winkToken == null)
             {
-                string winkUsername = Settings.Default.winkUsername;
-                string winkPassword = Settings.Default.winkPassword;
-                string winkClientID = Settings.Default.winkClientID;
-                string winkClientSecret = Settings.Default.winkClientSecret;
+                string winkUsername = "";//Settings.Default.winkUsername;
+                string winkPassword = "";//Settings.Default.winkPassword;
+                string winkClientID = "";//Settings.Default.winkClientID;
+                string winkClientSecret = "";//Settings.Default.winkClientSecret;
 
                 string oAuthURL = ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkOAuthURL"];
                 string sendstring = "{\"client_id\":\"" + winkClientID + "\",\"client_secret\":\"" + winkClientSecret + "\",\"username\":\"" + winkUsername + "\",\"password\":\"" + winkPassword + "\",\"grant_type\":\"password\"}";
