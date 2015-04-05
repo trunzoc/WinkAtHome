@@ -96,6 +96,7 @@
     <Content Include="Images\Wink.png" />
     <Content Include="Images\WinkatHome.png" />
     <Content Include="Images\WinkHouse.png" />
+    <Content Include="Images\wrench.png" />
     <Content Include="OtherStuff.aspx" />
     <Content Include="Robots.aspx" />
     <Content Include="Settings.aspx" />
