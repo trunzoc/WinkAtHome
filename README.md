@@ -1,12 +1,7 @@
 # WinkAtHome
 C# Web Application to control your Wink Hub and Devices via the Wink/Quirky API
 
-Before first use, if you want to make settings more secure, go into web.config and change "encyrptionKey" to something unique.  Upon the first run, the app with automatically go into the settings screen.  He, you should set your username and password.
-
-Right-Click the WinkAtHome project (not solution) and choose Properties.
-Click on Settings.
-Change the values of "winkUsername" & "winkPassword" to match what you use when you log into the Wink app.
-
+Before first use, if you want to make settings more secure, go into web.config and change "encyrptionKey" to something unique.  Upon the first run, the app with automatically go into the settings screen.  Here, you should set your username and password.
 
 For now, this is geared towards lights and locks.  Simple On/Off type devices.  As it expands, I will be adding in controls for Robots (turning them on and off), sensors, thermostats, and other, more complicated devices.
 
