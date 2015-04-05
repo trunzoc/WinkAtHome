@@ -53,5 +53,10 @@ namespace WinkAtHome
             ScriptManager.RegisterStartupScript(Page, typeof(Page), "refresh", "clickTrigger()", true); 
         }
 
+        protected void lbSettings_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("~/Settings.aspx");
+        }
+
     }
 }

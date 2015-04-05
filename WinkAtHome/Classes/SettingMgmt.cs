@@ -37,28 +37,45 @@ namespace WinkAtHome
                 return null;
         }
 
-        public static List<Setting> loadSettings()
+        public static List<Setting> loadSettings(bool forceReset = false)
         {
-            if (_settings == null)
+            try
             {
-                string text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt");
-                string decrypedFile = Common.Decrypt(text);
-
-                JObject json = JObject.Parse(decrypedFile);
-
-                List<Setting> settings = new List<Setting>();
-
-                foreach (var jo in json)
+                if (_settings == null || forceReset)
                 {
-                    Setting setting = new Setting();
-                    setting.key = jo.Key;
-                    setting.value = jo.Value.ToString();
+                    string text = string.Empty;
+                    string decrypedFile = string.Empty;
+                    if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt"))
+                    {
+                        text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt");
+                        decrypedFile = Common.Decrypt(text);
+                    }
+                    else
+                    {
+                        decrypedFile = wipeSettings();
+                    }
 
-                    settings.Add(setting);
+
+                    JObject json = JObject.Parse(decrypedFile);
+
+                    List<Setting> settings = new List<Setting>();
+
+                    foreach (var jo in json)
+                    {
+                        Setting setting = new Setting();
+                        setting.key = jo.Key;
+                        setting.value = jo.Value.ToString();
+
+                        settings.Add(setting);
+                    }
+                    _settings = settings;
                 }
-                _settings = settings;
+                return _settings;
             }
-            return _settings;
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public static void saveSetting(string key, string value)
@@ -88,14 +105,13 @@ namespace WinkAtHome
 
                 foreach (Setting setting in Settings)
                 {
-                    //"{\"winkUsername\":\"Enter Your Wink Username Here\",\"winkPassword\":\"Enter Your Wink Password Here\",\"winkClientID\":\"quirky_wink_android_app\",\"winkClientSecret\":\"e749124ad386a5a35c0ab554a4f2c045\"}"
                     strJSON += ",\"" + setting.key + "\":\"" + setting.value + "\"" ;
                 }
                 strJSON = "{" + strJSON.Substring(1) + "}";
 
                 string encrypedFile = Common.Encrypt(strJSON);
 
-                System.IO.File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt", encrypedFile);
+                File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt", encrypedFile);
 
             }
             catch (Exception e)
@@ -103,5 +119,36 @@ namespace WinkAtHome
                 throw e;
             }
         }
+        
+        public static void saveManualEdit(string json)
+        {
+            try
+            {
+                JObject jsonTest = JObject.Parse(json);
+                string encrypedFile = Common.Encrypt(json);
+
+                File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt", encrypedFile);
+                loadSettings(true);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public static string wipeSettings()
+        {
+            if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt"))
+            {
+                File.Delete(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt");
+            }
+
+            string text = "{\"winkUsername\":\"Username\",\"winkPassword\":\"Password\",\"winkClientID\":\"quirky_wink_android_app\",\"winkClientSecret\":\"e749124ad386a5a35c0ab554a4f2c045\"}";
+            string encrypedFile = Common.Encrypt(text);
+
+            File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt", encrypedFile);
+            return text;
+        }
+
     }
 }

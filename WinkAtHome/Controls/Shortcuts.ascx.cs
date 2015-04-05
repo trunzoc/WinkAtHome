@@ -15,6 +15,10 @@ namespace WinkAtHome.Controls
             {
                 dlShortcuts.DataSource = Wink.Shortcuts;
                 dlShortcuts.DataBind();
+                
+                string columns = SettingMgmt.getSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns");
+                if (columns != null)
+                    tbColumns.Text = columns;
             }
         }
 
@@ -26,6 +30,11 @@ namespace WinkAtHome.Controls
 
             Wink.activateShortcut(shortcutID);
             Response.Redirect(Request.RawUrl);
+        }
+
+        protected void tbColumns_TextChanged(object sender, EventArgs e)
+        {
+            SettingMgmt.saveSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns", tbColumns.Text);
         }
     }
 }

@@ -60,6 +60,9 @@
                             <td align="right" style="vertical-align:middle">
                                 <asp:LinkButton ID="lbDashboard" runat="server" Text="Dashboard" ForeColor="White" Font-Size="XX-Large" OnClick="lbDashboard_Click" style="text-decoration: none;" />
                             </td>
+                            <td align="right" style="vertical-align:middle">
+                                <asp:LinkButton ID="lbSettings" runat="server" Text="Settings" ForeColor="White" Font-Size="XX-Large" OnClick="lbSettings_Click" style="text-decoration: none;" />
+                            </td>
                             <td align="right" width="90px">
                                 <asp:ImageButton ID="ibRefresh" runat="server" ImageUrl="~/Images/refresh.png" Height="75px" OnClick="ibRefresh_Click" />
                             </td>

@@ -33,5 +33,29 @@ namespace WinkAtHome
                 }
             }
         }
+
+        protected void btnWipe_Click(object sender, EventArgs e)
+        {
+            SettingMgmt.wipeSettings();
+        }
+
+        protected void btnManualEdit_Click(object sender, EventArgs e)
+        {
+            string strSettings = string.Empty;
+            foreach(SettingMgmt.Setting setting in SettingMgmt.Settings)
+            {
+                strSettings += ",\"" + setting.key + "\":\"" + setting.value + "\"\n";
+            }
+            strSettings = "{\n" + strSettings.Substring(1) + "}";
+            tbEdit.Text = strSettings;
+            rowEdit.Visible = true;
+        }
+
+        protected void btnSaveEdit_Click(object sender, EventArgs e)
+        {
+            string strSettings = tbEdit.Text.Replace("\n", "").Replace("\r", "");
+            SettingMgmt.saveManualEdit(strSettings);
+            Response.Redirect(Request.RawUrl);
+        }
     }
 }

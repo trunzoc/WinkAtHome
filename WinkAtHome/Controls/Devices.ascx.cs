@@ -19,17 +19,15 @@ namespace WinkAtHome.Controls
                 if (ControllableOnly)
                 {
                     lblHeader.Text = "Controllable Devices";
-                    string columns = SettingMgmt.getSetting("DevicesControllableOnlyColumns");
-                    if (columns != null)
-                        tbColumns.Text = columns;
                 }
                 else
                 {
                     lblHeader.Text = "All Devices";
-                    string columns = SettingMgmt.getSetting("DevicesNotControllableOnlyColumns");
-                    if (columns != null)
-                        tbColumns.Text = columns;
                 }
+                string columns = SettingMgmt.getSetting("Devices-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + ControllableOnly.ToString() + "Columns");
+                if (columns != null)
+                    tbColumns.Text = columns;
+
                 BindData();
             }
         }
@@ -168,10 +166,7 @@ namespace WinkAtHome.Controls
 
         protected void tbColumns_TextChanged(object sender, EventArgs e)
         {
-            if (ControllableOnly)
-                SettingMgmt.saveSetting("DevicesControllableOnlyColumns", tbColumns.Text);
-            else
-                SettingMgmt.saveSetting("DevicesNotControllableOnlyColumns", tbColumns.Text);
+                SettingMgmt.saveSetting("Devices-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + ControllableOnly.ToString() + "Columns", tbColumns.Text);
         }
     }
 }

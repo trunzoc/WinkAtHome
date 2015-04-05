@@ -25,6 +25,10 @@ namespace WinkAtHome.Controls
 
             dlGroups.DataSource = Wink.Groups;
             dlGroups.DataBind();
+
+            string columns = SettingMgmt.getSetting("Groups-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns");
+            if (columns != null)
+                tbColumns.Text = columns;
         }
 
         protected void dlGroups_ItemDataBound(object sender, DataListItemEventArgs e)
@@ -47,11 +51,11 @@ namespace WinkAtHome.Controls
                 {
                     Wink.GroupStatus stat = status.Single(p => p.name == "powered" || p.name == "locked");
 
-                    
+
                     bool stateisbool = bool.TryParse(stat.current_status, out state);
                     if (!stateisbool)
                         state = (Convert.ToDouble(stat.current_status) > 0);
-                    
+
                     hfMainCommand.Value = stat.name;
                     hfCurrentStatus.Value = state.ToString();
                 }
@@ -93,10 +97,10 @@ namespace WinkAtHome.Controls
             string newlevel = string.Empty;
             string newlevelcommand = string.Empty;
 
-            if (newstate == "true") 
+            if (newstate == "true")
                 newlevel = "1";
             else
-                newlevel="0";
+                newlevel = "0";
 
             if (hfLevelCommand.Value == "brightness")
                 newlevelcommand = ",\"brightness\":" + newlevel;
@@ -161,6 +165,11 @@ namespace WinkAtHome.Controls
             {
                 BindData();
             }
+        }
+
+        protected void tbColumns_TextChanged(object sender, EventArgs e)
+        {
+            SettingMgmt.saveSetting("Groups-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns", tbColumns.Text);
         }
     }
 }
