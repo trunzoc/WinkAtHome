@@ -153,10 +153,6 @@
                     <asp:ContentPlaceHolder ID="cphMain" runat="server" />
                 </asp:TableCell>
             </asp:TableRow>
-            <asp:TableRow>
-                <asp:TableCell ColumnSpan="2">
-                </asp:TableCell>
-            </asp:TableRow>
         </asp:Table>
     </div>
     </form>

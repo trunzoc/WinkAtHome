@@ -5,7 +5,15 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Settings</title>
+    <title>Settings - Wink@Home</title>
+    
+    <style type="text/css">
+        *
+        {
+                font-family: Tahoma;
+        }
+    </style>
+
     <script type="text/javascript">
         function saveConfirmation() {
             return confirm("Are you sure you want to save these changes?\n \n This cannot be undone");
@@ -46,7 +54,7 @@
                 </asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>
-                <asp:TableCell VerticalAlign="Top" Width="300px">
+                <asp:TableCell VerticalAlign="Top" Width="265px" style="padding-right:40px;">
                     <ucWS:ucWinkStatus ID="ucWinkStatus" runat="server" />
                 </asp:TableCell>
                 <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top">
@@ -106,17 +114,13 @@
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow ID="rowEdit" Visible="false">
-                            <asp:TableCell ColumnSpan="3">
+                            <asp:TableCell ColumnSpan="2">
                                 <asp:TextBox ID="tbEdit" runat="server" TextMode="MultiLine" Height="250px" Width="100%" />
                                 <br />
                                 <asp:Button ID="btnSaveEdit" runat="server" Text="Save Edit" OnClick="btnSaveEdit_Click" OnClientClick="if ( ! saveConfirmation()) return false;" />
                             </asp:TableCell>
                         </asp:TableRow>
                     </asp:Table>
-                </asp:TableCell>
-            </asp:TableRow>
-            <asp:TableRow>
-                <asp:TableCell ColumnSpan="2">
                 </asp:TableCell>
             </asp:TableRow>
         </asp:Table>
