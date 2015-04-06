@@ -50,6 +50,7 @@
             document.getElementById('trigger').click();
         }
     </script>
+    
     <form id="form1" runat="server">
     <div>
         <telerik:RadScriptManager ID="RadScriptManager1" runat="server"/>

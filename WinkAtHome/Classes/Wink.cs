@@ -25,7 +25,7 @@ public class Wink
     }
     private static string _winkToken;
     
-    private static string winkGetToken()
+    public static string winkGetToken()
     {
         try
         {
@@ -35,9 +35,6 @@ public class Wink
                 string winkPassword = SettingMgmt.getSetting("winkPassword");
                 string winkClientID = SettingMgmt.getSetting("winkClientID");
                 string winkClientSecret = SettingMgmt.getSetting("winkClientSecret");
-
-                if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password")
-                    HttpContext.Current.Response.Redirect("~/Settings.aspx"); 
 
                 string oAuthURL = ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkOAuthURL"];
                 string sendstring = "{\"client_id\":\"" + winkClientID + "\",\"client_secret\":\"" + winkClientSecret + "\",\"username\":\"" + winkUsername + "\",\"password\":\"" + winkPassword + "\",\"grant_type\":\"password\"}";

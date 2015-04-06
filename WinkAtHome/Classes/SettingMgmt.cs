@@ -48,7 +48,14 @@ namespace WinkAtHome
                     if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt"))
                     {
                         text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt");
-                        decrypedFile = Common.Decrypt(text);
+                        try
+                        {
+                            decrypedFile = Common.Decrypt(text);
+                        }
+                        catch
+                        {
+                            decrypedFile = wipeSettings();
+                        }
                     }
                     else
                     {
@@ -149,6 +156,5 @@ namespace WinkAtHome
             File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt", encrypedFile);
             return text;
         }
-
     }
 }

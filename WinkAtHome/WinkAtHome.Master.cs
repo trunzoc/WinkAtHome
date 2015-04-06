@@ -12,29 +12,40 @@ namespace WinkAtHome
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            
             if (!IsPostBack)
             {
-                string timerrefresh = SettingMgmt.getSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
-                if (timerrefresh != null)
+                if (Request.CurrentExecutionFilePath.ToLower().Contains("settings"))
                 {
-                    tbTimer.Text = timerrefresh;
-                    tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
+
+                }
+                else
+                {
+                    //CHECK SECURITY/SETTINGS VALIDITY
+                    if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password")
+                        HttpContext.Current.Response.Redirect("~/Settings.aspx");
+
+                    //SET PAGE OPTIONS
+                    string timerrefresh = SettingMgmt.getSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
+                    if (timerrefresh != null)
+                    {
+                        tbTimer.Text = timerrefresh;
+                        tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
+                    }
+
+                    string timerenabled = SettingMgmt.getSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
+                    if (timerenabled != null)
+                    {
+                        rblenabled.SelectedValue = timerenabled;
+                        tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
+                    }
                 }
 
-                string timerenabled = SettingMgmt.getSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
-                if (timerenabled != null)
-                {
-                    rblenabled.SelectedValue = timerenabled;
-                    tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
-                }
-
-
+                //SELECT REFERRING MENU ITEM
                 if (Request.CurrentExecutionFilePath != null)
                 {
                     string referrer = Request.CurrentExecutionFilePath;
-                    referrer = referrer.Substring(referrer.LastIndexOf('/')+1);
-                    referrer = referrer.Substring(0,referrer.LastIndexOf(".aspx"));
+                    referrer = referrer.Substring(referrer.LastIndexOf('/') + 1);
+                    referrer = referrer.Substring(0, referrer.LastIndexOf(".aspx"));
 
                     UserControl ucMenu = (UserControl)Page.Master.FindControl("ucMenu");
                     RadMenu lbMenu = (RadMenu)ucMenu.FindControl("RadMenu1");
@@ -42,13 +53,13 @@ namespace WinkAtHome
                     if (item != null)
                     {
                         item.Selected = true;
-                        //lbMenu.SelectedItem.Attributes.Add("style", "background-color:#dddddd; color:#ffffff; border: 0;");
                     }
                     else
                     {
                         lbMenu.ClearSelectedItem();
                     }
                 }
+
             }
         }
 

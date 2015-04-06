@@ -13,14 +13,14 @@ namespace WinkAtHome
         {
             if (!IsPostBack)
             {
-                rptSettings.DataSource = SettingMgmt.Settings;
-                rptSettings.DataBind();
+                dlSettings.DataSource = SettingMgmt.Settings;
+                dlSettings.DataBind();
             }
         }
 
         protected void btnSave_Click(object sender, EventArgs e)
         {
-            foreach (RepeaterItem item in rptSettings.Items)
+            foreach (DataListItem item in dlSettings.Items)
             {
                 if (item.ItemType == ListItemType.Item || item.ItemType == ListItemType.AlternatingItem)
                 {
@@ -57,5 +57,16 @@ namespace WinkAtHome
             SettingMgmt.saveManualEdit(strSettings);
             Response.Redirect(Request.RawUrl);
         }
+
+        protected void lbDashboard_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("~/Default.aspx");
+        }
+
+        protected void lbSettings_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("~/Settings.aspx");
+        }
+
     }
 }
