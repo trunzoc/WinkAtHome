@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Telerik.Web.UI;
@@ -18,19 +20,10 @@ namespace WinkAtHome.Controls
         {
             if (!IsPostBack)
             {
-                if (Page.PreviousPage != null)
+                if (Request.QueryString["devicetype"] != null)
                 {
-                    UserControl control = (UserControl)Page.PreviousPage.Master.FindControl("ucMenu");
-                    if (control != null)
-                    {
-                        RadMenu menu = (RadMenu)control.FindControl("RadMenu1");
-                        if (menu != null)
-                        {
-                            string value = menu.SelectedValue;
-                            if (value != "devices")
-                                typeToShow = value;
-                        }
-                    }
+                    typeToShow = Request.QueryString["devicetype"].ToLower();
+                    hfDeviceType.Value = typeToShow;
                 }
 
                 if (ControllableOnly)
@@ -57,6 +50,9 @@ namespace WinkAtHome.Controls
 
         private void BindData()
         {
+            if (!string.IsNullOrWhiteSpace(hfDeviceType.Value))
+                typeToShow = hfDeviceType.Value;
+
             dlDevices.DataSource = null;
             dlDevices.DataBind();
 
@@ -104,6 +100,14 @@ namespace WinkAtHome.Controls
                     state = stat.current_status.ToLower();
                     hfMainCommand.Value = stat.name;
                     hfCurrentStatus.Value = state;
+                    img.Enabled = true;
+                }
+                else if (keys.Contains("connection"))
+                {
+                    Wink.DeviceStatus stat = status.Single(p => p.name == "connection");
+                    state = stat.current_status.ToLower();
+                    hfMainCommand.Value = stat.name;
+                    hfCurrentStatus.Value = state;
                 }
 
                 if (keys.Contains("brightness") || keys.Contains("position"))
@@ -116,11 +120,17 @@ namespace WinkAtHome.Controls
 
                 if (devicetype == "light_bulbs" || devicetype == "binary_switches")
                 {
-                    img.ImageUrl = "~/Images/Lights/" + state + ".png";
+                    img.ImageUrl = "~/Images/Devices/lights" + state + ".png";
                 }
-                else if (devicetype == "locks")
+                else
                 {
-                    img.ImageUrl = "~/Images/Locks/" + state + ".png";
+                    string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\" + devicetype + state + ".png";
+                    if (File.Exists(imgPath))
+                    {
+                        string url = "~/Images/Devices/" + devicetype + state + ".png";
+                        img.ImageUrl = url;
+                    }
+
                 }
 
 

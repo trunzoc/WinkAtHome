@@ -24,6 +24,7 @@ namespace WinkAtHome.Controls
                 {
                     if (item.Value.ToLower() == "devices")
                     {
+                        item.Items.Clear();
                         List<string> deviceTypes = Wink.Device.getDeviceTypes();
 
                         foreach (string type in deviceTypes)
@@ -49,12 +50,17 @@ namespace WinkAtHome.Controls
         {
             RadMenuItem item = e.Item;
             string pagename = string.Empty;
+            string querystring = string.Empty;
 
             var parent = item.Parent;
 
             if (parent is RadMenuItem)
             {
                 pagename = ((RadMenuItem)parent).Value.ToLower();
+                if (pagename == "devices")
+                {
+                    querystring = "?devicetype=" + item.Value;
+                }
             }
             else
             {
@@ -62,8 +68,8 @@ namespace WinkAtHome.Controls
             }
 
 
-            string URL = "~/" + pagename + ".aspx";
-            Server.Transfer(URL);
+            string URL = "~/" + pagename + ".aspx" + querystring;
+            Response.Redirect(URL);
         }
     }
 }

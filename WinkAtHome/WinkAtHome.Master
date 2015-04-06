@@ -42,8 +42,7 @@
         function UpdateProgress(PercentComplete, Message) {
             document.getElementById('trigger').value = Message; //PercentComplete + '%: ' + 
             if (PercentComplete == 100) {
-
-                window.location = document.getElementById('<%= hfCurrentURL.ClientID%>').value;
+                __doPostBack('', '');
             }
         }
 
@@ -54,7 +53,6 @@
     <form id="form1" runat="server">
     <div>
         <telerik:RadScriptManager ID="RadScriptManager1" runat="server"/>
-        <asp:HiddenField ID="hfCurrentURL" runat="server" />
         <asp:Table ID="Table1" runat="server" BorderWidth="0" CellPadding="0" CellSpacing="0" Width="100%">
             <asp:TableRow>
                 <asp:TableCell ColumnSpan="2" style="padding-bottom:20px" VerticalAlign="Top">

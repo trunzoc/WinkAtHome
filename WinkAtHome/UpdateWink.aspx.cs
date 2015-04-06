@@ -30,10 +30,14 @@ namespace WinkAtHome
 
         protected void UpdateProgress(int PercentComplete, string Message)
         {
-            // Write out the parent script callback.
-            Response.Write(String.Format("<script type=\"text/javascript\">parent.UpdateProgress({0}, '{1}');</script>", PercentComplete, Message));
-            // To be sure the response isn't buffered on the server.    
-            Response.Flush();
+            try
+            {
+                // Write out the parent script callback.
+                Response.Write(String.Format("<script type=\"text/javascript\">parent.UpdateProgress({0}, '{1}');</script>", PercentComplete, Message));
+                // To be sure the response isn't buffered on the server.    
+                Response.Flush();
+            }
+            catch { }
         }
     }
 }

@@ -15,8 +15,6 @@ namespace WinkAtHome
             
             if (!IsPostBack)
             {
-                hfCurrentURL.Value = Request.RawUrl;
-
                 string timerrefresh = SettingMgmt.getSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
                 if (timerrefresh != null)
                 {

@@ -83,6 +83,15 @@
     <Content Include="DLLs\Telerik.Web.UI.dll" />
     <Content Include="favicon.ico" />
     <Content Include="Groups.aspx" />
+    <Content Include="Images\Devices\hubsfalse.png" />
+    <Content Include="Images\Devices\hubstrue.png" />
+    <Content Include="Images\Devices\lightsfalse.png" />
+    <Content Include="Images\Devices\lightstrue.png" />
+    <Content Include="Images\Devices\locksfalse.png" />
+    <Content Include="Images\Devices\lockstrue.png" />
+    <Content Include="Images\Devices\lock_pins.png" />
+    <Content Include="Images\Devices\remotesfalse.png" />
+    <Content Include="Images\Devices\remotestrue.png" />
     <Content Include="Images\Groups\false.png" />
     <Content Include="Images\Groups\true.png" />
     <Content Include="Images\Hub\false.png" />
@@ -92,6 +101,8 @@
     <Content Include="Images\Locks\false.png" />
     <Content Include="Images\Locks\true.png" />
     <Content Include="Images\refresh.png" />
+    <Content Include="Images\Robots\false.png" />
+    <Content Include="Images\Robots\true.png" />
     <Content Include="Images\Shortcut.png" />
     <Content Include="Images\Wink.png" />
     <Content Include="Images\WinkatHome.png" />
