@@ -81,7 +81,6 @@
     <Content Include="DLLs\Newtonsoft.Json.dll" />
     <Content Include="DLLs\Telerik.Web.UI.dll" />
     <Content Include="favicon.ico" />
-    <Content Include="Global.asax" />
     <Content Include="Groups.aspx" />
     <Content Include="Images\Groups\false.png" />
     <Content Include="Images\Groups\true.png" />
@@ -158,9 +157,6 @@
     </Compile>
     <Compile Include="Devices.aspx.designer.cs">
       <DependentUpon>Devices.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Global.asax.cs">
-      <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Groups.aspx.cs">
       <DependentUpon>Groups.aspx</DependentUpon>
