@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Telerik.Web.UI;
 
 namespace WinkAtHome
 {
@@ -31,25 +32,24 @@ namespace WinkAtHome
                 }
 
 
-                if (Request.UrlReferrer != null)
+                if (Request.CurrentExecutionFilePath != null)
                 {
-                    string referrer = Request.FilePath;
+                    string referrer = Request.CurrentExecutionFilePath;
                     referrer = referrer.Substring(referrer.LastIndexOf('/')+1);
                     referrer = referrer.Substring(0,referrer.LastIndexOf(".aspx"));
 
                     UserControl ucMenu = (UserControl)Page.Master.FindControl("ucMenu");
-                    ListBox lbMenu = (ListBox)ucMenu.FindControl("lbMenu");
-                    ListItem item = lbMenu.Items.FindByValue(referrer);
+                    RadMenu lbMenu = (RadMenu)ucMenu.FindControl("RadMenu1");
+                    RadMenuItem item = lbMenu.Items.FindItemByValue(referrer.ToLower());
                     if (item != null)
                     {
-                        lbMenu.SelectedValue = referrer;
-                        lbMenu.SelectedItem.Attributes.Add("style", "background-color:#dddddd; color:#ffffff");
+                        item.Selected = true;
+                        //lbMenu.SelectedItem.Attributes.Add("style", "background-color:#dddddd; color:#ffffff; border: 0;");
                     }
                     else
                     {
-                        
+                        lbMenu.ClearSelectedItem();
                     }
-                    lbMenu.ClearSelection();
                 }
             }
         }

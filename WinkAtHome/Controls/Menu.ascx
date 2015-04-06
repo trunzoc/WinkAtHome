@@ -1,6 +1,23 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="Menu.ascx.cs" Inherits="WinkAtHome.Controls.Menu" %>
-<link rel="stylesheet" href="Styles/custom.css">
-<link rel="stylesheet" href="Styles/dashboard.css">
+
+<style type="text/css">
+    .RadMenu_Default .rmRootGroup
+    {
+        border:none !important;
+        background: Transparent !important;
+    }
+    .RadMenu_Default a.rmSelected 
+    { 
+        background-color: #22b9ec; 
+        color:white;
+        font-weight:bold;
+    } 
+    .RadMenu_Default a.rmLink:hover
+    { 
+        background-color: #22b9ec; 
+        font-weight:bold;
+    } 
+</style>
 
 <asp:Table ID="Table1" runat="server" Width="100%" CellPadding="5" CellSpacing="0">
     <asp:TableHeaderRow>
@@ -10,12 +27,16 @@
     </asp:TableHeaderRow>
     <asp:TableRow>
         <asp:TableCell>
-            <asp:ListBox ID="lbMenu" runat="server" SelectionMode="Single" Width="100%" style="border:hidden" OnSelectedIndexChanged="lbMenu_SelectedIndexChanged" AutoPostBack="true" Font-Size="medium" BackColor="#eeeeee" Rows="6" >
-                <asp:ListItem Text="Devices" Value="Devices" />
-                <asp:ListItem Text="Groups" Value="Groups" />
-                <asp:ListItem Text="Shortcuts" Value="Shortcuts" />
-                <asp:ListItem Text="Robots" Value="Robots" />
-            </asp:ListBox>
+            <telerik:RadMenu ID="RadMenu1" runat="server" Flow="Vertical" OnLoad="RadMenu1_Load" OnItemClick="RadMenu1_ItemClick" >
+                <Items>
+                    <telerik:RadMenuItem Text="Devices" Value="devices">
+
+                    </telerik:RadMenuItem>
+                    <telerik:RadMenuItem Text="Groups" Value="groups" />
+                    <telerik:RadMenuItem Text="Shortcuts" Value="dhortcuts" />
+                    <telerik:RadMenuItem Text="Robots" Value="robots" />
+                </Items>
+            </telerik:RadMenu>
         </asp:TableCell>
     </asp:TableRow>
 </asp:Table>

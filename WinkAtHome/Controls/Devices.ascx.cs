@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -11,14 +12,35 @@ namespace WinkAtHome.Controls
     public partial class Devices : System.Web.UI.UserControl
     {
         public bool ControllableOnly {get; set;}
+        public string typeToShow { get; set; }
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
+                if (Page.PreviousPage != null)
+                {
+                    UserControl control = (UserControl)Page.PreviousPage.Master.FindControl("ucMenu");
+                    if (control != null)
+                    {
+                        RadMenu menu = (RadMenu)control.FindControl("RadMenu1");
+                        if (menu != null)
+                        {
+                            string value = menu.SelectedValue;
+                            if (value != "devices")
+                                typeToShow = value;
+                        }
+                    }
+                }
+
                 if (ControllableOnly)
                 {
-                    lblHeader.Text = "Controllable Devices";
+                    lblHeader.Text = "Devices: Controllable Only";
+                }
+                else if (typeToShow != null)
+                {
+                    TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+                    lblHeader.Text = "Devices: " + textInfo.ToTitleCase(typeToShow.Replace("_", " "));
                 }
                 else
                 {
@@ -38,7 +60,21 @@ namespace WinkAtHome.Controls
             dlDevices.DataSource = null;
             dlDevices.DataBind();
 
-            dlDevices.DataSource = ControllableOnly ? Wink.Devices.Where(p => p.controllable == true) : Wink.Devices;
+            List<Wink.Device> devices = new List<Wink.Device>();
+            if (ControllableOnly)
+            {
+                devices = Wink.Devices.Where(p => p.controllable == true).ToList();
+            }
+            else if (typeToShow != null)
+            {
+                devices = Wink.Devices.Where(p => p.type==typeToShow).ToList();
+            }
+            else
+            {
+                devices = Wink.Devices;
+            }
+
+            dlDevices.DataSource = devices;
             dlDevices.DataBind();
         }
 

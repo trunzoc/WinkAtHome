@@ -31,12 +31,12 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.Label Label1;
         
         /// <summary>
-        /// lbMenu control.
+        /// RadMenu1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.ListBox lbMenu;
+        protected global::Telerik.Web.UI.RadMenu RadMenu1;
     }
 }

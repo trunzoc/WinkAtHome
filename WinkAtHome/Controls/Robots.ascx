@@ -34,7 +34,7 @@
                         </tr>
                         <tr>
                             <td align="center" nowrap="true">
-                                <asp:Label ID="Label3" runat="server" Text='<%# ((Wink.Robot)Container.DataItem).last_fired.ToString() %>' Font-Size="small" />
+                                <asp:Label ID="Label3" runat="server" Text='<%# ((Wink.Robot)Container.DataItem).last_fired.ToString().Contains("1/1/1970") ? "Never" : ((Wink.Robot)Container.DataItem).last_fired.ToString() %>' Font-Size="small" />
                             </td>
                         </tr>
                     </table>

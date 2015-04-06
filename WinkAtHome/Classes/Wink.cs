@@ -89,6 +89,13 @@ public class Wink
 
             return devices;
         }
+        public static List<string> getDeviceTypes()
+        {
+            List<string> types = Devices.Select(t => t.type).Distinct().ToList();
+            types.Sort();
+
+            return types;
+        }
     }
     public class DeviceStatus
     {
@@ -138,7 +145,7 @@ public class Wink
                     {
                         device.id = data["key_id"].ToString();
                         device.name = data["name"].ToString();
-                        device.type = "lock_pin";
+                        device.type = "lock_pins";
                     }
                     else
                     {
@@ -244,9 +251,6 @@ public class Wink
             throw e;
         }
     }
-    #endregion
-
-    #region Robot
     #endregion
 
     #region Shortcut
@@ -564,7 +568,7 @@ public class Wink
 
     #endregion
 
-    #region Robots
+    #region Robot
     public class Robot
     {
         public string id;
@@ -655,6 +659,7 @@ public class Wink
         _devices = null;
         _shortcuts = null;
         _groups = null;
+        _robots = null;
     }
     public static void reloadWink()
     {
@@ -662,6 +667,7 @@ public class Wink
         winkGetDevices();
         winkGetShortcuts();
         winkGetGroups();
+        winkGetRobots();
     }
     public static Dictionary<string, string>[] winkGetServerStatus()
     {
