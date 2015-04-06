@@ -33,7 +33,7 @@
 
                     </telerik:RadMenuItem>
                     <telerik:RadMenuItem Text="Groups" Value="groups" />
-                    <telerik:RadMenuItem Text="Shortcuts" Value="dhortcuts" />
+                    <telerik:RadMenuItem Text="Shortcuts" Value="shortcuts" />
                     <telerik:RadMenuItem Text="Robots" Value="robots" />
                 </Items>
             </telerik:RadMenu>
