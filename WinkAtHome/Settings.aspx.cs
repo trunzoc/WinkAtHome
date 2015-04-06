@@ -11,9 +11,17 @@ namespace WinkAtHome
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["loggedin"] == null || SettingMgmt.getSetting("winkUsername") != Common.Decrypt(Session["loggedin"].ToString()))
+            if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword") == "password")
+            {
+                rowWarning.Visible = true;
+            }
+            else if (Session["loggedin"] == null || SettingMgmt.getSetting("winkUsername") != Common.Decrypt(Session["loggedin"].ToString()))
             {
                 Response.Redirect("~/Login.aspx");
+            }
+            else
+            {
+                rowWarning.Visible = false;
             }
 
             if (!IsPostBack)
@@ -42,6 +50,7 @@ namespace WinkAtHome
         protected void btnWipe_Click(object sender, EventArgs e)
         {
             SettingMgmt.wipeSettings();
+            Response.Redirect("~/Settings.aspx");
         }
 
         protected void btnManualEdit_Click(object sender, EventArgs e)

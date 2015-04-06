@@ -85,6 +85,24 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.Label lblHeader;
         
         /// <summary>
+        /// rowWarning control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowWarning;
+        
+        /// <summary>
+        /// Label2 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label2;
+        
+        /// <summary>
         /// dlSettings control.
         /// </summary>
         /// <remarks>

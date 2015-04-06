@@ -105,7 +105,6 @@
     <Content Include="Robots.aspx" />
     <Content Include="Login.aspx" />
     <Content Include="Settings.aspx" />
-    <Content Include="Settings.txt" />
     <Content Include="Shortcuts.aspx" />
     <Content Include="UpdateWink.aspx" />
     <Content Include="Web.config">

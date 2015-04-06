@@ -64,6 +64,11 @@
                                 <asp:Label ID="lblHeader" runat="server" Text="Settings" ForeColor="White" />
                             </asp:TableHeaderCell>
                         </asp:TableHeaderRow>
+                        <asp:TableRow ID="rowWarning" Visible="false">
+                            <asp:TableCell ColumnSpan="2">
+                                <asp:Label ID="Label2" runat="server" Text="You must set your Username and<br />Password before you can continue." Font-Bold="true" ForeColor="Red" />
+                            </asp:TableCell>
+                        </asp:TableRow>
                         <asp:TableRow>
                             <asp:TableCell ColumnSpan="2">
                                 <asp:DataList ID="dlSettings" runat="server">
