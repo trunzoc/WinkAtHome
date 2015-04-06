@@ -94,12 +94,6 @@
     <Content Include="Images\Devices\remotestrue.png" />
     <Content Include="Images\Groups\false.png" />
     <Content Include="Images\Groups\true.png" />
-    <Content Include="Images\Hub\false.png" />
-    <Content Include="Images\Hub\true.png" />
-    <Content Include="Images\Lights\false.png" />
-    <Content Include="Images\Lights\true.png" />
-    <Content Include="Images\Locks\false.png" />
-    <Content Include="Images\Locks\true.png" />
     <Content Include="Images\refresh.png" />
     <Content Include="Images\Robots\false.png" />
     <Content Include="Images\Robots\true.png" />
