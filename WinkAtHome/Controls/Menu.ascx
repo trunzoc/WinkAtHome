@@ -14,7 +14,7 @@
                 <asp:ListItem Text="Devices" Value="Devices" />
                 <asp:ListItem Text="Groups" Value="Groups" />
                 <asp:ListItem Text="Shortcuts" Value="Shortcuts" />
-                <asp:ListItem Text="Robots (Coming Soon)" Value="Robots" />
+                <asp:ListItem Text="Robots" Value="Robots" />
             </asp:ListBox>
         </asp:TableCell>
     </asp:TableRow>

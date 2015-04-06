@@ -390,7 +390,6 @@ public class Wink
     }
     #endregion
     
-    //MAKE GROUP CHANGE UPDATE INCLUDED DEVICES
     #region Group 
     public class Group
     {
@@ -563,6 +562,91 @@ public class Wink
         }
     }
 
+    #endregion
+
+    #region Robots
+    public class Robot
+    {
+        public string id;
+        public string name;
+        public string enabled;
+        public DateTime last_fired;
+        public static Robot getRobotByID(string RobotID)
+        {
+            Robot robot = Robots.SingleOrDefault(s => s.id.Equals(RobotID));
+            return robot;
+        }
+        public static Robot getRobotByName(string robotName)
+        {
+            Robot robot = Robots.SingleOrDefault(s => s.name.ToLower().Equals(robotName.ToLower()));
+            return robot;
+        }
+    }
+    public static List<Robot> Robots
+    {
+        get
+        {
+            return winkGetRobots();
+        }
+        set
+        {
+            _robots = value;
+        }
+    }
+    private static List<Robot> _robots;
+
+    private static List<Robot> winkGetRobots()
+    {
+        try
+        {
+            if (_robots == null)
+            {
+                JObject json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetRobotsURL"]);
+                List<Robot> Robots = new List<Robot>();
+
+                foreach (JObject data in json["data"])
+                {
+                    Robot robot = new Robot();
+
+                    robot.id = data["robot_id"].ToString();
+                    robot.name = data["name"].ToString();
+                    robot.enabled = data["enabled"].ToString();
+                    robot.last_fired = Common.FromUnixTime(data["last_fired"].ToString());
+
+                    Robots.Add(robot);
+                }
+
+                _robots = Robots.OrderBy(c => c.name).ToList();
+            }
+            return _robots;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+    internal static void changeRobotState(string robotID, bool newEnabledState)
+    {
+        try
+        {
+            Robot robot = Robot.getRobotByID(robotID);
+
+            if (robot != null)
+            {
+                string newstate = newEnabledState.ToString().ToLower();
+                string url = ConfigurationManager.AppSettings["winkRootURL"] + "robots/" + robot.id;
+                string sendcommand = "{\"enabled\":" + newstate + "}";
+
+                winkCallAPI(url, "PUT", sendcommand);
+
+                robot.enabled = newstate;
+            }
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
     #endregion
 
     public static void clearWink()

@@ -73,6 +73,7 @@
     <Content Include="Controls\Devices.ascx" />
     <Content Include="Controls\Groups.ascx" />
     <Content Include="Controls\Menu.ascx" />
+    <Content Include="Controls\Robots.ascx" />
     <Content Include="Controls\Shortcuts.ascx" />
     <Content Include="Controls\winkStatus.ascx" />
     <Content Include="Default.aspx" />
@@ -96,7 +97,6 @@
     <Content Include="Images\WinkatHome.png" />
     <Content Include="Images\WinkHouse.png" />
     <Content Include="Images\wrench.png" />
-    <Content Include="OtherStuff.aspx" />
     <Content Include="Robots.aspx" />
     <Content Include="Settings.aspx" />
     <Content Include="Settings.txt" />
@@ -129,6 +129,13 @@
     </Compile>
     <Compile Include="Controls\Menu.ascx.designer.cs">
       <DependentUpon>Menu.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Robots.ascx.cs">
+      <DependentUpon>Robots.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Robots.ascx.designer.cs">
+      <DependentUpon>Robots.ascx</DependentUpon>
     </Compile>
     <Compile Include="Controls\Shortcuts.ascx.cs">
       <DependentUpon>Shortcuts.ascx</DependentUpon>
@@ -164,13 +171,6 @@
     </Compile>
     <Compile Include="Groups.aspx.designer.cs">
       <DependentUpon>Groups.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="OtherStuff.aspx.cs">
-      <DependentUpon>OtherStuff.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="OtherStuff.aspx.designer.cs">
-      <DependentUpon>OtherStuff.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Robots.aspx.cs">
