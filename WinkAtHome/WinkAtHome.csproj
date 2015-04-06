@@ -103,6 +103,7 @@
     <Content Include="Images\WinkHouse.png" />
     <Content Include="Images\wrench.png" />
     <Content Include="Robots.aspx" />
+    <Content Include="Login.aspx" />
     <Content Include="Settings.aspx" />
     <Content Include="Settings.txt" />
     <Content Include="Shortcuts.aspx" />
@@ -184,6 +185,13 @@
     </Compile>
     <Compile Include="Robots.aspx.designer.cs">
       <DependentUpon>Robots.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
     <Compile Include="Settings.aspx.cs">
       <DependentUpon>Settings.aspx</DependentUpon>

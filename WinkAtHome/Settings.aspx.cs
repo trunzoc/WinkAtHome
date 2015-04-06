@@ -11,6 +11,11 @@ namespace WinkAtHome
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["loggedin"] == null || SettingMgmt.getSetting("winkUsername") != Common.Decrypt(Session["loggedin"].ToString()))
+            {
+                Response.Redirect("~/Login.aspx");
+            }
+
             if (!IsPostBack)
             {
                 dlSettings.DataSource = SettingMgmt.Settings;
@@ -62,11 +67,5 @@ namespace WinkAtHome
         {
             Response.Redirect("~/Default.aspx");
         }
-
-        protected void lbSettings_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("~/Settings.aspx");
-        }
-
     }
 }
