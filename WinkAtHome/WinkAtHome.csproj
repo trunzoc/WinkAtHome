@@ -70,6 +70,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\WinkAtHome.dll" />
     <Content Include="Controls\Devices.ascx" />
     <Content Include="Controls\Groups.ascx" />
     <Content Include="Controls\Menu.ascx" />
