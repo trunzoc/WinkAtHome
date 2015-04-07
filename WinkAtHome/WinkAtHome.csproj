@@ -70,7 +70,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\AjaxControlToolkit.dll" />
+    <Content Include="bin\Newtonsoft.Json.dll" />
+    <Content Include="bin\Telerik.Web.UI.dll" />
     <Content Include="bin\WinkAtHome.dll" />
+    <Content Include="bin\WinkAtHome.pdb" />
     <Content Include="Controls\Devices.ascx" />
     <Content Include="Controls\Groups.ascx" />
     <Content Include="Controls\Menu.ascx" />
@@ -225,6 +229,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+    <Content Include="bin\WinkAtHome.dll.config" />
     <None Include="Properties\PublishProfiles\Publish.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
