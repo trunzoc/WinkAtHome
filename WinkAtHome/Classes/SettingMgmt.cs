@@ -51,6 +51,8 @@ namespace WinkAtHome
                         try
                         {
                             decrypedFile = Common.Decrypt(text);
+                            if (decrypedFile == null)
+                                decrypedFile = wipeSettings();
                         }
                         catch
                         {
@@ -61,7 +63,6 @@ namespace WinkAtHome
                     {
                         decrypedFile = wipeSettings();
                     }
-
 
                     JObject json = JObject.Parse(decrypedFile);
 

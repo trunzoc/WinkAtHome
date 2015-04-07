@@ -211,6 +211,24 @@ namespace WinkAtHome {
         protected global::WinkAtHome.Controls.winkStatus ucWinkStatus;
         
         /// <summary>
+        /// Table2 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Table Table2;
+        
+        /// <summary>
+        /// lbLogout control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton lbLogout;
+        
+        /// <summary>
         /// cphMain control.
         /// </summary>
         /// <remarks>

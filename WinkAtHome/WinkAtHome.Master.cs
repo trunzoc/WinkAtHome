@@ -93,5 +93,19 @@ namespace WinkAtHome
             SettingMgmt.saveSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), rblenabled.SelectedValue);
         }
 
+        protected void lbLogout_Click(object sender, EventArgs e)
+        {
+            if (Request.Cookies["login"] != null)
+            {
+                HttpCookie aCookie = new HttpCookie("login");
+                aCookie.Expires = DateTime.Now.AddDays(-1d);
+                Response.Cookies.Add(aCookie);
+            }
+
+            Session.Abandon();
+
+            Response.Redirect("~/Login.aspx");
+        }
+
     }
 }
