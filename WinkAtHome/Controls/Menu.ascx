@@ -27,7 +27,7 @@
     </asp:TableHeaderRow>
     <asp:TableRow>
         <asp:TableCell>
-            <telerik:RadMenu ID="RadMenu1" runat="server" Flow="Vertical" OnLoad="RadMenu1_Load" OnItemClick="RadMenu1_ItemClick" >
+            <telerik:RadMenu ID="RadMenu1" runat="server" Flow="Vertical" OnItemClick="RadMenu1_ItemClick" >
                 <Items>
                     <telerik:RadMenuItem Text="Devices" Value="devices">
 

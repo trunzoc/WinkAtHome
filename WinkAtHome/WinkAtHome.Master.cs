@@ -38,26 +38,6 @@ namespace WinkAtHome
                     tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
                 }
             }
-
-            //SELECT REFERRING MENU ITEM
-            if (Request.CurrentExecutionFilePath != null)
-            {
-                string referrer = Request.CurrentExecutionFilePath;
-                referrer = referrer.Substring(referrer.LastIndexOf('/') + 1);
-                referrer = referrer.Substring(0, referrer.LastIndexOf(".aspx"));
-
-                UserControl ucMenu = (UserControl)Page.Master.FindControl("ucMenu");
-                RadMenu lbMenu = (RadMenu)ucMenu.FindControl("RadMenu1");
-                RadMenuItem item = lbMenu.Items.FindItemByValue(referrer.ToLower());
-                if (item != null)
-                {
-                    item.Selected = true;
-                }
-                else
-                {
-                    lbMenu.ClearSelectedItem();
-                }
-            }
         }
 
         protected void ibRefresh_Click(object sender, ImageClickEventArgs e)

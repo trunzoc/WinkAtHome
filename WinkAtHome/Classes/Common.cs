@@ -68,5 +68,14 @@ namespace WinkAtHome
                 return null;
             }
         }
+        public static double FromCelsiusToFahrenheit(double c)
+        {
+            return ((9.0 / 5.0) * c) + 32;
+        }
+
+        public static double FromFahrenheitToCelsius(double f)
+        {
+            return (5.0 / 9.0) * (f - 32);
+        }
     }
 }

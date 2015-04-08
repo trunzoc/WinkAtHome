@@ -63,6 +63,7 @@ public class Wink
         public List<string> desired_states = new List<string>();
         public List<DeviceStatus> status = new List<DeviceStatus>();
         public bool controllable;
+        public string json;
 
         public static Device getDeviceByID(string deviceID)
         {
@@ -89,7 +90,8 @@ public class Wink
         public static List<string> getDeviceTypes()
         {
             List<string> types = Devices.Select(t => t.type).Distinct().ToList();
-            types.Sort();
+            if (types != null)
+                types.Sort();
 
             return types;
         }
@@ -136,6 +138,7 @@ public class Wink
                     string typeName = keys[0];
 
                     Device device = new Device();
+                    device.json = data.ToString();
                     device.controllable = false;
 
                     if (keys.Contains("key_id") && keys.Contains("parent_object_type") && data["parent_object_type"].ToString().ToLower() == "lock")

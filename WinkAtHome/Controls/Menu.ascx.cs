@@ -13,36 +13,32 @@ namespace WinkAtHome.Controls
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
-        }
-
-        protected void RadMenu1_Load(object sender, EventArgs e)
-        {
-            try
+            try 
             {
-                foreach (RadMenuItem item in RadMenu1.Items)
+                if (!IsPostBack)
                 {
-                    if (item.Value.ToLower() == "devices")
+                    //SELECT REFERRING MENU ITEM
+                    if (Request.CurrentExecutionFilePath != null)
                     {
-                        item.Items.Clear();
-                        List<string> deviceTypes = Wink.Device.getDeviceTypes();
+                        string referrer = Request.CurrentExecutionFilePath;
+                        referrer = referrer.Substring(referrer.LastIndexOf('/') + 1);
+                        referrer = referrer.Substring(0, referrer.LastIndexOf(".aspx"));
 
-                        foreach (string type in deviceTypes)
+                        RadMenuItem item = RadMenu1.Items.FindItemByValue(referrer.ToLower());
+                        if (item != null)
                         {
-                            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-
-                            RadMenuItem deviceitem = new RadMenuItem();
-                            deviceitem.Text = textInfo.ToTitleCase(type.Replace("_", " "));
-                            deviceitem.Value = type.ToLower();
-
-                            item.Items.Add(deviceitem);
+                            item.Selected = true;
+                        }
+                        else
+                        {
+                            RadMenu1.ClearSelectedItem();
                         }
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+
             }
         }
 
