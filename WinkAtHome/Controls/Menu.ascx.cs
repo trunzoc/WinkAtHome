@@ -17,6 +17,30 @@ namespace WinkAtHome.Controls
             {
                 if (!IsPostBack)
                 {
+                    //POPULTE DEVICE TYPES
+                    foreach (RadMenuItem item in RadMenu1.Items)
+                    {
+                        if (item.Value.ToLower() == "devices")
+                        {
+                            item.Items.Clear();
+                            List<string> deviceTypes = Wink.Device.getDeviceTypes();
+
+                            if (deviceTypes != null)
+                            {
+                                foreach (string type in deviceTypes)
+                                {
+                                    TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+
+                                    RadMenuItem deviceitem = new RadMenuItem();
+                                    deviceitem.Text = textInfo.ToTitleCase(type.Replace("_", " "));
+                                    deviceitem.Value = type.ToLower();
+
+                                    item.Items.Add(deviceitem);
+                                }
+                            }
+                        }
+                    }
+
                     //SELECT REFERRING MENU ITEM
                     if (Request.CurrentExecutionFilePath != null)
                     {

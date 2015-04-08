@@ -111,10 +111,9 @@
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow>
-                            <asp:TableCell HorizontalAlign="Left" Width="100px">
-                                <asp:Button ID="btnManualEdit" runat="server" Text="Manual Edit" OnClick="btnManualEdit_Click" />
-                            </asp:TableCell>
-                            <asp:TableCell HorizontalAlign="Left">
+                            <asp:TableCell ColumnSpan="2">
+                                <asp:Button ID="btnManualEdit" runat="server" Text="Manually Edit Settings" OnClick="btnManualEdit_Click" />&nbsp;
+                                <asp:Button ID="btnRawDevData" runat="server" Text="Show Raw Device Data" OnClick="btnRawDevData_Click" />&nbsp;
                                 <asp:Button ID="btnWipe" runat="server" Text="Wipe Settings" OnClick="btnWipe_Click" OnClientClick="if ( ! deleteConfirmation()) return false;" />
                             </asp:TableCell>
                         </asp:TableRow>

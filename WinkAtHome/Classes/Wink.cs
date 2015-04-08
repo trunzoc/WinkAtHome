@@ -132,62 +132,223 @@ public class Wink
                 JObject json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetAllDevicesURL"]);
                 List<Device> Devices = new List<Device>();
 
-                foreach (JObject data in json["data"])
+                if (json != null)
                 {
-                    IList<string> keys = data.Properties().Select(p => p.Name).ToList();
-                    string typeName = keys[0];
-
-                    Device device = new Device();
-                    device.json = data.ToString();
-                    device.controllable = false;
-
-                    if (keys.Contains("key_id") && keys.Contains("parent_object_type") && data["parent_object_type"].ToString().ToLower() == "lock")
+                    foreach (JObject data in json["data"])
                     {
-                        device.id = data["key_id"].ToString();
-                        device.name = data["name"].ToString();
-                        device.type = "lock_pins";
-                    }
-                    else
-                    {
-                        device.id = data[typeName].ToString();
-                        device.name = data["name"].ToString();
-                        device.type = typeName.Replace("_id", "s").Replace("switchs", "switches");
-                        
-                        if (keys.Contains("desired_state"))
+                        IEnumerable<string> ikeys = data.Properties().Select(p => p.Name);
+                        if (ikeys != null)
                         {
-                            JObject states = (JObject)data["desired_state"];
-                            foreach (var state in states)
+                            List<string> keys = ikeys.ToList();
+
+                            string typeName = keys[0];
+
+                            Device device = new Device();
+                            device.json = data.ToString();
+                            device.controllable = false;
+
+                            if (keys.Contains("key_id") && keys.Contains("parent_object_type") && data["parent_object_type"].ToString().ToLower() == "lock")
                             {
-                                device.desired_states.Add(state.Key);
+                                device.id = data["key_id"] != null ? data["key_id"].ToString() : "error: key_id";
+                                device.name = data["name"] != null ? data["name"].ToString() : "error: name";
+                                device.type = "lock_pins";
+                            }
+                            else
+                            {
+                                device.id = data[typeName] != null ? data[typeName].ToString() : "error: typeName";
+                                device.name = data["name"] != null ? data["name"].ToString() : "error: name";
+                                device.type = data[typeName] != null ? typeName.Replace("_id", "s").Replace("switchs", "switches") : "error: type";
+
+                                if (keys.Contains("desired_state"))
+                                {
+                                    JObject states = (JObject)data["desired_state"];
+
+                                    if (states != null)
+                                    {
+                                        foreach (var state in states)
+                                        {
+                                            device.desired_states.Add(state.Key);
+                                        }
+
+                                        if (!(device.desired_states.Count == 0 || device.type == "hubs" || device.type == "unknown_devices"))
+                                        {
+                                            device.controllable = true;
+                                        }
+                                    }
+                                }
                             }
 
-                            if (!(device.desired_states.Count == 0 || device.type == "hubs" || device.type == "unknown_devices"))
+                            if (keys.Contains("last_reading"))
                             {
-                                device.controllable = true;
+                                JObject readings = (JObject)data["last_reading"];
+                                if (readings != null)
+                                {
+                                    foreach (var reading in readings)
+                                    {
+                                        if (!reading.Key.Contains("_updated_at"))
+                                        {
+                                            DeviceStatus deviceStatus = new DeviceStatus();
+                                            deviceStatus.id = device.id;
+                                            deviceStatus.name = reading.Key;
+                                            deviceStatus.current_status = reading.Value.ToString();
+
+                                            if (readings[reading.Key + "_updated_at"] != null)
+                                            {
+                                                string lastupdated = readings[reading.Key + "_updated_at"].ToString();
+                                                deviceStatus.last_updated = Common.FromUnixTime(lastupdated);
+                                            }
+                                            
+                                            device.status.Add(deviceStatus);
+                                        }
+                                    }
+                                }
                             }
+                            Devices.Add(device);
                         }
                     }
-
-                    if (keys.Contains("last_reading"))
-                    {
-                        JObject readings = (JObject)data["last_reading"];
-                        foreach (var reading in readings)
-                        {
-                            if (!reading.Key.Contains("_updated_at"))
-                            {
-                                DeviceStatus deviceStatus = new DeviceStatus();
-                                deviceStatus.id = device.id;
-                                deviceStatus.name = reading.Key;
-                                deviceStatus.current_status = reading.Value.ToString();
-
-                                string lastupdated = readings[reading.Key + "_updated_at"].ToString();
-                                deviceStatus.last_updated = Common.FromUnixTime(lastupdated);
-                                device.status.Add(deviceStatus);
-                            }
-                        }
-                    }
-                    Devices.Add(device);
                 }
+                #region debug
+#if DEBUG
+                Device devicea = new Device();
+                devicea.controllable = true;
+                devicea.desired_states = new List<string>() { "mode", "powered", "modes_allowed", "min_set_point", "max_set_point"﻿ };
+                devicea.id = "12345";
+                devicea.name = "Thermostat Auto";
+                devicea.type = "thermostats";
+                devicea.status = new List<DeviceStatus>();
+
+                DeviceStatus statusaa = new DeviceStatus();
+                statusaa.id = "12345";
+                statusaa.name = "mode";
+                statusaa.current_status = "auto";
+                statusaa.last_updated = DateTime.Now;
+                devicea.status.Add(statusaa);
+
+                DeviceStatus statusab = new DeviceStatus();
+                statusab.id = "12345";
+                statusab.name = "powered";
+                statusab.current_status = "true";
+                statusab.last_updated = DateTime.Now;
+                devicea.status.Add(statusab);
+
+                DeviceStatus statusac = new DeviceStatus();
+                statusac.id = "12345";
+                statusac.name = "modes_allowed";
+                statusac.current_status = "auto,cool_only,heat_only";
+                statusac.last_updated = DateTime.Now;
+                devicea.status.Add(statusac);
+
+                DeviceStatus statusad = new DeviceStatus();
+                statusad.id = "12345";
+                statusad.name = "min_set_point";
+                statusad.current_status = "19.444444444444443";
+                statusad.last_updated = DateTime.Now;
+                devicea.status.Add(statusad);
+
+                DeviceStatus statusae = new DeviceStatus();
+                statusae.id = "12345";
+                statusae.name = "max_set_point";
+                statusae.current_status = "29.444444444444443";
+                statusae.last_updated = DateTime.Now;
+                devicea.status.Add(statusae);
+
+                Devices.Add(devicea);
+
+
+                Device deviceb = new Device();
+                deviceb.controllable = true;
+                deviceb.desired_states = new List<string>() { "mode", "powered", "modes_allowed", "min_set_point", "max_set_point"﻿ };
+                deviceb.id = "123456";
+                deviceb.name = "Thermostat Cool";
+                deviceb.type = "thermostats";
+                deviceb.status = new List<DeviceStatus>();
+
+                DeviceStatus statusba = new DeviceStatus();
+                statusba.id = "123456";
+                statusba.name = "mode";
+                statusba.current_status = "cool";
+                statusba.last_updated = DateTime.Now;
+                deviceb.status.Add(statusba);
+
+                DeviceStatus statusbb = new DeviceStatus();
+                statusbb.id = "123456";
+                statusbb.name = "powered";
+                statusbb.current_status = "true";
+                statusbb.last_updated = DateTime.Now;
+                deviceb.status.Add(statusbb);
+
+                DeviceStatus statusbc = new DeviceStatus();
+                statusbc.id = "123456";
+                statusbc.name = "modes_allowed";
+                statusbc.current_status = "auto,cool_only,heat_only";
+                statusbc.last_updated = DateTime.Now;
+                deviceb.status.Add(statusbc);
+
+                DeviceStatus statusbd = new DeviceStatus();
+                statusbd.id = "123456";
+                statusbd.name = "min_set_point";
+                statusbd.current_status = "19.444444444444443";
+                statusbd.last_updated = DateTime.Now;
+                deviceb.status.Add(statusbd);
+
+                DeviceStatus statusbe = new DeviceStatus();
+                statusbe.id = "123456";
+                statusbe.name = "max_set_point";
+                statusbe.current_status = "29.444444444444443";
+                statusbe.last_updated = DateTime.Now;
+                deviceb.status.Add(statusbe);
+
+                Devices.Add(deviceb);
+
+
+                Device devicec = new Device();
+                devicec.controllable = true;
+                devicec.desired_states = new List<string>() { "mode", "powered", "modes_allowed", "min_set_point", "max_set_point"﻿ };
+                devicec.id = "123456";
+                devicec.name = "Thermostat Heat";
+                devicec.type = "thermostats";
+                devicec.status = new List<DeviceStatus>();
+
+                DeviceStatus statusca = new DeviceStatus();
+                statusca.id = "123456";
+                statusca.name = "mode";
+                statusca.current_status = "heat";
+                statusca.last_updated = DateTime.Now;
+                devicec.status.Add(statusca);
+
+                DeviceStatus statuscb = new DeviceStatus();
+                statuscb.id = "123456";
+                statuscb.name = "powered";
+                statuscb.current_status = "true";
+                statuscb.last_updated = DateTime.Now;
+                devicec.status.Add(statuscb);
+
+                DeviceStatus statuscc = new DeviceStatus();
+                statuscc.id = "123456";
+                statuscc.name = "modes_allowed";
+                statuscc.current_status = "auto,cool_only,heat_only";
+                statuscc.last_updated = DateTime.Now;
+                devicec.status.Add(statuscc);
+
+                DeviceStatus statuscd = new DeviceStatus();
+                statuscd.id = "123456";
+                statuscd.name = "min_set_point";
+                statuscd.current_status = "19.444444444444443";
+                statuscd.last_updated = DateTime.Now;
+                devicec.status.Add(statuscd);
+
+                DeviceStatus statusce = new DeviceStatus();
+                statusce.id = "123456";
+                statusce.name = "max_set_point";
+                statusce.current_status = "29.444444444444443";
+                statusce.last_updated = DateTime.Now;
+                devicec.status.Add(statusce);
+
+                Devices.Add(devicec);
+#endif
+                #endregion
+
+
                 
                 _devices = Devices.OrderBy(c => !c.controllable).ThenBy(c => c.name).ToList();
             }
@@ -250,6 +411,14 @@ public class Wink
         {
             throw e;
         }
+    }
+    public static JObject getDeviceJSON()
+    {
+        JObject json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetAllDevicesURL"]);
+        if (json != null)
+            return json;
+
+        return null;
     }
     #endregion
 
@@ -701,32 +870,46 @@ public class Wink
     }
     private static JObject winkCallAPI(string url, string method = "", string sendcommand = "", bool requiresToken = true)
     {
-        String responseString = string.Empty;
-        JObject jsonResponse = new JObject();
-
-        using (var xhr = new WebClient())
+        try
         {
-            xhr.Headers[HttpRequestHeader.ContentType] = "application/json";
-            
-            if (requiresToken)
-                xhr.Headers.Add("Authorization", "Bearer " + WinkToken);
+            String responseString = string.Empty;
+            JObject jsonResponse = new JObject();
 
-            byte[] result = null;
-            
-            if (String.IsNullOrWhiteSpace(sendcommand) && method.ToLower() != "post")
+            using (var xhr = new WebClient())
             {
-                result = xhr.DownloadData(url);
+                xhr.Headers[HttpRequestHeader.ContentType] = "application/json";
+
+                if (requiresToken)
+                    xhr.Headers.Add("Authorization", "Bearer " + WinkToken);
+
+                byte[] result = null;
+
+                if (String.IsNullOrWhiteSpace(sendcommand) && method.ToLower() != "post")
+                {
+                    result = xhr.DownloadData(url);
+                }
+                else
+                {
+                    byte[] data = Encoding.Default.GetBytes(sendcommand);
+                    result = xhr.UploadData(url, method, data);
+                }
+
+                responseString = Encoding.Default.GetString(result);
             }
-            else
+
+            if (responseString != null)
             {
-                byte[] data = Encoding.Default.GetBytes(sendcommand);
-                result = xhr.UploadData(url, method, data);
+                jsonResponse = JObject.Parse(responseString);
+                if (jsonResponse != null)
+                {
+                    return jsonResponse;
+                }
             }
-            
-            responseString = Encoding.Default.GetString(result);
         }
+        catch
+        {
 
-        jsonResponse = JObject.Parse(responseString);
-        return jsonResponse;
+        }
+        return null;
     }
 }

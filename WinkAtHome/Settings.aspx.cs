@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -75,6 +76,18 @@ namespace WinkAtHome
         protected void lbDashboard_Click(object sender, EventArgs e)
         {
             Response.Redirect("~/Default.aspx");
+        }
+
+        protected void btnRawDevData_Click(object sender, EventArgs e)
+        {
+            JObject json = Wink.getDeviceJSON();
+            if (json != null)
+                tbEdit.Text = json.ToString();
+            else
+                tbEdit.Text = "There was an error getting Device JSON data";
+
+            rowEdit.Visible = true;
+
         }
     }
 }
