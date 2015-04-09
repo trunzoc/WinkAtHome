@@ -138,7 +138,7 @@ namespace WinkAtHome.Controls
             Wink.GroupStatus status = group.status.Single(p => p.name == maincommand);
             status.current_status = newstate == "true" ? "1" : "0";
 
-            Wink.GroupStatus statuslvl = group.status.Single(p => p.name == levelcommand);
+            Wink.GroupStatus statuslvl = group.status.SingleOrDefault(p => p.name == levelcommand);
             if (statuslvl != null)
                 statuslvl.current_status = newlevel;
 

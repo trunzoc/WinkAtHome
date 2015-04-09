@@ -1,7 +1,6 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="WinkAtHome.master.cs" Inherits="WinkAtHome.WinkAtHome" %>
 <%@ Register Src="~/Controls/winkStatus.ascx" TagName="ucWinkStatus" TagPrefix="ucWS" %>
 <%@ Register Src="~/Controls/Menu.ascx" TagName="ucMenu" TagPrefix="ucM" %>
-<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxtoolkit" %>
 
 <!DOCTYPE html>
 

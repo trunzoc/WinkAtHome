@@ -73,7 +73,8 @@ public class Wink
         public bool controllable { get; set; }
         [SimpleProperty]
         public bool sensor { get; set; }
-        public string json;
+        [SimpleProperty]
+        public string json { get; set; }
         [SimpleProperty]
         public string units { get; set; }
         [SimpleProperty]
@@ -342,9 +343,13 @@ public class Wink
     #region Shortcut
     public class Shortcut
     {
-        public string id;
-        public string name;
+        [SimpleProperty]
+        public string id { get; set; }
+        [SimpleProperty]
+        public string name { get; set; }
         public List<ShortcutMember> members = new List<ShortcutMember>();
+        [SimpleProperty]
+        public string json { get; set; }
 
         public static Shortcut getShortcutByID(string ShortcutID)
         {
@@ -394,6 +399,7 @@ public class Wink
 
                     shortcut.id = data[typeName].ToString();
                     shortcut.name = data["name"].ToString();
+                    shortcut.json = data.ToString();
 
                     if (keys.Contains("members"))
                     {

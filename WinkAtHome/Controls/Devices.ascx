@@ -1,5 +1,4 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="Devices.ascx.cs" Inherits="WinkAtHome.Controls.Devices" %>
-<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxtoolkit" %>
 
 <asp:HiddenField ID="hfDeviceType" runat="server" />
 <asp:Table ID="Table1" runat="server" BorderColor="LightGray" BorderWidth="1" BorderStyle="Ridge" Width="100%">
@@ -21,6 +20,10 @@
                         <asp:TableRow>
                             <asp:TableCell ColumnSpan="2" Height="110" VerticalAlign="Top">
                                 <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional">
+                                    <Triggers>
+                                        <asp:PostBackTrigger ControlID="imgIcon" />
+                                        <asp:PostBackTrigger ControlID="rsBrightness" />
+                                    </Triggers>
                                     <ContentTemplate>
 
                                         <asp:Table ID="tblDefault" runat="server" Visible="false" Width="100%" Height="100%">
@@ -236,7 +239,7 @@
                                 <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Device)Container.DataItem).name %>' Font-Size="small" />
                             </asp:TableCell>
                             <asp:TableCell VerticalAlign="Top" HorizontalAlign="Right" Width="23" style="padding-right:3px;">
-                                <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show object's Raw data" />
+                                <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show Device data" />
                                 <ajaxtoolkit:ModalPopupExtender ID="mpInfo" runat="server" PopupControlID="pnlInfo" 
                                     TargetControlID="ibInfo" CancelControlID="btnClose" BackgroundCssClass="modalBackground" Y="200">
                                 </ajaxtoolkit:ModalPopupExtender>

@@ -82,11 +82,6 @@ namespace WinkAtHome.Controls
                 Wink.Device device = ((Wink.Device)e.Item.DataItem);
                 string devicetype = device.type;
 
-                if (device.name == "Test Refuel" || device.name == "HOME" || device.name == "Garage Door")
-                {
-                    string bob = "bob";
-                }
-
                 ImageButton img = (ImageButton)e.Item.FindControl("imgIcon");
                 RadSlider rs = (RadSlider)e.Item.FindControl("rsBrightness");
                 HiddenField hfMainCommand = (HiddenField)e.Item.FindControl("hfMainCommand");
@@ -111,12 +106,15 @@ namespace WinkAtHome.Controls
                 var properties = new List<KeyValuePair<string, string>>();
                 foreach (var prop in props)
                 {
-                    TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-                    
-                    string propname = textInfo.ToTitleCase(prop.Name.Replace("_", " "));
-                    var propvalue = prop.GetValue(device,null);
-                    if (propvalue != null)
-                        properties.Add(new KeyValuePair<string, string>(propname, propvalue.ToString()));
+                    if (prop.Name != "json")
+                    {
+                        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+
+                        string propname = textInfo.ToTitleCase(prop.Name.Replace("_", " "));
+                        var propvalue = prop.GetValue(device, null);
+                        if (propvalue != null)
+                            properties.Add(new KeyValuePair<string, string>(propname, propvalue.ToString()));
+                    }
                 }
                 DataList dlProperties = (DataList)e.Item.FindControl("dlProperties");
                 if (dlProperties != null)
