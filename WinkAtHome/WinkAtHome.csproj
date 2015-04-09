@@ -76,6 +76,7 @@
     <Content Include="Controls\Robots.ascx" />
     <Content Include="Controls\Shortcuts.ascx" />
     <Content Include="Controls\winkStatus.ascx" />
+    <Content Include="Images\Thermostats\thermbackbig.png" />
     <Content Include="Monitor.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="Devices.aspx" />
