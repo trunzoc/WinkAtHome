@@ -81,7 +81,7 @@ namespace WinkAtHome.Controls
                 Wink.Device device = ((Wink.Device)e.Item.DataItem);
                 string devicetype = device.type;
 
-                if (device.name == "Refuel" || device.name == "HOME" || device.name == "Garage Door")
+                if (device.name == "Test Refuel" || device.name == "HOME" || device.name == "Garage Door")
                 {
                     string bob = "bob";
                 }
@@ -195,6 +195,17 @@ namespace WinkAtHome.Controls
                         hfCurrentStatus.Value = state;
                         img.Enabled = true;
                     }
+                    else if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
+                    {
+                        Wink.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
+                        Double converted = Convert.ToDouble(stat.current_status) * 100;
+                        state = converted > 0 ? "true" : "false";
+                        hfMainCommand.Value = stat.name;
+                        hfCurrentStatus.Value = state;
+
+                        if (device.controllable)
+                            img.Enabled = true;
+                    }
                     else if (keys.Contains("connection"))
                     {
                         Wink.DeviceStatus stat = status.Single(p => p.name == "connection");
@@ -282,6 +293,13 @@ namespace WinkAtHome.Controls
             {
                 newlevel = ",\"brightness\":1";
             }
+            else if (hfLevelCommand.Value == "position")
+            {
+                if (newstate == "true")
+                    newstate = "1";
+                else
+                    newstate = "0";
+            }
 
             command = "{\"desired_state\": {\"" + hfMainCommand.Value + "\":" + newstate + newlevel + "}}";
             Wink.sendDeviceCommand(deviceID, command);
@@ -301,36 +319,46 @@ namespace WinkAtHome.Controls
 
         protected void rsBrightness_ValueChanged(object sender, EventArgs e)
         {
-            RadSlider rs = (RadSlider)sender;
-            DataListItem li = (DataListItem)rs.NamingContainer;
-            ImageButton ib = (ImageButton)li.FindControl("imgIcon"); ;
-            string deviceID = ib.CommandArgument;
-            string command = string.Empty;
-            Decimal newlevel = rs.Value / 100;
+            if (IsPostBack)
+            {
+                RadSlider rs = (RadSlider)sender;
+                DataListItem li = (DataListItem)rs.NamingContainer;
+                ImageButton ib = (ImageButton)li.FindControl("imgIcon"); ;
+                string deviceID = ib.CommandArgument;
+                string command = string.Empty;
+                Decimal newlevel = rs.Value / 100;
 
-            HiddenField hfMainCommand = (HiddenField)li.FindControl("hfMainCommand");
-            HiddenField hfCurrentStatus = (HiddenField)li.FindControl("hfCurrentStatus");
-            HiddenField hfLevelCommand = (HiddenField)li.FindControl("hfLevelCommand");
-
-            string newstate = newlevel == 0 ? "false" : "true";
-
-            command = "{\"desired_state\": {\"" + hfMainCommand.Value + "\":" + newstate + ",\"" + hfLevelCommand.Value + "\":" + newlevel + "}}";
-            Wink.sendDeviceCommand(deviceID, command);
+                HiddenField hfMainCommand = (HiddenField)li.FindControl("hfMainCommand");
+                HiddenField hfCurrentStatus = (HiddenField)li.FindControl("hfCurrentStatus");
+                HiddenField hfLevelCommand = (HiddenField)li.FindControl("hfLevelCommand");
 
 
-            Wink.Device device = Wink.Device.getDeviceByID(deviceID);
-            Wink.DeviceStatus status = device.status.Single(p => p.name == hfMainCommand.Value);
-            status.current_status = newstate;
+                string newstate = string.Empty;
 
-            Wink.DeviceStatus statuslvl = device.status.Single(p => p.name == hfLevelCommand.Value);
-            statuslvl.current_status = newlevel.ToString();
+                if (hfLevelCommand.Value == "brightness" && newstate == "true")
+                {
+                    newstate = hfMainCommand.Value + "\":" + (newlevel == 0 ? "false" : "true") + ",\"";
+                }
 
-            BindData();
+                command = "{\"desired_state\": {\"" + newstate + hfLevelCommand.Value + "\":" + newlevel + "}}";
+                Wink.sendDeviceCommand(deviceID, command);
+
+
+                Wink.Device device = Wink.Device.getDeviceByID(deviceID);
+                Wink.DeviceStatus status = device.status.Single(p => p.name == hfMainCommand.Value);
+                status.current_status = newstate;
+
+                Wink.DeviceStatus statuslvl = device.status.Single(p => p.name == hfLevelCommand.Value);
+                statuslvl.current_status = newlevel.ToString();
+
+                BindData();
+            }
         }
 
         protected void tbColumns_TextChanged(object sender, EventArgs e)
         {
-                SettingMgmt.saveSetting("Devices-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + ControllableOnly.ToString() + "Columns", tbColumns.Text);
+            SettingMgmt.saveSetting("Devices-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + ControllableOnly.ToString() + "Columns", tbColumns.Text);
+            BindData();
         }
     }
 }

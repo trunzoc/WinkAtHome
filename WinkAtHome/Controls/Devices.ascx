@@ -19,16 +19,16 @@
                 <ItemTemplate>
                     <asp:Table ID="Table3" runat="server">
                         <asp:TableRow>
-                            <asp:TableCell>
+                            <asp:TableCell ColumnSpan="2" Height="110" VerticalAlign="Top">
 
-                                <asp:Table ID="tblDefault" runat="server" Visible="false">
+                                <asp:Table ID="tblDefault" runat="server" Visible="false" Width="100%" Height="100%">
                                     <asp:TableRow>
                                         <asp:TableCell HorizontalAlign="Center">
                                             <asp:ImageButton ID="imgIcon" runat="server" ImageUrl="~/Images/WinkHouse.png" Height="100" OnClick="imgIcon_Click"  Enabled="false"
                                                 CommandArgument='<%# ((Wink.Device)Container.DataItem).id %>' ToolTip='<%# ((Wink.Device)Container.DataItem).name + " : " + ((Wink.Device)Container.DataItem).type %>' />
                                         </asp:TableCell>
-                                        <asp:TableCell>
-                                            <telerik:RadSlider ID="rsBrightness" runat="server" MinimumValue="0" MaximumValue="100" Orientation="Vertical" ToolTip="Off" Height="100" SmallChange="5" LargeChange="25"
+                                        <asp:TableCell HorizontalAlign="Right">
+                                            <telerik:RadSlider ID="rsBrightness" runat="server" MinimumValue="0" MaximumValue="100" Orientation="Vertical" ToolTip="Off" Height="100" 
                                                 ItemType="None" ShowIncreaseHandle="false" ShowDecreaseHandle="false" IsDirectionReversed="true" AutoPostBack="true" LiveDrag="false"
                                                 AnimationDuration="400" ThumbsInteractionMode="Free" OnValueChanged="rsBrightness_ValueChanged" DecreaseText='<%# ((Wink.Device)Container.DataItem).name %>'>
                                             </telerik:RadSlider>
@@ -39,17 +39,19 @@
                                 <asp:Table ID="tblThermostat" runat="server" Visible="false" CellPadding="0" CellSpacing="0">
                                     <asp:TableRow>
                                         <asp:TableCell HorizontalAlign="Center">
+
                                             <asp:Table ID="Table2" runat="server" BackImageUrl="~/Images/Thermostats/thermback.png" Width="100" Height="100" style="background-repeat:no-repeat" CellPadding="0" CellSpacing="0">
-                                                <asp:TableRow  VerticalAlign="Top">
-                                                    <asp:TableCell HorizontalAlign="Left">
-                                                        <asp:ImageButton ID="ibThermPower" runat="server" ImageUrl="~/Images/Thermostats/powerfalse.png" Height="25" />
+                                                <asp:TableRow>
+                                                    <asp:TableCell HorizontalAlign="Left" style="padding-left:5px">
+                                                        <asp:ImageButton ID="ibThermPower" runat="server" ImageUrl="~/Images/Thermostats/powerfalse.png" Height="20" />
                                                     </asp:TableCell>
-                                                    <asp:TableCell HorizontalAlign="Right">
-                                                        <asp:Label ID="lblThermStats" runat="server" Text="" ForeColor="#7698a4" Font-Size="Smaller" />&nbsp;
+                                                    <asp:TableCell HorizontalAlign="Right" style="padding-right:5px">
+                                                        <asp:Label ID="lblThermStats" runat="server" Text="" ForeColor="#7698a4" Font-Size="Smaller" />
                                                     </asp:TableCell>
                                                 </asp:TableRow>
                                                 <asp:TableRow VerticalAlign="Top">
                                                     <asp:TableCell ColumnSpan="2">
+
                                                         <asp:Table ID="tblThermauto" runat="server" CellPadding="0" CellSpacing="0" Visible="false">
                                                             <asp:TableRow VerticalAlign="Top">
                                                                 <asp:TableCell></asp:TableCell>
@@ -85,6 +87,7 @@
                                                                 <asp:TableCell></asp:TableCell>
                                                             </asp:TableRow>
                                                         </asp:Table>
+
                                                         <asp:Table ID="tblCoolHeat" runat="server" CellPadding="0" CellSpacing="0" Visible="false">
                                                             <asp:TableRow VerticalAlign="Top">
                                                                 <asp:TableCell></asp:TableCell>
@@ -112,9 +115,11 @@
                                                                 <asp:TableCell></asp:TableCell>
                                                             </asp:TableRow>
                                                         </asp:Table>
+
                                                     </asp:TableCell>
                                                 </asp:TableRow>
                                             </asp:Table>
+
                                         </asp:TableCell>
                                     </asp:TableRow>
                                     <asp:TableRow>
@@ -122,13 +127,13 @@
                                             <table>
                                                 <tr>
                                                     <td>
-                                                        <asp:ImageButton ID="ibThermcool" runat="server" ImageUrl="~/Images/Thermostats/coolfalse.png" Height="25" />                                
+                                                        <asp:ImageButton ID="ibThermcool" runat="server" ImageUrl="~/Images/Thermostats/coolfalse.png" Height="20" />                                
                                                     </td>
                                                     <td>
-                                                        <asp:ImageButton ID="ibThermauto" runat="server" ImageUrl="~/Images/Thermostats/autofalse.png" Height="25" />
+                                                        <asp:ImageButton ID="ibThermauto" runat="server" ImageUrl="~/Images/Thermostats/autofalse.png" Height="20" />
                                                     </td>
                                                     <td>
-                                                        <asp:ImageButton ID="ibThermheat" runat="server" ImageUrl="~/Images/Thermostats/heatfalse.png" Height="25" />
+                                                        <asp:ImageButton ID="ibThermheat" runat="server" ImageUrl="~/Images/Thermostats/heatfalse.png" Height="20" />
                                                     </td>
                                                 </tr>
                                             </table>
@@ -143,8 +148,8 @@
                             <asp:TableCell HorizontalAlign="Center" VerticalAlign="Middle" style="padding-bottom:30px">
                                 <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Device)Container.DataItem).name %>' Font-Size="small" />
                             </asp:TableCell>
-                            <asp:TableCell VerticalAlign="Top" HorizontalAlign="Left">
-                                <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="15" ToolTip="Show object's Raw data" />
+                            <asp:TableCell VerticalAlign="Top" HorizontalAlign="Right" Width="23" style="padding-right:3px;">
+                                <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show object's Raw data" />
                                 <ajaxtoolkit:ModalPopupExtender ID="mpInfo" runat="server" PopupControlID="pnlInfo" 
                                     TargetControlID="ibInfo" CancelControlID="btnClose" BackgroundCssClass="modalBackground" Y="100">
                                 </ajaxtoolkit:ModalPopupExtender>
