@@ -87,9 +87,6 @@
     <Content Include="Groups.aspx" />
     <Content Include="Images\Devices\garage_doors0.png" />
     <Content Include="Images\Devices\garage_doors100.png" />
-    <Content Include="Images\Devices\garage_doors25.png" />
-    <Content Include="Images\Devices\garage_doors50.png" />
-    <Content Include="Images\Devices\garage_doors75.png" />
     <Content Include="Images\Devices\hubsfalse.png" />
     <Content Include="Images\Devices\hubstrue.png" />
     <Content Include="Images\Devices\lightsfalse.png" />

@@ -283,8 +283,8 @@ namespace WinkAtHome.Controls
                     if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
                     {
                         Wink.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
-                        degree = (Convert.ToDouble(stat.current_status) * 100).ToString();
                         hfLevelCommand.Value = stat.name;
+                        degree = (Convert.ToDouble(stat.current_status) * 100).ToString();
                     }
 
                     if (devicetype == "light_bulbs" || devicetype == "binary_switches")
@@ -324,7 +324,7 @@ namespace WinkAtHome.Controls
 
                     }
 
-                    if (degree != "n/a" && device.controllable)
+                    if (degree != "n/a" && device.controllable && device.type != "garage_doors")
                     {
                         rs.Visible = true;
                         if (state == "true")
@@ -401,12 +401,12 @@ namespace WinkAtHome.Controls
 
                 string newstate = string.Empty;
 
-                if (hfLevelCommand.Value == "brightness" && newstate == "true")
+                if (hfLevelCommand.Value == "brightness")
                 {
-                    newstate = hfMainCommand.Value + "\":" + (newlevel == 0 ? "false" : "true") + ",\"";
+                    newstate = (newlevel == 0 ? "false" : "true");
                 }
 
-                command = "{\"desired_state\": {\"" + newstate + hfLevelCommand.Value + "\":" + newlevel + "}}";
+                command = "{\"desired_state\": {\"" + hfMainCommand.Value + "\":" + newstate + ",\"" + hfLevelCommand.Value + "\":" + newlevel + "}}";
                 Wink.sendDeviceCommand(deviceID, command);
 
 
