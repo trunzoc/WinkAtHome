@@ -28,7 +28,7 @@
                                                 CommandArgument='<%# ((Wink.Device)Container.DataItem).id %>' ToolTip='<%# ((Wink.Device)Container.DataItem).name + " : " + ((Wink.Device)Container.DataItem).type %>' />
                                         </asp:TableCell>
                                         <asp:TableCell>
-                                            <telerik:RadSlider ID="rsBrightness" runat="server" MinimumValue="0" MaximumValue="100" Orientation="Vertical" ToolTip="Off" Height="100"
+                                            <telerik:RadSlider ID="rsBrightness" runat="server" MinimumValue="0" MaximumValue="100" Orientation="Vertical" ToolTip="Off" Height="100" SmallChange="5" LargeChange="25"
                                                 ItemType="None" ShowIncreaseHandle="false" ShowDecreaseHandle="false" IsDirectionReversed="true" AutoPostBack="true" LiveDrag="false"
                                                 AnimationDuration="400" ThumbsInteractionMode="Free" OnValueChanged="rsBrightness_ValueChanged" DecreaseText='<%# ((Wink.Device)Container.DataItem).name %>'>
                                             </telerik:RadSlider>

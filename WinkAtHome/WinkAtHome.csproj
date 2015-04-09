@@ -83,6 +83,11 @@
     <Content Include="DLLs\Telerik.Web.UI.dll" />
     <Content Include="favicon.ico" />
     <Content Include="Groups.aspx" />
+    <Content Include="Images\Devices\garage_doors0.png" />
+    <Content Include="Images\Devices\garage_doors100.png" />
+    <Content Include="Images\Devices\garage_doors25.png" />
+    <Content Include="Images\Devices\garage_doors50.png" />
+    <Content Include="Images\Devices\garage_doors75.png" />
     <Content Include="Images\Devices\hubsfalse.png" />
     <Content Include="Images\Devices\hubstrue.png" />
     <Content Include="Images\Devices\lightsfalse.png" />
@@ -90,6 +95,11 @@
     <Content Include="Images\Devices\locksfalse.png" />
     <Content Include="Images\Devices\lockstrue.png" />
     <Content Include="Images\Devices\lock_pins.png" />
+    <Content Include="Images\Devices\propane_tanks0.png" />
+    <Content Include="Images\Devices\propane_tanks100.png" />
+    <Content Include="Images\Devices\propane_tanks25.png" />
+    <Content Include="Images\Devices\propane_tanks50.png" />
+    <Content Include="Images\Devices\propane_tanks75.png" />
     <Content Include="Images\Devices\remotesfalse.png" />
     <Content Include="Images\Devices\remotestrue.png" />
     <Content Include="Images\Groups\false.png" />

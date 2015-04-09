@@ -64,6 +64,8 @@ public class Wink
         public List<DeviceStatus> status = new List<DeviceStatus>();
         public bool controllable;
         public string json;
+        public string units_type;
+        public string unit_value;
 
         public static Device getDeviceByID(string deviceID)
         {
@@ -130,6 +132,15 @@ public class Wink
             if (_devices == null)
             {
                 JObject json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetAllDevicesURL"]);
+
+                #region debug
+#if DEBUG
+                //DVD
+                json = JObject.Parse("{\"data\": [{\"garage_door_id\": \"8552\",\"name\": \"Garage Door\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1420250978,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"af309d2e12b86bd1e5e63123db745dad703e46fb|garage_door-8552|user-123172\"}},\"user_ids\": [\"123172\"],\"triggers\": [],\"desired_state\": {\"position\": 0.5},\"manufacturer_device_model\": \"chamberlain_vgdo\",\"manufacturer_device_id\": \"1180839\",\"device_manufacturer\": \"chamberlain\",\"model_name\": \"MyQ Garage Door Controller\",\"upc_id\": \"26\",\"linked_service_id\": \"59900\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428535030.025161,\"position\": 0.5,\"position_updated_at\": 1428535020.76,\"position_opened\": \"N/A\",\"position_opened_updated_at\": 1428534916.709,\"battery\": 1.0,\"battery_updated_at\": 1428534350.3417819,\"fault\": false,\"fault_updated_at\": 1428534350.3417749,\"control_enabled\": true,\"control_enabled_updated_at\": 1428534350.3417563,\"desired_position\": 0.0,\"desired_position_updated_at\": 1428535030.0404377},\"lat_lng\": [33.162135,-97.090945],\"location\": \"\",\"order\": 0},{\"hub_id\": \"123325\",\"name\": \"Hub\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227748,\"hidden_at\": null,\"capabilities\": {\"oauth2_clients\": [\"wink_hub\"]},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"529370b8a463cd5d7eb1c2b0fa4012d00a50a656|hub-123325|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"pairing_mode\": null},\"manufacturer_device_model\": \"wink_hub\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"wink\",\"model_name\": \"Hub\",\"upc_id\": \"15\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428536664.2008882,\"agent_session_id\": \"9e4d89ad709347c6403bed40d55c578d\",\"agent_session_id_updated_at\": 1428518268.715148,\"remote_pairable\": null,\"remote_pairable_updated_at\": null,\"updating_firmware\": false,\"updating_firmware_updated_at\": 1428518268.0768747,\"app_rootfs_version\": \"00.77\",\"app_rootfs_version_updated_at\": 1428518269.3207974,\"firmware_version\": \"0.77.0\",\"firmware_version_updated_at\": 1428518269.3207758,\"update_needed\": false,\"update_needed_updated_at\": 1428518269.3208041,\"mac_address\": \"34:23:BA:F6:35:D8\",\"mac_address_updated_at\": 1428518269.3207829,\"ip_address\": \"10.1.1.201\",\"ip_address_updated_at\": 1428518269.3207898,\"hub_version\": \"00.01\",\"hub_version_updated_at\": 1428518269.3207622,\"pairing_mode\": null,\"pairing_mode_updated_at\": 1427227748.3987196,\"desired_pairing_mode\": null,\"desired_pairing_mode_updated_at\": 1427227748.398726},\"lat_lng\": [null,null],\"location\": \"\",\"configuration\": {\"kidde_radio_code\": 0},\"update_needed\": false,\"uuid\": \"3ec4f0ad-109e-4ebe-a274-5d9768e6b84c\"},{\"light_bulb_id\": \"478420\",\"name\": \"Living room floor lamp\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227790,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"44fcf028ea9c73e9ea6af24b82e36cb632118374|light_bulb-478420|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"brightness\": 0.92},\"manufacturer_device_model\": \"ge_\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"ge\",\"model_name\": \"GE light bulb\",\"upc_id\": \"73\",\"hub_id\": \"123325\",\"local_id\": \"1\",\"radio_type\": \"zigbee\",\"linked_service_id\": null,\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428518540.0306776,\"firmware_version\": null,\"firmware_version_updated_at\": 1427227806.16346,\"firmware_date_code\": \"20140812\",\"firmware_date_code_updated_at\": 1428518540.0306881,\"powered\": false,\"powered_updated_at\": 1428518540.0306954,\"brightness\": 0.92,\"brightness_updated_at\": 1428518540.0307035,\"desired_powered\": false,\"desired_powered_updated_at\": 1428472947.8617652,\"desired_brightness\": 0.92,\"desired_brightness_updated_at\": 1428472917.1631668},\"lat_lng\": [null,null],\"location\": \"\",\"order\": 0},{\"light_bulb_id\": \"478421\",\"name\": \"Dales Desk\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227790,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"e195f23aeea7800aaeb6336edea638767ba99b8d|light_bulb-478421|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"powered\": true,\"brightness\": 0.98},\"manufacturer_device_model\": \"ge_\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"ge\",\"model_name\": \"GE light bulb\",\"upc_id\": \"73\",\"hub_id\": \"123325\",\"local_id\": \"2\",\"radio_type\": \"zigbee\",\"linked_service_id\": null,\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428535132.99332,\"firmware_version\": null,\"firmware_version_updated_at\": 1427227801.7766044,\"firmware_date_code\": \"20140812\",\"firmware_date_code_updated_at\": 1428535132.9933288,\"powered\": true,\"powered_updated_at\": 1428535132.993335,\"brightness\": 0.98,\"brightness_updated_at\": 1428535132.9933429,\"desired_powered\": true,\"desired_powered_updated_at\": 1428528603.1202045,\"desired_brightness\": 0.98,\"desired_brightness_updated_at\": 1428535112.0340307},\"lat_lng\": [null,null],\"location\": \"\",\"order\": 0},{\"light_bulb_id\": \"478422\",\"name\": \"Annes Desk\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227790,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"65ed528c6bc8acb0185f90d9982954b1966c6cbf|light_bulb-478422|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"powered\": true,\"brightness\": 1.0},\"manufacturer_device_model\": \"ge_\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"ge\",\"model_name\": \"GE light bulb\",\"upc_id\": \"73\",\"hub_id\": \"123325\",\"local_id\": \"3\",\"radio_type\": \"zigbee\",\"linked_service_id\": null,\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428536680.3404841,\"firmware_version\": null,\"firmware_version_updated_at\": 1427227807.3688362,\"firmware_date_code\": \"20140812\",\"firmware_date_code_updated_at\": 1428536680.3405023,\"powered\": true,\"powered_updated_at\": 1428536680.3405173,\"brightness\": 1.0,\"brightness_updated_at\": 1428536680.340534,\"desired_powered\": true,\"desired_powered_updated_at\": 1428536663.8815196,\"desired_brightness\": 1.0,\"desired_brightness_updated_at\": 1428536663.8815293},\"lat_lng\": [null,null],\"location\": \"\",\"order\": 0},{\"light_bulb_id\": \"478423\",\"name\": \"Dales Bedside\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227791,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"39f4698c9de76f3d269293996121fea79acb5c5c|light_bulb-478423|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"brightness\": 0.92},\"manufacturer_device_model\": \"ge_\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"ge\",\"model_name\": \"GE light bulb\",\"upc_id\": \"73\",\"hub_id\": \"123325\",\"local_id\": \"5\",\"radio_type\": \"zigbee\",\"linked_service_id\": null,\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428534754.2444475,\"firmware_version\": null,\"firmware_version_updated_at\": 1427227811.281913,\"firmware_date_code\": \"20140812\",\"firmware_date_code_updated_at\": 1428534754.2444575,\"powered\": false,\"powered_updated_at\": 1428534754.2444651,\"brightness\": 0.92,\"brightness_updated_at\": 1428534754.2444727,\"desired_powered\": false,\"desired_powered_updated_at\": 1428472922.1611123,\"desired_brightness\": 0.92,\"desired_brightness_updated_at\": 1428472917.3369167},\"lat_lng\": [null,null],\"location\": \"\",\"order\": 0},{\"light_bulb_id\": \"478424\",\"name\": \"Annes Bedside\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227794,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"282b2982b2f129351fcbee2ea8c1c1ab32647447|light_bulb-478424|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"brightness\": 0.92},\"manufacturer_device_model\": \"ge_\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"ge\",\"model_name\": \"GE light bulb\",\"upc_id\": \"73\",\"hub_id\": \"123325\",\"local_id\": \"6\",\"radio_type\": \"zigbee\",\"linked_service_id\": null,\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428523346.5536232,\"firmware_version\": null,\"firmware_version_updated_at\": 1427227820.0656626,\"firmware_date_code\": \"20140812\",\"firmware_date_code_updated_at\": 1428523346.5536332,\"powered\": false,\"powered_updated_at\": 1428523346.5536401,\"brightness\": 0.92,\"brightness_updated_at\": 1428523346.5536482,\"desired_powered\": false,\"desired_powered_updated_at\": 1428472957.6509764,\"desired_brightness\": 0.92,\"desired_brightness_updated_at\": 1428472917.3777168},\"lat_lng\": [null,null],\"location\": \"\",\"order\": 0},{\"light_bulb_id\": \"478425\",\"name\": \"Hall 1\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227794,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"55708fc574c1cc2ea163f0dfd08853b4be53eb53|light_bulb-478425|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"brightness\": 0.92},\"manufacturer_device_model\": \"ge_\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"ge\",\"model_name\": \"GE light bulb\",\"upc_id\": \"73\",\"hub_id\": \"123325\",\"local_id\": \"9\",\"radio_type\": \"zigbee\",\"linked_service_id\": null,\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428521542.671829,\"firmware_version\": null,\"firmware_version_updated_at\": 1427227813.4945884,\"firmware_date_code\": \"20140812\",\"firmware_date_code_updated_at\": 1428521542.6718392,\"powered\": false,\"powered_updated_at\": 1428521542.6718462,\"brightness\": 0.92,\"brightness_updated_at\": 1428521542.6718552,\"desired_powered\": false,\"desired_powered_updated_at\": 1428472951.2001102,\"desired_brightness\": 0.92,\"desired_brightness_updated_at\": 1428472951.2001269},\"lat_lng\": [null,null],\"location\": \"\",\"order\": 0},{\"light_bulb_id\": \"478426\",\"name\": \"Hall 2\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227794,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"94c12d0b66d9c638d0b410edb051684909a36346|light_bulb-478426|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"brightness\": 0.92},\"manufacturer_device_model\": \"ge_\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"ge\",\"model_name\": \"GE light bulb\",\"upc_id\": \"73\",\"hub_id\": \"123325\",\"local_id\": \"10\",\"radio_type\": \"zigbee\",\"linked_service_id\": null,\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428518542.8424141,\"firmware_version\": null,\"firmware_version_updated_at\": 1427227817.3887572,\"firmware_date_code\": \"20140812\",\"firmware_date_code_updated_at\": 1428518542.8424242,\"powered\": false,\"powered_updated_at\": 1428518542.8424311,\"brightness\": 0.92,\"brightness_updated_at\": 1428518542.8424387,\"desired_powered\": false,\"desired_powered_updated_at\": 1428472922.4328008,\"desired_brightness\": 0.92,\"desired_brightness_updated_at\": 1428472917.4655426},\"lat_lng\": [null,null],\"location\": \"\",\"order\": 0},{\"light_bulb_id\": \"478427\",\"name\": \"Living room lamp\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227795,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"826893c576f52836ca9968e492df110a82351ad8|light_bulb-478427|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"brightness\": 0.92},\"manufacturer_device_model\": \"ge_\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"ge\",\"model_name\": \"GE light bulb\",\"upc_id\": \"73\",\"hub_id\": \"123325\",\"local_id\": \"12\",\"radio_type\": \"zigbee\",\"linked_service_id\": null,\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428520939.5528028,\"firmware_version\": \"0.1b03 / 0.4b00\",\"firmware_version_updated_at\": 1428520939.5528338,\"firmware_date_code\": \"20140812\",\"firmware_date_code_updated_at\": 1428520939.5528123,\"powered\": false,\"powered_updated_at\": 1428520939.5528202,\"brightness\": 0.92,\"brightness_updated_at\": 1428520939.5528271,\"desired_powered\": false,\"desired_powered_updated_at\": 1428472949.1534016,\"desired_brightness\": 0.92,\"desired_brightness_updated_at\": 1428472917.5071518},\"lat_lng\": [null,null],\"location\": \"\",\"order\": 0},{\"light_bulb_id\": \"478428\",\"name\": \"Hall 3\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227795,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"bd444af6442ee20ce316f5f91a14f78b2faf8220|light_bulb-478428|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"brightness\": 0.92},\"manufacturer_device_model\": \"ge_\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"ge\",\"model_name\": \"GE light bulb\",\"upc_id\": \"73\",\"hub_id\": \"123325\",\"local_id\": \"11\",\"radio_type\": \"zigbee\",\"linked_service_id\": null,\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428518539.8047106,\"firmware_version\": null,\"firmware_version_updated_at\": 1427227821.7048221,\"firmware_date_code\": \"20140812\",\"firmware_date_code_updated_at\": 1428518539.8047209,\"powered\": false,\"powered_updated_at\": 1428518539.804728,\"brightness\": 0.92,\"brightness_updated_at\": 1428518539.8047359,\"desired_powered\": false,\"desired_powered_updated_at\": 1428472949.9585643,\"desired_brightness\": 0.92,\"desired_brightness_updated_at\": 1428472917.5484588},\"lat_lng\": [null,null],\"location\": \"\",\"order\": 0},{\"light_bulb_id\": \"478429\",\"name\": \"Front hall 3\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227796,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"78dd678994e091868ed0de4d4f32189b0f509aba|light_bulb-478429|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"brightness\": 0.92},\"manufacturer_device_model\": \"ge_\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"ge\",\"model_name\": \"GE light bulb\",\"upc_id\": \"73\",\"hub_id\": \"123325\",\"local_id\": \"13\",\"radio_type\": \"zigbee\",\"linked_service_id\": null,\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428534756.4984963,\"firmware_version\": \"0.1b03 / 0.4b00\",\"firmware_version_updated_at\": 1428534756.4985278,\"firmware_date_code\": \"20140812\",\"firmware_date_code_updated_at\": 1428534756.4985058,\"powered\": false,\"powered_updated_at\": 1428534756.4985142,\"brightness\": 0.92,\"brightness_updated_at\": 1428534756.4985211,\"desired_powered\": false,\"desired_powered_updated_at\": 1428472961.60687,\"desired_brightness\": 0.92,\"desired_brightness_updated_at\": 1428472917.5925322},\"lat_lng\": [null,null],\"location\": \"\",\"order\": 0},{\"light_bulb_id\": \"478430\",\"name\": \"Front hall 1\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227797,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"0f96c74cc64e5e60f991829543762454743195f1|light_bulb-478430|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"brightness\": 0.92},\"manufacturer_device_model\": \"ge_\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"ge\",\"model_name\": \"GE light bulb\",\"upc_id\": \"73\",\"hub_id\": \"123325\",\"local_id\": \"15\",\"radio_type\": \"zigbee\",\"linked_service_id\": null,\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428518542.293112,\"firmware_version\": \"0.1b03 / 0.4b00\",\"firmware_version_updated_at\": 1428518542.293143,\"firmware_date_code\": \"20140812\",\"firmware_date_code_updated_at\": 1428518542.2931216,\"powered\": false,\"powered_updated_at\": 1428518542.2931294,\"brightness\": 0.92,\"brightness_updated_at\": 1428518542.2931361,\"desired_powered\": false,\"desired_powered_updated_at\": 1428472922.6836944,\"desired_brightness\": 0.92,\"desired_brightness_updated_at\": 1428472917.630353},\"lat_lng\": [null,null],\"location\": \"\",\"order\": 0},{\"light_bulb_id\": \"478431\",\"name\": \"Front hall 2\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1427227803,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"210be6efabc51130de50a6f28fdb5353022b2655|light_bulb-478431|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"brightness\": 0.92},\"manufacturer_device_model\": \"ge_\",\"manufacturer_device_id\": null,\"device_manufacturer\": \"ge\",\"model_name\": \"GE light bulb\",\"upc_id\": \"73\",\"hub_id\": \"123325\",\"local_id\": \"14\",\"radio_type\": \"zigbee\",\"linked_service_id\": null,\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428518541.556289,\"firmware_version\": \"0.1b03 / 0.4b00\",\"firmware_version_updated_at\": 1428518541.5563202,\"firmware_date_code\": \"20140812\",\"firmware_date_code_updated_at\": 1428518541.5562987,\"powered\": false,\"powered_updated_at\": 1428518541.5563066,\"brightness\": 0.92,\"brightness_updated_at\": 1428518541.5563138,\"desired_powered\": false,\"desired_powered_updated_at\": 1428472957.5910468,\"desired_brightness\": 0.92,\"desired_brightness_updated_at\": 1428472917.6678269},\"lat_lng\": [null,null],\"location\": \"\",\"order\": 0},{\"propane_tank_id\": \"6521\",\"name\": \"Refuel\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419569612,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"5055752531a8aac104827ec4ba2a3366038ee15a|propane_tank-6521|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"device_manufacturer\": \"quirky_ge\",\"model_name\": \"Refuel\",\"upc_id\": \"17\",\"last_reading\": {\"connection\": true,\"battery\": 0.52,\"remaining\": 0.5},\"lat_lng\": [33.162101,-97.090547],\"location\": \"76210\",\"mac_address\": \"0c2a6907025a\",\"serial\": \"ACAB00033589\",\"tare\": 18.0,\"tank_changed_at\": 1421352479},{\"thermostat_id\": \"27239\",\"name\": \"HOME\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419909349,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"f5cb03e4101d1668ff7933a703a864b4984fce5a|thermostat-27239|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"mode\": \"heat_only\",\"powered\": true,\"min_set_point\": 20.0,\"max_set_point\": 22.777777777777779},\"manufacturer_device_model\": \"MANHATTAN\",\"manufacturer_device_id\": \"798165\",\"device_manufacturer\": \"honeywell\",\"model_name\": \"Honeywell Wi-Fi Smart Thermostat\",\"upc_id\": \"151\",\"hub_id\": null,\"local_id\": \"00D02D49A90A\",\"radio_type\": null,\"linked_service_id\": \"57563\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428536316.8312173,\"mode\": \"heat_only\",\"mode_updated_at\": 1428536316.8312581,\"powered\": true,\"powered_updated_at\": 1428536316.831265,\"min_set_point\": 20.0,\"min_set_point_updated_at\": 1428536316.8312485,\"max_set_point\": 22.777777777777779,\"max_set_point_updated_at\": 1428536316.8312287,\"temperature\": 22.777777777777779,\"temperature_updated_at\": 1428536316.8312783,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.6666666666666667,\"deadband_updated_at\": 1428536316.831311,\"min_min_set_point\": 4.4444444444444446,\"min_min_set_point_updated_at\": 1428536316.8313046,\"max_min_set_point\": 29.444444444444443,\"max_min_set_point_updated_at\": 1428536316.8312914,\"min_max_set_point\": 16.666666666666668,\"min_max_set_point_updated_at\": 1428536316.8312984,\"max_max_set_point\": 37.222222222222221,\"max_max_set_point_updated_at\": 1428536316.831285,\"modes_allowed\": [\"auto\",\"cool_only\",\"heat_only\"],\"modes_allowed_updated_at\": 1428536316.8313177,\"units\": \"f\",\"units_updated_at\": 1428536316.8312719,\"desired_mode\": \"heat_only\",\"desired_mode_updated_at\": 1428365474.3775809,\"desired_powered\": true,\"desired_powered_updated_at\": 1424823532.9645114,\"desired_min_set_point\": 20.0,\"desired_min_set_point_updated_at\": 1428509375.1094887,\"desired_max_set_point\": 22.777777777777779,\"desired_max_set_point_updated_at\": 1428509375.109503},\"lat_lng\": [33.162074,-97.090928],\"location\": \"\",\"smart_schedule_enabled\": false}],\"errors\": [],\"pagination\": {\"count\": 16},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"009ff9de3a742a55c2bfd1998f3a81027726e79b\"}}}");
+#endif
+                #endregion
+
+
                 List<Device> Devices = new List<Device>();
 
                 if (json != null)
@@ -197,159 +208,32 @@ public class Wink
                                                 string lastupdated = readings[reading.Key + "_updated_at"].ToString();
                                                 deviceStatus.last_updated = Common.FromUnixTime(lastupdated);
                                             }
-                                            
+
                                             device.status.Add(deviceStatus);
                                         }
                                     }
                                 }
                             }
+
+                            if (keys.Contains("units") && data["units"].First != null)
+                            {
+                                JObject units = (JObject)data["units"];
+                                if (units != null)
+                                {
+                                    foreach (var unit in units)
+                                    {
+                                        device.units_type = unit.Key;
+                                        device.unit_value = unit.Value.ToString();
+                                    }
+                                }
+                            }
+
+
+
                             Devices.Add(device);
                         }
                     }
                 }
-                #region debug
-#if DEBUG
-                Device devicea = new Device();
-                devicea.controllable = true;
-                devicea.desired_states = new List<string>() { "mode", "powered", "modes_allowed", "min_set_point", "max_set_point"﻿ };
-                devicea.id = "12345";
-                devicea.name = "Thermostat Auto";
-                devicea.type = "thermostats";
-                devicea.status = new List<DeviceStatus>();
-
-                DeviceStatus statusaa = new DeviceStatus();
-                statusaa.id = "12345";
-                statusaa.name = "mode";
-                statusaa.current_status = "auto";
-                statusaa.last_updated = DateTime.Now;
-                devicea.status.Add(statusaa);
-
-                DeviceStatus statusab = new DeviceStatus();
-                statusab.id = "12345";
-                statusab.name = "powered";
-                statusab.current_status = "true";
-                statusab.last_updated = DateTime.Now;
-                devicea.status.Add(statusab);
-
-                DeviceStatus statusac = new DeviceStatus();
-                statusac.id = "12345";
-                statusac.name = "modes_allowed";
-                statusac.current_status = "auto,cool_only,heat_only";
-                statusac.last_updated = DateTime.Now;
-                devicea.status.Add(statusac);
-
-                DeviceStatus statusad = new DeviceStatus();
-                statusad.id = "12345";
-                statusad.name = "min_set_point";
-                statusad.current_status = "19.444444444444443";
-                statusad.last_updated = DateTime.Now;
-                devicea.status.Add(statusad);
-
-                DeviceStatus statusae = new DeviceStatus();
-                statusae.id = "12345";
-                statusae.name = "max_set_point";
-                statusae.current_status = "29.444444444444443";
-                statusae.last_updated = DateTime.Now;
-                devicea.status.Add(statusae);
-
-                Devices.Add(devicea);
-
-
-                Device deviceb = new Device();
-                deviceb.controllable = true;
-                deviceb.desired_states = new List<string>() { "mode", "powered", "modes_allowed", "min_set_point", "max_set_point"﻿ };
-                deviceb.id = "123456";
-                deviceb.name = "Thermostat Cool";
-                deviceb.type = "thermostats";
-                deviceb.status = new List<DeviceStatus>();
-
-                DeviceStatus statusba = new DeviceStatus();
-                statusba.id = "123456";
-                statusba.name = "mode";
-                statusba.current_status = "cool";
-                statusba.last_updated = DateTime.Now;
-                deviceb.status.Add(statusba);
-
-                DeviceStatus statusbb = new DeviceStatus();
-                statusbb.id = "123456";
-                statusbb.name = "powered";
-                statusbb.current_status = "true";
-                statusbb.last_updated = DateTime.Now;
-                deviceb.status.Add(statusbb);
-
-                DeviceStatus statusbc = new DeviceStatus();
-                statusbc.id = "123456";
-                statusbc.name = "modes_allowed";
-                statusbc.current_status = "auto,cool_only,heat_only";
-                statusbc.last_updated = DateTime.Now;
-                deviceb.status.Add(statusbc);
-
-                DeviceStatus statusbd = new DeviceStatus();
-                statusbd.id = "123456";
-                statusbd.name = "min_set_point";
-                statusbd.current_status = "19.444444444444443";
-                statusbd.last_updated = DateTime.Now;
-                deviceb.status.Add(statusbd);
-
-                DeviceStatus statusbe = new DeviceStatus();
-                statusbe.id = "123456";
-                statusbe.name = "max_set_point";
-                statusbe.current_status = "29.444444444444443";
-                statusbe.last_updated = DateTime.Now;
-                deviceb.status.Add(statusbe);
-
-                Devices.Add(deviceb);
-
-
-                Device devicec = new Device();
-                devicec.controllable = true;
-                devicec.desired_states = new List<string>() { "mode", "powered", "modes_allowed", "min_set_point", "max_set_point"﻿ };
-                devicec.id = "123456";
-                devicec.name = "Thermostat Heat";
-                devicec.type = "thermostats";
-                devicec.status = new List<DeviceStatus>();
-
-                DeviceStatus statusca = new DeviceStatus();
-                statusca.id = "123456";
-                statusca.name = "mode";
-                statusca.current_status = "heat";
-                statusca.last_updated = DateTime.Now;
-                devicec.status.Add(statusca);
-
-                DeviceStatus statuscb = new DeviceStatus();
-                statuscb.id = "123456";
-                statuscb.name = "powered";
-                statuscb.current_status = "true";
-                statuscb.last_updated = DateTime.Now;
-                devicec.status.Add(statuscb);
-
-                DeviceStatus statuscc = new DeviceStatus();
-                statuscc.id = "123456";
-                statuscc.name = "modes_allowed";
-                statuscc.current_status = "auto,cool_only,heat_only";
-                statuscc.last_updated = DateTime.Now;
-                devicec.status.Add(statuscc);
-
-                DeviceStatus statuscd = new DeviceStatus();
-                statuscd.id = "123456";
-                statuscd.name = "min_set_point";
-                statuscd.current_status = "19.444444444444443";
-                statuscd.last_updated = DateTime.Now;
-                devicec.status.Add(statuscd);
-
-                DeviceStatus statusce = new DeviceStatus();
-                statusce.id = "123456";
-                statusce.name = "max_set_point";
-                statusce.current_status = "29.444444444444443";
-                statusce.last_updated = DateTime.Now;
-                devicec.status.Add(statusce);
-
-                Devices.Add(devicec);
-#endif
-                #endregion
-
-
-                
                 _devices = Devices.OrderBy(c => !c.controllable).ThenBy(c => c.name).ToList();
             }
             return _devices;
