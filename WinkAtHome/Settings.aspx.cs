@@ -89,5 +89,10 @@ namespace WinkAtHome
             rowEdit.Visible = true;
 
         }
+
+        protected void lbSensors_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("~/Monitor.aspx");
+        }
     }
 }

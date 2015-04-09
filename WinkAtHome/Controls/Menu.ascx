@@ -35,6 +35,7 @@
                     <telerik:RadMenuItem Text="Groups" Value="groups" />
                     <telerik:RadMenuItem Text="Shortcuts" Value="shortcuts" />
                     <telerik:RadMenuItem Text="Robots" Value="robots" />
+                    <telerik:RadMenuItem Text="Settings" Value="settings" />
                 </Items>
             </telerik:RadMenu>
         </asp:TableCell>

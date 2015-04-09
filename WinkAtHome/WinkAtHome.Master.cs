@@ -56,11 +56,6 @@ namespace WinkAtHome
             ScriptManager.RegisterStartupScript(Page, typeof(Page), "refresh", "clickTrigger()", true); 
         }
 
-        protected void lbSettings_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("~/Settings.aspx");
-        }
-
         protected void tbTimer_TextChanged(object sender, EventArgs e)
         {
             tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
@@ -85,6 +80,11 @@ namespace WinkAtHome
             Session.Abandon();
 
             Response.Redirect("~/Login.aspx");
+        }
+
+        protected void lbSensors_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("~/Monitor.aspx");
         }
 
     }

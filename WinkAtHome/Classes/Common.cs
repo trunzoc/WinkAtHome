@@ -70,7 +70,7 @@ namespace WinkAtHome
         }
         public static double FromCelsiusToFahrenheit(double c)
         {
-            return ((9.0 / 5.0) * c) + 32;
+            return Math.Round(((9.0 / 5.0) * c) + 32);
         }
 
         public static double FromFahrenheitToCelsius(double f)

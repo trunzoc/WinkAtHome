@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AjaxControlToolkit;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -105,53 +106,104 @@ namespace WinkAtHome.Controls
                 string state = string.Empty;
                 string degree = "n/a";
 
+                //BIND INFO BUTTON
+                var props = typeof(Wink.Device).GetProperties();
+                var properties = new List<KeyValuePair<string, string>>();
+                foreach (var prop in props)
+                {
+                    TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+                    
+                    string propname = textInfo.ToTitleCase(prop.Name.Replace("_", " "));
+                    var propvalue = prop.GetValue(device,null);
+                    if (propvalue != null)
+                        properties.Add(new KeyValuePair<string, string>(propname, propvalue.ToString()));
+                }
+                DataList dlProperties = (DataList)e.Item.FindControl("dlProperties");
+                if (dlProperties != null)
+                {
+                    dlProperties.DataSource = properties;
+                    dlProperties.DataBind();
+                }
+
+                //SETUP DEVICES DISPLAY
                 if (devicetype == "thermostats") //Start Thermostats
                 {
+                    HiddenField hfSetHighTemp = (HiddenField)e.Item.FindControl("hfSetHighTemp");
+                    HiddenField hfSetLowTemp = (HiddenField)e.Item.FindControl("hfSetLowTemp");
+                    HiddenField hfSetMode = (HiddenField)e.Item.FindControl("hfSetMode");
+                    HiddenField hfSetPower = (HiddenField)e.Item.FindControl("hfSetPower");
+                    
                     tblThermostat.Visible = true;
                     if (keys.Contains("powered"))
                     {
-                        ImageButton ibThermPower = (ImageButton)e.Item.FindControl("ibThermPower");
                         string powered = status.Single(p => p.name == "powered").current_status.ToLower();
+                        ImageButton ibThermPower = (ImageButton)e.Item.FindControl("ibThermPower");
                         ibThermPower.ImageUrl = "~/Images/Thermostats/power" + powered + ".png";
+
+                        ImageButton ibThermPowerSet = (ImageButton)e.Item.FindControl("ibThermPowerSet");
+                        ibThermPowerSet.ImageUrl = "~/Images/Thermostats/power" + powered + ".png";
+                        hfSetPower.Value = powered;
                     }
 
                     if (keys.Contains("temperature") && !string.IsNullOrWhiteSpace(status.Single(p => p.name == "temperature").current_status))
                     {
-                        Label lblThermStats = (Label)e.Item.FindControl("lblThermStats");
                         Double temp = Common.FromCelsiusToFahrenheit(Convert.ToDouble(status.Single(p => p.name == "temperature").current_status));
+                        Label lblThermStats = (Label)e.Item.FindControl("lblThermStats");
                         lblThermStats.Text = temp.ToString() + "&deg;";
+
+                        Label lblThermStatsSet = (Label)e.Item.FindControl("lblThermStatsSet");
+                        lblThermStatsSet.Text = temp.ToString() + "&deg;";
                     }
 
                     if (keys.Contains("mode"))
                     {
                         string mode = status.Single(p => p.name == "mode").current_status.ToLower().Replace("_only","");
+                        Image imgThermostatModeAuto = (Image)e.Item.FindControl("imgThermostatModeAuto");
+                        imgThermostatModeAuto.ImageUrl = "~/Images/Thermostats/" + mode + "true.png";
+
+                        Image imgThermostatModeHeatCool = (Image)e.Item.FindControl("imgThermostatModeHeatCool");
+                        imgThermostatModeHeatCool.ImageUrl = "~/Images/Thermostats/" + mode + mode + ".png";
 
                         ImageButton ibThermMode = (ImageButton)e.Item.FindControl("ibTherm" + mode);
                         ibThermMode.ImageUrl = "~/Images/Thermostats/" + mode + "true.png";
 
+                        hfSetMode.Value = mode;
+                        
+                        string mintemp = string.Empty;
+                        string maxtemp = string.Empty;
                         if (mode == "auto")
                         {
                             Table tblMode = (Table)e.Item.FindControl("tblThermauto");
                             tblMode.Visible = true;
+                            Table tblModeSet = (Table)e.Item.FindControl("tblThermautoSet");
+                            tblModeSet.Visible = true;
 
                             if (keys.Contains("min_set_point"))
                             {
-                                string mintemp = status.Single(p => p.name == "min_set_point").current_status.ToLower();
+                                mintemp = status.Single(p => p.name == "min_set_point").current_status.ToLower();
                                 Label lblTempCool = (Label)e.Item.FindControl("lblTempCool" + mode);
                                 lblTempCool.Text = Common.FromCelsiusToFahrenheit(Convert.ToDouble(mintemp)).ToString() + "&deg;";
+
+                                Label lblTempCoolSet = (Label)e.Item.FindControl("lblTempCoolSet" + mode);
+                                lblTempCoolSet.Text = Common.FromCelsiusToFahrenheit(Convert.ToDouble(mintemp)).ToString() + "&deg;";
                             }
 
                             if (keys.Contains("max_set_point"))
                             {
-                                string maxtemp = status.Single(p => p.name == "max_set_point").current_status.ToLower();
+                                maxtemp = status.Single(p => p.name == "max_set_point").current_status.ToLower();
                                 Label lblTempHeat = (Label)e.Item.FindControl("lblTempHeat" + mode);
                                 lblTempHeat.Text = Common.FromCelsiusToFahrenheit(Convert.ToDouble(maxtemp)).ToString() + "&deg;";
+
+                                Label lblTempHeatSet = (Label)e.Item.FindControl("lblTempHeatSet" + mode);
+                                lblTempHeatSet.Text = Common.FromCelsiusToFahrenheit(Convert.ToDouble(maxtemp)).ToString() + "&deg;";
                             }
                         }
                         else
                         {
                             Table tblMode = (Table)e.Item.FindControl("tblCoolHeat");
                             tblMode.Visible = true;
+                            Table tblModeSet = (Table)e.Item.FindControl("tblCoolHeatSet");
+                            tblModeSet.Visible = true;
 
                             ImageButton ibThermUp = (ImageButton)e.Item.FindControl("ibThermUp");
                             ibThermUp.ImageUrl = "~/Images/Thermostats/" + mode + "up.png";
@@ -165,22 +217,38 @@ namespace WinkAtHome.Controls
                             Image imgHeat = (Image)e.Item.FindControl("imgHeat");
                             imgHeat.ImageUrl = "~/Images/Thermostats/heat" + mode + ".png";
 
-                            if (keys.Contains("max_set_point") && mode == "cool")
+                            if (keys.Contains("max_set_point"))
                             {
-                                string maxtemp = status.Single(p => p.name == "max_set_point").current_status.ToLower();
-                                Label lblTemp = (Label)e.Item.FindControl("lblTemp");
-                                lblTemp.Text = Common.FromCelsiusToFahrenheit(Convert.ToDouble(maxtemp)).ToString() + "&deg;";
-                                lblTemp.ForeColor = (mode == "heat") ? System.Drawing.Color.Red : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
+                                maxtemp = status.Single(p => p.name == "max_set_point").current_status.ToLower();
+                                if (mode == "cool")
+                                {
+                                    Label lblTemp = (Label)e.Item.FindControl("lblTemp");
+                                    lblTemp.Text = Common.FromCelsiusToFahrenheit(Convert.ToDouble(maxtemp)).ToString() + "&deg;";
+                                    lblTemp.ForeColor = (mode == "heat") ? System.Drawing.Color.Red : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
+
+                                    Label lblTempSet = (Label)e.Item.FindControl("lblTempSet");
+                                    lblTempSet.Text = Common.FromCelsiusToFahrenheit(Convert.ToDouble(maxtemp)).ToString() + "&deg;";
+                                    lblTempSet.ForeColor = (mode == "heat") ? System.Drawing.Color.Red : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
+                                }
                             }
 
-                            if (keys.Contains("min_set_point") && mode == "heat")
+                            if (keys.Contains("min_set_point"))
                             {
-                                string mintemp = status.Single(p => p.name == "min_set_point").current_status.ToLower();
-                                Label lblTemp = (Label)e.Item.FindControl("lblTemp");
-                                lblTemp.Text = Common.FromCelsiusToFahrenheit(Convert.ToDouble(mintemp)).ToString() + "&deg;";
-                                lblTemp.ForeColor = (mode == "heat") ? System.Drawing.Color.Red : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
+                                mintemp = status.Single(p => p.name == "min_set_point").current_status.ToLower();
+                                if (mode == "heat")
+                                {
+                                    Label lblTemp = (Label)e.Item.FindControl("lblTemp");
+                                    lblTemp.Text = Common.FromCelsiusToFahrenheit(Convert.ToDouble(mintemp)).ToString() + "&deg;";
+                                    lblTemp.ForeColor = (mode == "heat") ? System.Drawing.Color.Red : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
+
+                                    Label lblTempSet = (Label)e.Item.FindControl("lblTempSet");
+                                    lblTempSet.Text = Common.FromCelsiusToFahrenheit(Convert.ToDouble(mintemp)).ToString() + "&deg;";
+                                    lblTempSet.ForeColor = (mode == "heat") ? System.Drawing.Color.Red : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
+                                }
                             }
                         }
+                        hfSetLowTemp.Value = Common.FromCelsiusToFahrenheit(Convert.ToDouble(mintemp)).ToString();
+                        hfSetHighTemp.Value = Common.FromCelsiusToFahrenheit(Convert.ToDouble(maxtemp)).ToString();
                     }
                 }
                 else //Start Normal Devices
@@ -358,6 +426,194 @@ namespace WinkAtHome.Controls
         protected void tbColumns_TextChanged(object sender, EventArgs e)
         {
             SettingMgmt.saveSetting("Devices-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + ControllableOnly.ToString() + "Columns", tbColumns.Text);
+            BindData();
+        }
+
+        protected void ibThermModeChange_Click(object sender, ImageClickEventArgs e)
+        {
+            ImageButton ib = (ImageButton)sender;
+            HiddenField hfSetMode = (HiddenField)ib.NamingContainer.FindControl("hfSetMode");
+            HiddenField hfSetLowTemp = (HiddenField)ib.NamingContainer.FindControl("hfSetLowTemp");
+            HiddenField hfSetHighTemp = (HiddenField)ib.NamingContainer.FindControl("hfSetHighTemp");
+
+            string mode = ib.CommandArgument;
+            hfSetMode.Value = mode;
+
+            Table tblModeAutoSet = (Table)ib.NamingContainer.FindControl("tblThermautoSet");
+            Table tblModeHCSet = (Table)ib.NamingContainer.FindControl("tblCoolHeatSet");
+
+            ImageButton ibThermcool = (ImageButton)ib.NamingContainer.FindControl("ibThermcool");
+            ibThermcool.ImageUrl = "~/Images/Thermostats/coolfalse.png";
+            ImageButton ibThermauto = (ImageButton)ib.NamingContainer.FindControl("ibThermauto");
+            ibThermauto.ImageUrl = "~/Images/Thermostats/autofalse.png";
+            ImageButton ibThermheat = (ImageButton)ib.NamingContainer.FindControl("ibThermheat");
+            ibThermheat.ImageUrl = "~/Images/Thermostats/heatfalse.png";
+            ib.ImageUrl = "~/Images/Thermostats/" + mode + "true.png";
+
+            if (mode == "auto")
+            {
+                tblModeAutoSet.Visible = true;
+                tblModeHCSet.Visible = false;
+
+
+                Label lblTempCoolSet = (Label)ib.NamingContainer.FindControl("lblTempCoolSetauto");
+                lblTempCoolSet.Text = hfSetLowTemp.Value + "&deg;";
+
+                Label lblTempHeatSet = (Label)ib.NamingContainer.FindControl("lblTempHeatSetauto");
+                lblTempHeatSet.Text = hfSetHighTemp.Value + "&deg;";
+            }
+            else
+            {
+                tblModeAutoSet.Visible = false;
+                tblModeHCSet.Visible = true;
+
+                ImageButton ibThermUp = (ImageButton)ib.NamingContainer.FindControl("ibThermUp");
+                ibThermUp.ImageUrl = "~/Images/Thermostats/" + mode + "up.png";
+
+                ImageButton ibThermDown = (ImageButton)ib.NamingContainer.FindControl("ibThermDown");
+                ibThermDown.ImageUrl = "~/Images/Thermostats/" + mode + "down.png";
+
+                Image imgCool = (Image)ib.NamingContainer.FindControl("imgCool");
+                imgCool.ImageUrl = "~/Images/Thermostats/cool" + mode + ".png";
+
+                Image imgHeat = (Image)ib.NamingContainer.FindControl("imgHeat");
+                imgHeat.ImageUrl = "~/Images/Thermostats/heat" + mode + ".png";
+
+
+                string maxtemp = hfSetHighTemp.Value;
+                string mintemp = hfSetLowTemp.Value;
+                Label lblTempSet = (Label)ib.NamingContainer.FindControl("lblTempSet");
+                lblTempSet.ForeColor = (mode == "heat") ? System.Drawing.Color.Red : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
+                
+                if (mode == "cool")
+                    lblTempSet.Text = maxtemp + "&deg;";
+                else if (mode == "heat")
+                {
+                    lblTempSet.Text = mintemp + "&deg;";
+                }
+            }
+
+        }
+
+        protected void ibThermChange_Click(object sender, ImageClickEventArgs e)
+        {
+            ImageButton ib = (ImageButton)sender;
+            Label lblTempSet = null;
+            HiddenField hfSetNewTemp = null;
+
+            if (ib.CommandArgument.Contains("heat"))
+            {
+                lblTempSet = (Label)ib.NamingContainer.FindControl("lblTempHeatSetauto");
+                hfSetNewTemp = (HiddenField)ib.NamingContainer.FindControl("hfSetLowTemp");
+            }
+            else if (ib.CommandArgument.Contains("cool"))
+            {
+                lblTempSet = (Label)ib.NamingContainer.FindControl("lblTempCoolSetauto");
+                hfSetNewTemp = (HiddenField)ib.NamingContainer.FindControl("hfSetHighTemp");
+            }
+            else
+            {
+                lblTempSet = (Label)ib.NamingContainer.FindControl("lblTempSet");
+                hfSetNewTemp = (HiddenField)ib.NamingContainer.FindControl("hfSetTemp");
+            }
+           
+            if (lblTempSet != null)
+            {
+                Int16 temp = Convert.ToInt16(lblTempSet.Text.Replace("&deg;", ""));
+
+                if (ib.CommandArgument.Contains("up"))
+                    temp++;
+                if (ib.CommandArgument.Contains("down"))
+                    temp--;
+
+                hfSetNewTemp.Value = temp.ToString();
+                lblTempSet.Text = temp.ToString() + "&deg;";
+            }
+        }
+
+        protected void ibThermPower_Click(object sender, ImageClickEventArgs e)
+        {
+            ImageButton ib = (ImageButton)sender;
+            HiddenField hfSetPower = (HiddenField)ib.NamingContainer.FindControl("hfSetPower");
+            bool power = Convert.ToBoolean(hfSetPower.Value);
+            string newpower = (!power).ToString().ToLower();
+
+            ib.ImageUrl = "~/Images/Thermostats/power" + newpower + ".png";
+            hfSetPower.Value = newpower;
+        }
+
+        protected void lbApplyThermostat_Click(object sender, EventArgs e)
+        {
+            LinkButton ib = (LinkButton)sender;
+            DataListItem li = (DataListItem)ib.NamingContainer;
+            HiddenField hfSetMode = (HiddenField)ib.NamingContainer.FindControl("hfSetMode");
+            HiddenField hfSetPower = (HiddenField)ib.NamingContainer.FindControl("hfSetPower");
+            Label lblTempCoolSetauto = (Label)ib.NamingContainer.FindControl("lblTempCoolSetauto");
+            Label lblTempHeatSetauto = (Label)ib.NamingContainer.FindControl("lblTempHeatSetauto");
+            Label lblTempSet = (Label)ib.NamingContainer.FindControl("lblTempSet");
+                
+            string deviceID = ib.CommandArgument;
+            string command = string.Empty;
+            string thermmode = string.Empty;
+            string thermpower = string.Empty;
+            Double basetemp = 0;
+            Double thermmin = 0;
+            Double thermmax = 0;
+
+            thermmode = hfSetMode.Value.ToLower() == "auto" ? hfSetMode.Value.ToLower() : hfSetMode.Value.ToLower() + "_only";
+            thermpower = hfSetPower.Value.ToLower();
+
+            if (hfSetMode.Value == "auto")
+            {
+                thermmin = Common.FromFahrenheitToCelsius(Convert.ToDouble(lblTempCoolSetauto.Text.Replace("&deg;", "")));
+                thermmax = Common.FromFahrenheitToCelsius(Convert.ToDouble(lblTempHeatSetauto.Text.Replace("&deg;", "")));
+            }
+            else if (hfSetMode.Value == "cool")
+            {
+                basetemp = Convert.ToDouble(lblTempSet.Text.Replace("&deg;", ""));
+                thermmax = Common.FromFahrenheitToCelsius(basetemp);
+                thermmin = Common.FromFahrenheitToCelsius(basetemp - 2);
+            }
+            else if (hfSetMode.Value == "heat")
+            {
+                basetemp = Convert.ToDouble(lblTempSet.Text.Replace("&deg;", ""));
+                thermmin = Common.FromFahrenheitToCelsius(basetemp);
+                thermmax = Common.FromFahrenheitToCelsius(basetemp + 2);
+            }
+            else
+            {
+            }
+
+            command = "{\"desired_state\": {\"" + "\"mode\":\"" + thermmode + "\",\"powered\":" + thermpower + ",\"modes_allowed\":null,\"min_set_point\":" + thermmin + ",\"max_set_point\":" + thermmax + "}}";
+            Wink.sendDeviceCommand(deviceID, command);
+
+            Wink.Device device = Wink.Device.getDeviceByID(deviceID);
+            
+            Wink.DeviceStatus modestatus = device.status.Single(p => p.name == "mode");
+            if (modestatus != null)
+                modestatus.current_status = thermmode;
+
+            Wink.DeviceStatus poweredstatus = device.status.Single(p => p.name == "powered");
+            if (poweredstatus != null)
+                poweredstatus.current_status = thermpower;
+
+            Wink.DeviceStatus maxstatus = device.status.Single(p => p.name == "max_set_point");
+            if (maxstatus != null)
+                maxstatus.current_status = thermmax.ToString();
+
+            Wink.DeviceStatus minstatus = device.status.Single(p => p.name == "min_set_point");
+            if (minstatus != null)
+                minstatus.current_status = thermmin.ToString();
+
+            TableCell cellApply = (TableCell)ib.NamingContainer.FindControl("cellApply");
+            cellApply.BackColor = System.Drawing.Color.Green;
+
+            //LinkButton lb = (LinkButton)ib.NamingContainer.FindControl("lbApplyThermostat_Click");
+            //lb.Text = "CHANGES APPLIED";
+
+
+            ModalPopupExtender mpe = (ModalPopupExtender)ib.NamingContainer.FindControl("mdeThermostats");
+            mpe.Hide();
             BindData();
         }
     }

@@ -76,6 +76,7 @@
     <Content Include="Controls\Robots.ascx" />
     <Content Include="Controls\Shortcuts.ascx" />
     <Content Include="Controls\winkStatus.ascx" />
+    <Content Include="Monitor.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="Devices.aspx" />
     <Content Include="DLLs\AjaxControlToolkit.dll" />
@@ -184,6 +185,13 @@
     </Compile>
     <Compile Include="Controls\winkStatus.ascx.designer.cs">
       <DependentUpon>winkStatus.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Monitor.aspx.cs">
+      <DependentUpon>Monitor.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Monitor.aspx.designer.cs">
+      <DependentUpon>Monitor.aspx</DependentUpon>
     </Compile>
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>

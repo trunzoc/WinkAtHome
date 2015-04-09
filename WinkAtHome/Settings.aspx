@@ -41,10 +41,10 @@
                                 <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/WinkatHome.png" Height="75px" />
                             </td>
                             <td align="center" style="vertical-align:middle">
-                                <asp:LinkButton ID="lbDashboard" runat="server" Text="DASHBOARD" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbDashboard_Click" OnClientClick="if ( ! cancelConfirmation()) return false;" style="text-decoration: none;" />
+                                <asp:LinkButton ID="lbDashboard" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbDashboard_Click" style="text-decoration: none;" />
                             </td>
                             <td align="center" style="vertical-align:middle">
-                                <asp:LinkButton ID="lbSettings" runat="server" Text="SETTINGS" ForeColor="White" Font-Size="X-Large" Font-Bold="true" style="text-decoration: none;" />
+                                <asp:LinkButton ID="lbSensors" runat="server" Text="MONITOR" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbSensors_Click" style="text-decoration: none;" />
                             </td>
                             <td align="right" width="280">
                                 &nbsp;
