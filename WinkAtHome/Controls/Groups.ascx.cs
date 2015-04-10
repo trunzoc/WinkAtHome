@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -41,6 +42,30 @@ namespace WinkAtHome.Controls
                 HiddenField hfMainCommand = (HiddenField)e.Item.FindControl("hfMainCommand");
                 HiddenField hfCurrentStatus = (HiddenField)e.Item.FindControl("hfCurrentStatus");
                 HiddenField hfLevelCommand = (HiddenField)e.Item.FindControl("hfLevelCommand");
+
+                //BIND INFO BUTTON
+                var props = typeof(Wink.Group).GetProperties();
+                var properties = new List<KeyValuePair<string, string>>();
+                foreach (var prop in props)
+                {
+                    if (prop.Name != "json")
+                    {
+                        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+
+                        string propname = textInfo.ToTitleCase(prop.Name.Replace("_", " "));
+                        var propvalue = prop.GetValue(group, null);
+                        if (propvalue != null)
+                            properties.Add(new KeyValuePair<string, string>(propname, propvalue.ToString()));
+                    }
+                }
+                DataList dlProperties = (DataList)e.Item.FindControl("dlProperties");
+                if (dlProperties != null)
+                {
+                    dlProperties.DataSource = properties;
+                    dlProperties.DataBind();
+                }
+
+
 
                 List<Wink.GroupStatus> status = group.status;
                 IList<string> keys = status.Select(p => p.name).ToList();

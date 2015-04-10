@@ -26,7 +26,7 @@
                                     </Triggers>
                                     <ContentTemplate>
 
-                                        <asp:Table ID="tblDefault" runat="server" Visible="false" Width="100%" Height="100%">
+                                        <asp:Table ID="tblDefault" runat="server" Visible="false" Width="150" Height="100%">
                                             <asp:TableRow>
                                                 <asp:TableCell HorizontalAlign="Center">
                                                     <asp:ImageButton ID="imgIcon" runat="server" ImageUrl="~/Images/WinkHouse.png" Height="100" OnClick="imgIcon_Click"  Enabled="false"
@@ -98,7 +98,7 @@
                                                         CancelControlID="lbCancelThermostat" OkControlID="lbApplyThermostat" BackgroundCssClass="modalBackground" Y="200">
                                                     </ajaxtoolkit:ModalPopupExtender>
 
-                                                    <asp:Panel ID="pnlThermostats" runat="server" Width="210" Height="300" BorderWidth="1"  style="display:none" BackColor="#eeeeee">
+                                                    <asp:Panel ID="pnlThermostats" runat="server" Width="210" Height="350" BorderWidth="1"  style="display:none" BackColor="#eeeeee">
                                                         <br /><br />
                                                         <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional">
                                                             <ContentTemplate>

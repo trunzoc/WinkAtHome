@@ -16,6 +16,9 @@
                 <ItemStyle Width="100" />
                 <ItemTemplate>
                     <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional">
+                        <Triggers>
+                            <asp:PostBackTrigger ControlID="imgIcon" />
+                        </Triggers>
                         <ContentTemplate>
                             <table>
                                 <tr>

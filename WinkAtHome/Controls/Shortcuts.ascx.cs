@@ -40,28 +40,31 @@ namespace WinkAtHome.Controls
 
         protected void dlShortcuts_ItemDataBound(object sender, DataListItemEventArgs e)
         {
-            Wink.Shortcut shortcut = ((Wink.Shortcut)e.Item.DataItem);
-
-            //BIND INFO BUTTON
-            var props = typeof(Wink.Shortcut).GetProperties();
-            var properties = new List<KeyValuePair<string, string>>();
-            foreach (var prop in props)
+            if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
             {
-                if (prop.Name != "json")
+                Wink.Shortcut shortcut = ((Wink.Shortcut)e.Item.DataItem);
+
+                //BIND INFO BUTTON
+                var props = typeof(Wink.Shortcut).GetProperties();
+                var properties = new List<KeyValuePair<string, string>>();
+                foreach (var prop in props)
                 {
-                    TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+                    if (prop.Name != "json")
+                    {
+                        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
 
-                    string propname = textInfo.ToTitleCase(prop.Name.Replace("_", " "));
-                    var propvalue = prop.GetValue(shortcut, null);
-                    if (propvalue != null)
-                        properties.Add(new KeyValuePair<string, string>(propname, propvalue.ToString()));
+                        string propname = textInfo.ToTitleCase(prop.Name.Replace("_", " "));
+                        var propvalue = prop.GetValue(shortcut, null);
+                        if (propvalue != null)
+                            properties.Add(new KeyValuePair<string, string>(propname, propvalue.ToString()));
+                    }
                 }
-            }
-            DataList dlProperties = (DataList)e.Item.FindControl("dlProperties");
-            if (dlProperties != null)
-            {
-                dlProperties.DataSource = properties;
-                dlProperties.DataBind();
+                DataList dlProperties = (DataList)e.Item.FindControl("dlProperties");
+                if (dlProperties != null)
+                {
+                    dlProperties.DataSource = properties;
+                    dlProperties.DataBind();
+                }
             }
         }
     }

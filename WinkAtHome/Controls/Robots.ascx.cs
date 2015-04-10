@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -41,6 +42,36 @@ namespace WinkAtHome.Controls
         {
             dlRobots.RepeatColumns = Convert.ToInt32(tbColumns.Text);
             SettingMgmt.saveSetting("Robots-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns", tbColumns.Text);
+        }
+
+        protected void dlRobots_ItemDataBound(object sender, DataListItemEventArgs e)
+        {
+            if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
+            {
+                Wink.Robot robot = ((Wink.Robot)e.Item.DataItem);
+
+                //BIND INFO BUTTON
+                var props = typeof(Wink.Robot).GetProperties();
+                var properties = new List<KeyValuePair<string, string>>();
+                foreach (var prop in props)
+                {
+                    if (prop.Name != "json")
+                    {
+                        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+
+                        string propname = textInfo.ToTitleCase(prop.Name.Replace("_", " "));
+                        var propvalue = prop.GetValue(robot, null);
+                        if (propvalue != null)
+                            properties.Add(new KeyValuePair<string, string>(propname, propvalue.ToString()));
+                    }
+                }
+                DataList dlProperties = (DataList)e.Item.FindControl("dlProperties");
+                if (dlProperties != null)
+                {
+                    dlProperties.DataSource = properties;
+                    dlProperties.DataBind();
+                }
+            }
         }
     }
 }
