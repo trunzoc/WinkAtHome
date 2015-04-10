@@ -40,22 +40,22 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.Image Image1;
         
         /// <summary>
-        /// lbDashboard control.
+        /// lbContol control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton lbDashboard;
+        protected global::System.Web.UI.WebControls.LinkButton lbContol;
         
         /// <summary>
-        /// lbSensors control.
+        /// lbMonitor control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton lbSensors;
+        protected global::System.Web.UI.WebControls.LinkButton lbMonitor;
         
         /// <summary>
         /// ucWinkStatus control.

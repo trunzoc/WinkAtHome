@@ -53,6 +53,15 @@
     <form id="form1" runat="server">
     <div>
         <telerik:RadScriptManager ID="RadScriptManager1" runat="server"/>
+        
+        <asp:UpdateProgress ID="UpdateProgress1" runat="server">
+            <ProgressTemplate>
+                <div style="position: fixed; text-align: center; height: 100%; width: 100%; top: 0; right: 0; left: 0; z-index: 9999999; background-color: #000000; opacity: 0.7;">
+                    <asp:Image ID="imgUpdateProgress" runat="server" ImageUrl="~/images/loading.gif" AlternateText="Loading ..." ToolTip="Loading ..." style="padding: 10px;" />
+                </div>
+            </ProgressTemplate>
+        </asp:UpdateProgress>
+
         <asp:Table ID="Table1" runat="server" BorderWidth="0" CellPadding="0" CellSpacing="0" Width="100%">
             <asp:TableRow>
                 <asp:TableCell ColumnSpan="2" style="padding-bottom:20px" VerticalAlign="Top">
@@ -65,7 +74,7 @@
                                 <asp:LinkButton ID="lbDashboard" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbDashboard_Click" style="text-decoration: none;" />
                             </td>
                             <td align="center" style="vertical-align:middle">
-                                <asp:LinkButton ID="lbSensors" runat="server" Text="MONITOR" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbSensors_Click" style="text-decoration: none;" />
+                                <asp:LinkButton ID="lbMonitor" runat="server" Text="MONITOR" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbMonitor_Click" style="text-decoration: none;" />
                             </td>
                             <td align="right" width="200">
                                 <table>

@@ -1,37 +1,32 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="Shortcuts.ascx.cs" Inherits="WinkAtHome.Controls.Shortcuts" %>
 
 <asp:Table ID="Table1" runat="server" BorderColor="LightGray" BorderWidth="1" BorderStyle="Ridge" Width="100%">
-    <asp:TableHeaderRow>
-        <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Left" style="padding:10px;">
+    <asp:TableHeaderRow BackColor="#22b9ec">
+        <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
             <asp:Label ID="lblHeader" runat="server" Text="Shortcuts" ForeColor="White" />
         </asp:TableHeaderCell>
-        <asp:TableCell BackColor="#22b9ec" HorizontalAlign="right">
+        <asp:TableCell HorizontalAlign="right">
             <asp:Label ID="Label1" runat="server" Text="Columns: " ForeColor="White" />
-            <asp:TextBox ID="tbColumns" runat="server" Text="8" OnTextChanged="tbColumns_TextChanged" Width="20px" AutoPostBack="true" />
+            <asp:TextBox ID="tbColumns" runat="server" Text="6" OnTextChanged="tbColumns_TextChanged" Width="20px" AutoPostBack="true" />
+        </asp:TableCell>
+        <asp:TableCell Width="1" style="padding-left:10px; padding-right:10px;">
+            <asp:ImageButton ID="ibExpand" runat="server" ImageUrl="~/Images/expand.png" Height="20" OnClick="ibExpand_Click" ToolTip="Show/Hide This Panel"/>
         </asp:TableCell>
     </asp:TableHeaderRow>
-    <asp:TableRow>
-        <asp:TableCell style="padding:10px;" ColumnSpan="2">
+    <asp:TableRow ID="rowData">
+        <asp:TableCell style="padding:10px;" ColumnSpan="3">
             <asp:DataList ID="dlShortcuts" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" Width="100%" OnItemDataBound="dlShortcuts_ItemDataBound">
-                <ItemStyle Width="100" />
+                <ItemStyle Width="200"  HorizontalAlign="Center" VerticalAlign="Top"/>
                 <ItemTemplate>
-                    <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional">
-                        <Triggers>
-                            <asp:PostBackTrigger ControlID="imgIcon" />
-                        </Triggers>
+                    <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
                         <ContentTemplate>
-                            <table>
-                                <tr>
-                                    <td align="center" colspan="2">
+                            <asp:Table ID="Table2" runat="server">
+                                <asp:TableRow>
+                                    <asp:TableCell>
                                         <asp:ImageButton ID="imgIcon" runat="server" ImageUrl="~/Images/Shortcut.png" Height="75" OnClick="imgIcon_Click" 
                                             CommandArgument='<%# ((Wink.Shortcut)((IDataItemContainer)Container).DataItem).id %>' ToolTip='<%# ((Wink.Shortcut)((IDataItemContainer)Container).DataItem).name %>' />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td align="right" nowrap="true">
-                                        <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Shortcut)((IDataItemContainer)Container).DataItem).name %>' Font-Size="small" />
-                                    </td>
-                                    <td>
+                                    </asp:TableCell>
+                                    <asp:TableCell VerticalAlign="Bottom">
                                         <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show Shortcut data" />
                                         <ajaxtoolkit:ModalPopupExtender ID="mpInfo" runat="server" PopupControlID="pnlInfo"
                                             TargetControlID="ibInfo" CancelControlID="btnClose" BackgroundCssClass="modalBackground" Y="200">
@@ -78,9 +73,15 @@
                                                 </tr>
                                             </table>
                                         </asp:Panel>
-                                    </td>
-                                </tr>
-                            </table>
+                                    </asp:TableCell>
+                                </asp:TableRow>
+                                <asp:TableRow>
+                                    <asp:TableCell ColumnSpan="2" HorizontalAlign="Center">
+                                        <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Shortcut)((IDataItemContainer)Container).DataItem).name %>' Font-Size="small" />
+                                    </asp:TableCell>
+                                </asp:TableRow>
+                            </asp:Table>
+
                         </ContentTemplate>
                     </asp:UpdatePanel>
                 </ItemTemplate>

@@ -70,9 +70,9 @@ public class Wink
         public List<string> desired_states = new List<string>();
         public List<DeviceStatus> status = new List<DeviceStatus>();
         [SimpleProperty]
-        public bool controllable { get; set; }
+        public bool iscontrollable { get; set; }
         [SimpleProperty]
-        public bool sensor { get; set; }
+        public bool issensor { get; set; }
         [SimpleProperty]
         public string json { get; set; }
         [SimpleProperty]
@@ -83,6 +83,8 @@ public class Wink
         public string model { get; set; }
         [SimpleProperty]
         public string radio_type { get; set; }
+        [SimpleProperty]
+        public bool isvariable { get; set; }
 
         public static Device getDeviceByID(string deviceID)
         {
@@ -160,46 +162,49 @@ public class Wink
                         if (ikeys != null)
                         {
                             List<string> keys = ikeys.ToList();
+                            string desired_states = string.Empty;
+                            string last_readings = string.Empty;
 
                             string typeName = keys[0];
 
                             Device device = new Device();
                             device.json = data.ToString();
-                            device.controllable = false;
+                            device.iscontrollable = false;
 
-                            if (keys.Contains("key_id") && keys.Contains("parent_object_type") && data["parent_object_type"].ToString().ToLower() == "lock")
+                            device.id = data[typeName] != null ? data[typeName].ToString() : "error: typeName";
+                            device.name = data["name"] != null ? data["name"].ToString() : "error: name";
+                            device.type = data[typeName] != null ? typeName.Replace("_id", "s").Replace("switchs", "switches") : "error: type";
+
+                            if (keys.Contains("desired_state"))
                             {
-                                device.id = data["key_id"] != null ? data["key_id"].ToString() : "error: key_id";
-                                device.name = data["name"] != null ? data["name"].ToString() : "error: name";
-                                device.type = "lock_pins";
+                                JObject states = (JObject)data["desired_state"];
+                                desired_states = states.ToString();
+
+                                if (states != null)
+                                {
+                                    foreach (var state in states)
+                                    {
+                                        device.desired_states.Add(state.Key);
+                                    }
+
+                                    if (device.desired_states.Count > 0)
+                                    {
+                                        device.iscontrollable = true;
+                                    }
+                                    else if (device.desired_states.Count == 0)
+                                    {
+                                        device.issensor = true;
+                                    }
+
+                                    if (states.ToString().Contains("brightness") || states.ToString().Contains("position"))
+                                    {
+                                        device.isvariable = true;
+                                    }
+                                }
                             }
                             else
                             {
-                                device.id = data[typeName] != null ? data[typeName].ToString() : "error: typeName";
-                                device.name = data["name"] != null ? data["name"].ToString() : "error: name";
-                                device.type = data[typeName] != null ? typeName.Replace("_id", "s").Replace("switchs", "switches") : "error: type";
-
-                                if (keys.Contains("desired_state"))
-                                {
-                                    JObject states = (JObject)data["desired_state"];
-
-                                    if (states != null)
-                                    {
-                                        foreach (var state in states)
-                                        {
-                                            device.desired_states.Add(state.Key);
-                                        }
-
-                                        if (!(device.desired_states.Count == 0 || device.type == "hubs" || device.type == "unknown_devices"))
-                                        {
-                                            device.controllable = true;
-                                        }
-                                        else if (device.desired_states.Count == 0)
-                                        {
-                                            device.sensor = true;
-                                        }
-                                    }
-                                }
+                                device.issensor = true;
                             }
 
                             if (keys.Contains("device_manufacturer"))
@@ -212,8 +217,6 @@ public class Wink
                                 device.radio_type = data["radio_type"].ToString();
                             }
 
-                            
-
                             if (keys.Contains("model_name"))
                             {
                                 device.model = data["model_name"].ToString();
@@ -222,6 +225,8 @@ public class Wink
                             if (keys.Contains("last_reading"))
                             {
                                 JObject readings = (JObject)data["last_reading"];
+                                last_readings = readings.ToString();
+
                                 if (readings != null)
                                 {
                                     foreach (var reading in readings)
@@ -250,20 +255,63 @@ public class Wink
                                 }
                             }
 
-                            if (keys.Contains("tank_changed_at"))
+                            #region DEVICE EXCEPTIONS
+                            //DEVICE EXCEPTIONS
+
+                            //has battery status
+                            //if (last_readings.Contains("battery"))
+                            //{
+                            //    device.issensor = true;
+                            //}
+
+                            //hubs
+                            if (device.type == "hubs")
                             {
-                                DeviceStatus tankstatus = new DeviceStatus();
-                                tankstatus.id = device.id;
-                                tankstatus.name = "tank_changed_at";
-                                tankstatus.current_status = Common.FromUnixTime(data["tank_changed_at"].ToString()).ToString();
-                                tankstatus.last_updated = Common.FromUnixTime(data["tank_changed_at"].ToString());
+                                device.issensor = true;
+                                device.iscontrollable = false;
                             }
+
+                            //remotes
+                            if (device.type == "remotes")
+                            {
+                                device.issensor = false;
+                            }
+
+                            //garage door openers
+                            if (device.type == "garage_doors")
+                            {
+                                device.isvariable = false;
+                            }
+
+                            //lock PINs
+                            if (keys.Contains("key_id") && keys.Contains("parent_object_type") && data["parent_object_type"].ToString().ToLower() == "lock")
+                            {
+                                device.id = data["key_id"] != null ? data["key_id"].ToString() : "error: key_id";
+                                device.name = data["name"] != null ? data["name"].ToString() : "error: name";
+                                device.type = "lock_pins";
+                                device.issensor = false;
+                            }
+
+                            //refuel
+                            if (device.type == "propane_tanks")
+                            {
+                                if (keys.Contains("tank_changed_at"))
+                                {
+                                    DeviceStatus tankstatus = new DeviceStatus();
+                                    tankstatus.id = device.id;
+                                    tankstatus.name = "tank_changed_at";
+                                    tankstatus.current_status = Common.FromUnixTime(data["tank_changed_at"].ToString()).ToString();
+                                    tankstatus.last_updated = Common.FromUnixTime(data["tank_changed_at"].ToString());
+                                    device.status.Add(tankstatus);
+                                }
+                            }
+                            #endregion
 
                             Devices.Add(device);
                         }
                     }
                 }
-                _devices = Devices.OrderBy(c => !c.controllable).ThenBy(c => c.name).ToList();
+                _devices = Devices.OrderBy(c => !c.iscontrollable).ThenBy(c => c.name).ToList();
             }
             return _devices;
         }

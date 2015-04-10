@@ -31,6 +31,15 @@ namespace WinkAtHome {
         protected global::Telerik.Web.UI.RadScriptManager RadScriptManager1;
         
         /// <summary>
+        /// UpdateProgress1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdateProgress UpdateProgress1;
+        
+        /// <summary>
         /// Table1 control.
         /// </summary>
         /// <remarks>
@@ -58,13 +67,13 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.LinkButton lbDashboard;
         
         /// <summary>
-        /// lbSensors control.
+        /// lbMonitor control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton lbSensors;
+        protected global::System.Web.UI.WebControls.LinkButton lbMonitor;
         
         /// <summary>
         /// Label4 control.

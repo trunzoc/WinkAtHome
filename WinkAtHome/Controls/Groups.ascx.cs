@@ -20,6 +20,14 @@ namespace WinkAtHome.Controls
                 string columns = SettingMgmt.getSetting("Groups-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns");
                 if (columns != null)
                     tbColumns.Text = columns;
+
+                string dataVisible = SettingMgmt.getSetting("Groups-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Visible");
+                if (dataVisible != null)
+                {
+                    bool visible = true;
+                    bool.TryParse(dataVisible, out visible);
+                    rowData.Visible = visible;
+                }
             }
         }
 
@@ -195,6 +203,12 @@ namespace WinkAtHome.Controls
         protected void tbColumns_TextChanged(object sender, EventArgs e)
         {
             SettingMgmt.saveSetting("Groups-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns", tbColumns.Text);
+        }
+
+        protected void ibExpand_Click(object sender, ImageClickEventArgs e)
+        {
+            rowData.Visible = !rowData.Visible;
+            SettingMgmt.saveSetting("Groups-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Visible", rowData.Visible.ToString());
         }
     }
 }

@@ -22,6 +22,24 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.Table Table1;
         
         /// <summary>
+        /// ucSensors control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::WinkAtHome.Controls.Devices ucSensors;
+        
+        /// <summary>
+        /// ucRobots control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::WinkAtHome.Controls.Robots ucRobots;
+        
+        /// <summary>
         /// ucGroups control.
         /// </summary>
         /// <remarks>

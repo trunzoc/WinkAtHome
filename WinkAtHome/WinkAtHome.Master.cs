@@ -82,7 +82,7 @@ namespace WinkAtHome
             Response.Redirect("~/Login.aspx");
         }
 
-        protected void lbSensors_Click(object sender, EventArgs e)
+        protected void lbMonitor_Click(object sender, EventArgs e)
         {
             Response.Redirect("~/Monitor.aspx");
         }

@@ -58,6 +58,24 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.TextBox tbColumns;
         
         /// <summary>
+        /// ibExpand control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ImageButton ibExpand;
+        
+        /// <summary>
+        /// rowData control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowData;
+        
+        /// <summary>
         /// dlDevices control.
         /// </summary>
         /// <remarks>

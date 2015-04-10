@@ -3,7 +3,7 @@
 <asp:Table ID="Table1" runat="server" Width="100%" CellPadding="5" CellSpacing="0">
     <asp:TableHeaderRow>
         <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Left" Height="30">
-            <asp:Label ID="Label1" runat="server" Text="&nbsp;Wink System Status" ForeColor="White" />
+            <asp:Label ID="Label1" runat="server" Text="&nbsp;WINK SYSTEM STATUS" ForeColor="White" />
         </asp:TableHeaderCell>
     </asp:TableHeaderRow>
     <asp:TableRow>

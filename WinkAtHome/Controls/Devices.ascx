@@ -1,50 +1,59 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="Devices.ascx.cs" Inherits="WinkAtHome.Controls.Devices" %>
 
 <asp:HiddenField ID="hfDeviceType" runat="server" />
+
 <asp:Table ID="Table1" runat="server" BorderColor="LightGray" BorderWidth="1" BorderStyle="Ridge" Width="100%">
-    <asp:TableHeaderRow>
-        <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Left" style="padding:10px;">
+    <asp:TableHeaderRow BackColor="#22b9ec">
+        <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
             <asp:Label ID="lblHeader" runat="server" Text="Devices" ForeColor="White" />
         </asp:TableHeaderCell>
-        <asp:TableCell BackColor="#22b9ec" HorizontalAlign="right">
+        <asp:TableCell HorizontalAlign="right">
             <asp:Label ID="Label1" runat="server" Text="Columns: " ForeColor="White" />
             <asp:TextBox ID="tbColumns" runat="server" Text="5" OnTextChanged="tbColumns_TextChanged" Width="20px" AutoPostBack="true" />
         </asp:TableCell>
+        <asp:TableCell Width="1" style="padding-left:10px; padding-right:10px;">
+            <asp:ImageButton ID="ibExpand" runat="server" ImageUrl="~/Images/expand.png" Height="20" OnClick="ibExpand_Click" ToolTip="Show/Hide This Panel"/>
+        </asp:TableCell>
     </asp:TableHeaderRow>
-    <asp:TableRow>
-        <asp:TableCell style="padding:10px;" ColumnSpan="2">
+    <asp:TableRow ID="rowData">
+        <asp:TableCell style="padding:10px;" ColumnSpan="3">
             <asp:DataList ID="dlDevices" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" OnItemDataBound="dlDevices_ItemDataBound" Width="100%">
-                <ItemStyle Width="225" Height="100px" />
+                <ItemStyle Width="200" Height="100px" HorizontalAlign="Center" />
                 <ItemTemplate>
-                    <asp:Table ID="Table3" runat="server">
-                        <asp:TableRow>
-                            <asp:TableCell ColumnSpan="2" Height="110" VerticalAlign="Top">
-                                <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional">
-                                    <Triggers>
-                                        <asp:PostBackTrigger ControlID="imgIcon" />
-                                        <asp:PostBackTrigger ControlID="rsBrightness" />
-                                    </Triggers>
-                                    <ContentTemplate>
+                    <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
+                        <ContentTemplate>
 
-                                        <asp:Table ID="tblDefault" runat="server" Visible="false" Width="150" Height="100%">
+                            <asp:HiddenField ID="hfMainCommand" runat="server" />
+                            <asp:HiddenField ID="hfCurrentStatus" runat="server" />
+                            <asp:HiddenField ID="hfLevelCommand" runat="server" />
+                            <asp:HiddenField ID="hfDeviceID" runat="server" />
+
+                            <asp:Table ID="Table3" runat="server">
+                                <asp:TableRow>
+                                    <asp:TableCell ColumnSpan="2" Height="110" VerticalAlign="Top" HorizontalAlign="Center">
+
+                                        <asp:Table ID="tblDefault" runat="server" Visible="false" Height="100%">
                                             <asp:TableRow>
+                                                <asp:TableCell VerticalAlign="Bottom">
+                                                    <asp:Image ID="imgBattery" runat="server" ImageUrl="~/Images/Battery/Battery0.png" Width="15" Visible="false" style="position:relative; left:15px;" onmouseover="this.style.cursor='Help'" onmouseout="this.style.cursor='default'" />
+                                                </asp:TableCell>
                                                 <asp:TableCell HorizontalAlign="Center">
                                                     <asp:ImageButton ID="imgIcon" runat="server" ImageUrl="~/Images/WinkHouse.png" Height="100" OnClick="imgIcon_Click"  Enabled="false"
-                                                        CommandArgument='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' ToolTip='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).name + " : " + ((Wink.Device)((IDataItemContainer)Container).DataItem).type %>' />
+                                                        CommandArgument='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' ToolTip='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).name %>' />
                                                 </asp:TableCell>
                                                 <asp:TableCell HorizontalAlign="Right">
-                                                    <telerik:RadSlider ID="rsBrightness" runat="server" MinimumValue="0" MaximumValue="100" Orientation="Vertical" ToolTip="Off" Height="100" 
+                                                    <telerik:RadSlider ID="rsBrightness" runat="server" MinimumValue="0" MaximumValue="100" Orientation="Vertical" ToolTip="Off" Height="100" Visible="false"
                                                         ItemType="None" ShowIncreaseHandle="false" ShowDecreaseHandle="false" IsDirectionReversed="true" AutoPostBack="true" LiveDrag="false"
                                                         AnimationDuration="400" ThumbsInteractionMode="Free" OnValueChanged="rsBrightness_ValueChanged" DecreaseText='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).name %>'>
                                                     </telerik:RadSlider>
                                                 </asp:TableCell>
                                             </asp:TableRow>
                                         </asp:Table>
- 
+
                                         <asp:Table ID="tblThermostat" runat="server" Visible="false" CellPadding="0" CellSpacing="0">
                                             <asp:TableRow>
                                                 <asp:TableCell HorizontalAlign="Center">
-                                                    <asp:LinkButton ID="lbThermostat" runat="server" style="text-decoration:none;">
+                                                    <asp:LinkButton ID="lbThermostat" runat="server"  ToolTip='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).name %>' style="text-decoration:none;">
 
                                                     <asp:Table ID="Table2" runat="server" BackImageUrl="~/Images/Thermostats/thermback.png" Width="100" Height="100" style="background-repeat:no-repeat" CellPadding="0" CellSpacing="0">
                                                         <asp:TableRow>
@@ -98,9 +107,12 @@
                                                         CancelControlID="lbCancelThermostat" OkControlID="lbApplyThermostat" BackgroundCssClass="modalBackground" Y="200">
                                                     </ajaxtoolkit:ModalPopupExtender>
 
-                                                    <asp:Panel ID="pnlThermostats" runat="server" Width="210" Height="350" BorderWidth="1"  style="display:none" BackColor="#eeeeee">
-                                                        <br /><br />
-                                                        <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional">
+                                                    <asp:Panel ID="pnlThermostats" runat="server" Width="250" Height="350" BorderWidth="1"  style="display:none" BackColor="#eeeeee">
+                                                        <br />
+                                                        <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true" >
+                                                            <Triggers>
+                                                                <asp:PostBackTrigger ControlID="lbCancelThermostat"/>
+                                                            </Triggers>
                                                             <ContentTemplate>
                                                                 <asp:Table ID="Table5" runat="server" BackImageUrl="~/Images/Thermostats/thermbackbig.png" Width="200" Height="200" style="background-repeat:no-repeat" CellPadding="0" CellSpacing="0">
                                                                     <asp:TableRow>
@@ -193,17 +205,21 @@
                                                                         </asp:TableCell>
                                                                     </asp:TableRow>
                                                                 </asp:Table>
-                        
+
+                                                                <asp:HiddenField ID="hfOrigHighTemp" runat="server" />
                                                                 <asp:HiddenField ID="hfSetHighTemp" runat="server" />
+                                                                <asp:HiddenField ID="hfOrigLowTemp" runat="server" />
                                                                 <asp:HiddenField ID="hfSetLowTemp" runat="server" />
+                                                                <asp:HiddenField ID="hfOrigTemp" runat="server" />
                                                                 <asp:HiddenField ID="hfSetTemp" runat="server" />
+                                                                <asp:HiddenField ID="hfOrigMode" runat="server" />
                                                                 <asp:HiddenField ID="hfSetMode" runat="server" />
+                                                                <asp:HiddenField ID="hfOrigPower" runat="server" />
                                                                 <asp:HiddenField ID="hfSetPower" runat="server" />
 
-
                                                                 <br />
-                                                                <asp:Table ID="Table4" runat="server" BorderColor="LightGray" BorderWidth="0" Width="100%">
-                                                                    <asp:TableHeaderRow>
+                                                                <asp:Table ID="Table4" runat="server" BorderColor="LightGray" CellPadding="10" BorderWidth="0" Width="100%">
+                                                                    <asp:TableHeaderRow Visible="false">
                                                                         <asp:TableHeaderCell ID="cellApply" BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;">
                                                                             <asp:LinkButton ID="lbApplyThermostat" runat="server" OnClick="lbApplyThermostat_Click" Text="APPLY CHANGES" CommandArgument='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' ForeColor="White" style="text-decoration: none;" />
                                                                         </asp:TableHeaderCell>
@@ -213,12 +229,13 @@
                                                                             <asp:LinkButton ID="lbCancelThermostat" runat="server" Text="CANCEL & EXIT" ForeColor="White" style="text-decoration: none;" />
                                                                         </asp:TableHeaderCell>
                                                                     </asp:TableHeaderRow>
+                                                                    <asp:TableRow>
+                                                                        <asp:TableCell HorizontalAlign="Center">
+                                                                            <asp:Label ID="lblNotes" runat="server" Text="" ForeColor="Green" />
+                                                                        </asp:TableCell>
+                                                                    </asp:TableRow>
                                                                 </asp:Table>
                                                             </ContentTemplate>
-                                                            <Triggers>
-                                                                <asp:PostBackTrigger ControlID="lbCancelThermostat" />
-                                                                <asp:PostBackTrigger ControlID="lbApplyThermostat" />
-                                                            </Triggers>
                                                         </asp:UpdatePanel>
                                                     </asp:Panel>
 
@@ -226,69 +243,66 @@
                                             </asp:TableRow>
                                         </asp:Table>
 
-                                        <asp:HiddenField ID="hfMainCommand" runat="server" />
-                                        <asp:HiddenField ID="hfCurrentStatus" runat="server" />
-                                        <asp:HiddenField ID="hfLevelCommand" runat="server" />
-                                        <asp:HiddenField ID="hfJSON" runat="server" />
-                                    </ContentTemplate>
-                                </asp:UpdatePanel>
-                            </asp:TableCell>
-                        </asp:TableRow>
-                        <asp:TableRow>
-                            <asp:TableCell HorizontalAlign="Center" VerticalAlign="Middle" style="padding-bottom:30px">
-                                <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Device)Container.DataItem).name %>' Font-Size="small" />
-                            </asp:TableCell>
-                            <asp:TableCell VerticalAlign="Top" HorizontalAlign="Right" Width="23" style="padding-right:3px;">
-                                <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show Device data" />
-                                <ajaxtoolkit:ModalPopupExtender ID="mpInfo" runat="server" PopupControlID="pnlInfo" 
-                                    TargetControlID="ibInfo" CancelControlID="btnClose" BackgroundCssClass="modalBackground" Y="200">
-                                </ajaxtoolkit:ModalPopupExtender>
-                                <asp:Panel ID="pnlInfo" runat="server" BorderWidth="1"  style="display:none">
-                                    <table cellpadding="5" cellspacing="5" style="background-color:#eeeeee;">
-                                        <tr>
-                                            <td>
-                                                <asp:DataList ID="dlProperties" runat="server">
-                                                    <HeaderTemplate>
-                                                        <table>
-                                                    </HeaderTemplate>
-                                                    <ItemTemplate>
-                                                        <tr>
-                                                            <td align="right">
-                                                                <asp:Label ID="lblPropertyName" runat="server" Text='<%# Eval("Key") + ": " %>' />
-                                                            </td>
-                                                            <td align="left">
-                                                                <asp:Label ID="lblPropertyValue" runat="server" Text='<%# Eval("Value") %>' />
-                                                            </td>
-                                                        </tr>
-                                                    </ItemTemplate>
-                                                    <FooterTemplate>
-                                                        </table>
-                                                    </FooterTemplate>
-                                                </asp:DataList>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="left">
-                                                <asp:Label ID="lbl1" runat="server" Text="JSON:" />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <asp:Textbox ID="tbJSON" runat="server" Text='<%# ((Wink.Device)Container.DataItem).json %>' TextMode="MultiLine" Height="200" Width="400" ReadOnly="true" />
-                                            </td>
-                                        </tr>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <asp:Button ID="btnClose" runat="server" Text="Close" />
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </asp:Panel>
-                            </asp:TableCell>
-                        </asp:TableRow>
-                    </asp:Table>
-                 </ItemTemplate>
+                                     </asp:TableCell>
+                                </asp:TableRow>
+                                <asp:TableRow>
+                                    <asp:TableCell HorizontalAlign="Center" VerticalAlign="Middle" style="padding-bottom:30px">
+                                        <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).name %>' Font-Size="small" />
+                                    </asp:TableCell>
+                                    <asp:TableCell VerticalAlign="Top" HorizontalAlign="Right" Width="23" style="padding-right:3px;">
+                                        <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show Device data" />
+                                        <ajaxtoolkit:ModalPopupExtender ID="mpInfo" runat="server" PopupControlID="pnlInfo" 
+                                            TargetControlID="ibInfo" CancelControlID="btnClose" BackgroundCssClass="modalBackground" Y="200">
+                                        </ajaxtoolkit:ModalPopupExtender>
+                                        <asp:Panel ID="pnlInfo" runat="server" BorderWidth="1"  style="display:none">
+                                            <table cellpadding="5" cellspacing="5" style="background-color:#eeeeee;">
+                                                <tr>
+                                                    <td>
+                                                        <asp:DataList ID="dlProperties" runat="server">
+                                                            <HeaderTemplate>
+                                                                <table>
+                                                            </HeaderTemplate>
+                                                            <ItemTemplate>
+                                                                <tr>
+                                                                    <td align="right">
+                                                                        <asp:Label ID="lblPropertyName" runat="server" Text='<%# Eval("Key") + ": " %>' />
+                                                                    </td>
+                                                                    <td align="left">
+                                                                        <asp:Label ID="lblPropertyValue" runat="server" Text='<%# Eval("Value") %>' />
+                                                                    </td>
+                                                                </tr>
+                                                            </ItemTemplate>
+                                                            <FooterTemplate>
+                                                                </table>
+                                                            </FooterTemplate>
+                                                        </asp:DataList>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="left">
+                                                        <asp:Label ID="lbl1" runat="server" Text="JSON:" />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <asp:Textbox ID="tbJSON" runat="server" Text='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).json %>' TextMode="MultiLine" Height="200" Width="400" ReadOnly="true" />
+                                                    </td>
+                                                </tr>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <asp:Button ID="btnClose" runat="server" Text="Close" />
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </asp:Panel>
+                                    </asp:TableCell>
+                                </asp:TableRow>
+                            </asp:Table>
+
+                        </ContentTemplate>
+                    </asp:UpdatePanel>
+                </ItemTemplate>
             </asp:DataList>
         </asp:TableCell>
     </asp:TableRow>

@@ -76,6 +76,13 @@
     <Content Include="Controls\Robots.ascx" />
     <Content Include="Controls\Shortcuts.ascx" />
     <Content Include="Controls\winkStatus.ascx" />
+    <Content Include="Images\Battery\Battery0.png" />
+    <Content Include="Images\Battery\Battery100.png" />
+    <Content Include="Images\Battery\Battery25.png" />
+    <Content Include="Images\Battery\Battery50.png" />
+    <Content Include="Images\Battery\Battery75.png" />
+    <Content Include="Images\expand.png" />
+    <Content Include="Images\loading.gif" />
     <Content Include="Images\Thermostats\thermbackbig.png" />
     <Content Include="Monitor.aspx" />
     <Content Include="Default.aspx" />

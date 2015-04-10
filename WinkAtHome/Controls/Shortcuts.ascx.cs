@@ -20,6 +20,14 @@ namespace WinkAtHome.Controls
                 string columns = SettingMgmt.getSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns");
                 if (columns != null)
                     tbColumns.Text = columns;
+
+                string dataVisible = SettingMgmt.getSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Visible");
+                if (dataVisible != null)
+                {
+                    bool visible = true;
+                    bool.TryParse(dataVisible, out visible);
+                    rowData.Visible = visible;
+                }
             }
         }
 
@@ -31,11 +39,6 @@ namespace WinkAtHome.Controls
 
             Wink.activateShortcut(shortcutID);
             Response.Redirect(Request.RawUrl);
-        }
-
-        protected void tbColumns_TextChanged(object sender, EventArgs e)
-        {
-            SettingMgmt.saveSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns", tbColumns.Text);
         }
 
         protected void dlShortcuts_ItemDataBound(object sender, DataListItemEventArgs e)
@@ -66,6 +69,17 @@ namespace WinkAtHome.Controls
                     dlProperties.DataBind();
                 }
             }
+        }
+
+        protected void tbColumns_TextChanged(object sender, EventArgs e)
+        {
+            SettingMgmt.saveSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns", tbColumns.Text);
+        }
+
+        protected void ibExpand_Click(object sender, ImageClickEventArgs e)
+        {
+            rowData.Visible = !rowData.Visible;
+            SettingMgmt.saveSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Visible", rowData.Visible.ToString());
         }
     }
 }

@@ -4,9 +4,9 @@
 <%@ Register Src="~/Controls/Groups.ascx" TagName="ucGroups" TagPrefix="ucG" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="cphMain" runat="server">
-    <asp:Table ID="Table1" runat="server">
+    <asp:Table ID="Table1" runat="server" Width="100%">
         <asp:TableRow style="padding-bottom:30px;">
-            <asp:TableCell Width="50%">
+            <asp:TableCell>
                 <ucS:ucShortcuts ID="ucShortcuts" runat="server" />
             </asp:TableCell>
         </asp:TableRow>
@@ -16,7 +16,7 @@
             </asp:TableCell>
         </asp:TableRow>
         <asp:TableRow>
-            <asp:TableCell ColumnSpan="2">
+            <asp:TableCell>
                 <ucD:ucDevices ID="ucDevices" runat="server" ControllableOnly="true" />
             </asp:TableCell>
         </asp:TableRow>

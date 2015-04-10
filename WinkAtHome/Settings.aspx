@@ -41,10 +41,10 @@
                                 <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/WinkatHome.png" Height="75px" />
                             </td>
                             <td align="center" style="vertical-align:middle">
-                                <asp:LinkButton ID="lbDashboard" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbDashboard_Click" style="text-decoration: none;" />
+                                <asp:LinkButton ID="lbContol" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbControl_Click" style="text-decoration: none;" />
                             </td>
                             <td align="center" style="vertical-align:middle">
-                                <asp:LinkButton ID="lbSensors" runat="server" Text="MONITOR" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbSensors_Click" style="text-decoration: none;" />
+                                <asp:LinkButton ID="lbMonitor" runat="server" Text="MONITOR" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbMonitor_Click" style="text-decoration: none;" />
                             </td>
                             <td align="right" width="280">
                                 &nbsp;
@@ -97,7 +97,7 @@
                                 <asp:Button ID="btnSave" runat="server" Text="Save" OnClick="btnSave_Click" OnClientClick="if ( ! saveConfirmation()) return false;" />
                             </asp:TableCell>
                             <asp:TableCell HorizontalAlign="Right">
-                                <asp:Button ID="btnDashboard" runat="server" Text="return to Dashboard" OnClick="lbDashboard_Click" OnClientClick="if ( ! cancelConfirmation()) return false;" />
+                                <asp:Button ID="btnDashboard" runat="server" Text="Exit Settings" OnClick="lbMonitor_Click" OnClientClick="if ( ! cancelConfirmation()) return false;" />
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow>

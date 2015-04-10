@@ -23,25 +23,27 @@ namespace WinkAtHome.Controls
                     tbColumns.Text = columns;
                     dlRobots.RepeatColumns = Convert.ToInt32(tbColumns.Text);
                 }
+
+                string dataVisible = SettingMgmt.getSetting("Robots-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Visible");
+                if (dataVisible != null)
+                {
+                    bool visible = true;
+                    bool.TryParse(dataVisible, out visible);
+                    rowData.Visible = visible;
+                }
             }
         }
 
         protected void imgIcon_Click(object sender, ImageClickEventArgs e)
         {
             ImageButton ib = (ImageButton)sender;
-            DataListItem li = (DataListItem)ib.Parent;
+            DataListItem li = (DataListItem)ib.NamingContainer;
             string robotID = ib.CommandArgument;
 
             bool newstate = !Convert.ToBoolean(ib.CommandName);
 
             Wink.changeRobotState(robotID, newstate);
             Response.Redirect(Request.RawUrl);
-        }
-
-        protected void tbColumns_TextChanged(object sender, EventArgs e)
-        {
-            dlRobots.RepeatColumns = Convert.ToInt32(tbColumns.Text);
-            SettingMgmt.saveSetting("Robots-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns", tbColumns.Text);
         }
 
         protected void dlRobots_ItemDataBound(object sender, DataListItemEventArgs e)
@@ -72,6 +74,18 @@ namespace WinkAtHome.Controls
                     dlProperties.DataBind();
                 }
             }
+        }
+
+        protected void tbColumns_TextChanged(object sender, EventArgs e)
+        {
+            dlRobots.RepeatColumns = Convert.ToInt32(tbColumns.Text);
+            SettingMgmt.saveSetting("Robots-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns", tbColumns.Text);
+        }
+
+        protected void ibExpand_Click(object sender, ImageClickEventArgs e)
+        {
+            rowData.Visible = !rowData.Visible;
+            SettingMgmt.saveSetting("Robots-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Visible", rowData.Visible.ToString());
         }
     }
 }

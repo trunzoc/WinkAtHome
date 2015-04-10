@@ -73,7 +73,7 @@ namespace WinkAtHome
             Response.Redirect(Request.RawUrl);
         }
 
-        protected void lbDashboard_Click(object sender, EventArgs e)
+        protected void lbControl_Click(object sender, EventArgs e)
         {
             Response.Redirect("~/Default.aspx");
         }
@@ -90,7 +90,7 @@ namespace WinkAtHome
 
         }
 
-        protected void lbSensors_Click(object sender, EventArgs e)
+        protected void lbMonitor_Click(object sender, EventArgs e)
         {
             Response.Redirect("~/Monitor.aspx");
         }
