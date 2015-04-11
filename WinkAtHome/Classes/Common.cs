@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Configuration;
+using System.Data;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace WinkAtHome
 {
@@ -68,6 +72,7 @@ namespace WinkAtHome
                 return null;
             }
         }
+        
         public static double FromCelsiusToFahrenheit(double c)
         {
             return Math.Round(((9.0 / 5.0) * c) + 32);
@@ -75,7 +80,7 @@ namespace WinkAtHome
 
         public static double FromFahrenheitToCelsius(double f)
         {
-            return (5.0 / 9.0) * (f - 32);
+            return Math.Round((5.0 / 9.0) * (f - 32), 2);
         }
     }
 }

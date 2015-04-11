@@ -30,7 +30,14 @@
             <telerik:RadMenu ID="RadMenu1" runat="server" Flow="Vertical" OnItemClick="RadMenu1_ItemClick" >
                 <Items>
                     <telerik:RadMenuItem Text="Devices" Value="devices">
-
+                        <Items>
+                            <telerik:RadMenuItem Text="All Devices" Value="all" />
+                            <telerik:RadMenuItem Text="Controllable Devices" Value="controllable" />
+                            <telerik:RadMenuItem Text="Sensors" Value="sensors" />
+                            <telerik:RadMenuItem Text="By Type..." Value="type">
+                                
+                            </telerik:RadMenuItem>
+                        </Items>
                     </telerik:RadMenuItem>
                     <telerik:RadMenuItem Text="Groups" Value="groups" />
                     <telerik:RadMenuItem Text="Shortcuts" Value="shortcuts" />

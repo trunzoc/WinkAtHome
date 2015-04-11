@@ -22,20 +22,24 @@ namespace WinkAtHome.Controls
                     {
                         if (item.Value.ToLower() == "devices")
                         {
-                            item.Items.Clear();
-                            List<string> deviceTypes = Wink.Device.getDeviceTypes();
-
-                            if (deviceTypes != null)
+                            RadMenuItem byType = item.Items.FindItemByValue("type");
+                            if (byType != null)
                             {
-                                foreach (string type in deviceTypes)
+                                byType.Items.Clear();
+                                List<string> deviceTypes = Wink.Device.getDeviceTypes();
+
+                                if (deviceTypes != null)
                                 {
-                                    TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+                                    foreach (string type in deviceTypes)
+                                    {
+                                        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
 
-                                    RadMenuItem deviceitem = new RadMenuItem();
-                                    deviceitem.Text = textInfo.ToTitleCase(type.Replace("_", " "));
-                                    deviceitem.Value = type.ToLower();
+                                        RadMenuItem deviceitem = new RadMenuItem();
+                                        deviceitem.Text = textInfo.ToTitleCase(type.Replace("_", " "));
+                                        deviceitem.Value = type.ToLower();
 
-                                    item.Items.Add(deviceitem);
+                                        byType.Items.Add(deviceitem);
+                                    }
                                 }
                             }
                         }
@@ -69,27 +73,30 @@ namespace WinkAtHome.Controls
         protected void RadMenu1_ItemClick(object sender, RadMenuEventArgs e)
         {
             RadMenuItem item = e.Item;
-            string pagename = string.Empty;
-            string querystring = string.Empty;
-
-            var parent = item.Parent;
-
-            if (parent is RadMenuItem)
+            if (!string.IsNullOrWhiteSpace(item.Value) && item.Value != "type")
             {
-                pagename = ((RadMenuItem)parent).Value.ToLower();
-                if (pagename == "devices")
+                string pagename = string.Empty;
+                string querystring = string.Empty;
+
+                var parent = item.Parent.Parent;
+
+                if (parent is RadMenuItem)
                 {
-                    querystring = "?devicetype=" + item.Value;
+                    pagename = ((RadMenuItem)parent).Value.ToLower();
+                    if (pagename == "devices")
+                    {
+                        querystring = "?devicetype=" + item.Value;
+                    }
                 }
-            }
-            else
-            {
-                pagename = item.Value;
-            }
+                else
+                {
+                    pagename = item.Value;
+                }
 
 
-            string URL = "~/" + pagename + ".aspx" + querystring;
-            Response.Redirect(URL);
+                string URL = "~/" + pagename + ".aspx" + querystring;
+                Response.Redirect(URL);
+            }
         }
     }
 }

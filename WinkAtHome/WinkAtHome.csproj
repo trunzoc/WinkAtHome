@@ -148,7 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Common.cs" />
-    <Compile Include="Classes\SettingMgmt.cs" />
+    <Compile Include="Controls\SettingMgmt.cs" />
     <Compile Include="Controls\Devices.ascx.cs">
       <DependentUpon>Devices.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

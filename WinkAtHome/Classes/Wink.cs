@@ -67,8 +67,6 @@ public class Wink
         public string id { get; set; }
         [SimpleProperty]
         public string type { get; set; }
-        public List<string> desired_states = new List<string>();
-        public List<DeviceStatus> status = new List<DeviceStatus>();
         [SimpleProperty]
         public bool iscontrollable { get; set; }
         [SimpleProperty]
@@ -85,6 +83,8 @@ public class Wink
         public string radio_type { get; set; }
         [SimpleProperty]
         public bool isvariable { get; set; }
+        public List<string> desired_states = new List<string>();
+        public List<DeviceStatus> status = new List<DeviceStatus>();
 
         public static Device getDeviceByID(string deviceID)
         {
@@ -390,9 +390,9 @@ public class Wink
         public string id { get; set; }
         [SimpleProperty]
         public string name { get; set; }
-        public List<ShortcutMember> members = new List<ShortcutMember>();
         [SimpleProperty]
         public string json { get; set; }
+        public List<ShortcutMember> members = new List<ShortcutMember>();
 
         public static Shortcut getShortcutByID(string ShortcutID)
         {
@@ -536,10 +536,10 @@ public class Wink
         public string id { get; set; }
         [SimpleProperty]
         public string name { get; set; }
-        public List<GroupMember> members = new List<GroupMember>();
-        public List<GroupStatus> status = new List<GroupStatus>();
         [SimpleProperty]
         public string json { get; set; }
+        public List<GroupMember> members = new List<GroupMember>();
+        public List<GroupStatus> status = new List<GroupStatus>();
 
         public static Group getGroupByID(string GroupID)
         {
@@ -671,7 +671,6 @@ public class Wink
             throw e;
         }
     }
-
     internal static void getGroupStatus(string groupID)
     {
         try
@@ -705,7 +704,6 @@ public class Wink
             throw e;
         }
     }
-
     #endregion
 
     #region Robot
@@ -876,7 +874,6 @@ public class Wink
 
             if (responseString != null)
             {
-                //#if DEBUG
                 Settings setting = new Settings();
                 if (url == "https://winkapi.quirky.com/users/me/wink_devices")
                 {
@@ -893,12 +890,8 @@ public class Wink
 
                         //Add Refuel
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"propane_tank_id\": \"6521\",\"name\": \"Test Refuel\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419569612,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"5055752531a8aac104827ec4ba2a3366038ee15a|propane_tank-6521|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"device_manufacturer\": \"quirky_ge\",\"model_name\": \"Refuel\",\"upc_id\": \"17\",\"last_reading\": {\"connection\": true,\"battery\": 0.52,\"remaining\": 0.5},\"lat_lng\": [33.162101,-97.090547],\"location\": \"76210\",\"mac_address\": \"0c2a6907025a\",\"serial\": \"ACAB00033589\",\"tare\": 18.0,\"tank_changed_at\": 1421352479},");
-
-                        //Add Nest Thermostat for Auto mode
-                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"thermostat_id\": \"49410\",\"name\": \"Test Nest B\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1427241058,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"0e67d43624e47b3633273f1236b7cde2c1823ac7|thermostat-49410|user-81926\"}},\"user_ids\": [\"81926\"],\"triggers\": [],\"desired_state\": {\"mode\": \"auto\",\"powered\": true,\"min_set_point\": 21.0,\"max_set_point\": 22.0,\"users_away\": false,\"fan_timer_active\": false},\"manufacturer_device_model\": \"nest\",\"manufacturer_device_id\": \"pHNukJTND3MHRBT9zks77kxx11Qobba_\",\"device_manufacturer\": \"nest\",\"model_name\": \"Learning Thermostat\",\"upc_id\": \"168\",\"hub_id\": null,\"local_id\": null,\"radio_type\": null,\"linked_service_id\": \"92972\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428516397.2914052,\"mode\": \"auto\",\"mode_updated_at\": 1428516397.2914376,\"powered\": true,\"powered_updated_at\": 1428516397.2914565,\"min_set_point\": 21.0,\"min_set_point_updated_at\": 1428461324.5980272,\"max_set_point\": 22.0,\"max_set_point_updated_at\": 1428516397.2914746,\"users_away\": false,\"users_away_updated_at\": 1428516397.2914917,\"fan_timer_active\": false,\"fan_timer_active_updated_at\": 1428516397.2914684,\"temperature\": 22.0,\"temperature_updated_at\": 1428516397.2914257,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.5,\"deadband_updated_at\": 1428516397.2914317,\"min_min_set_point\": null,\"min_min_set_point_updated_at\": null,\"max_min_set_point\": null,\"max_min_set_point_updated_at\": null,\"min_max_set_point\": null,\"min_max_set_point_updated_at\": null,\"max_max_set_point\": null,\"max_max_set_point_updated_at\": null,\"modes_allowed\": [\"auto\",\"heat_only\",\"cool_only\"],\"modes_allowed_updated_at\": 1428516397.2914805,\"units\": \"f\",\"units_updated_at\": 1428516397.2914197,\"eco_target\": false,\"eco_target_updated_at\": 1428516397.2914433,\"manufacturer_structure_id\": \"kdCrRKp3UahHp8xWEoJBRYX9xnQWDsoU1sb5ej9Mp5Zb41WEIOKJtg\",\"manufacturer_structure_id_updated_at\": 1428516397.2914503,\"has_fan\": true,\"has_fan_updated_at\": 1428516397.2914622,\"fan_duration\": 0,\"fan_duration_updated_at\": 1428516397.2914863,\"last_error\": null,\"last_error_updated_at\": 1427241058.6980464,\"desired_mode\": \"auto\",\"desired_mode_updated_at\": 1427593066.90498,\"desired_powered\": true,\"desired_powered_updated_at\": 1428462838.6427567,\"desired_min_set_point\": 21.0,\"desired_min_set_point_updated_at\": 1428427791.3297703,\"desired_max_set_point\": 22.0,\"desired_max_set_point_updated_at\": 1428497187.9092989,\"desired_users_away\": false,\"desired_users_away_updated_at\": 1428440888.9921448,\"desired_fan_timer_active\": false,\"desired_fan_timer_active_updated_at\": 1427241058.6981435},\"lat_lng\": [null,null],\"location\": \"\",\"smart_schedule_enabled\": false},");
                     }
                 }
-                //#endif
                 
                 jsonResponse = JObject.Parse(responseString);
                 if (jsonResponse != null)
