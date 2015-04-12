@@ -14,9 +14,6 @@ namespace WinkAtHome.Controls
         {
             if (!IsPostBack)
             {
-                dlShortcuts.DataSource = Wink.Shortcuts;
-                dlShortcuts.DataBind();
-                
                 string columns = SettingMgmt.getSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns");
                 if (columns != null)
                     tbColumns.Text = columns;
@@ -28,7 +25,15 @@ namespace WinkAtHome.Controls
                     bool.TryParse(dataVisible, out visible);
                     rowData.Visible = visible;
                 }
+
+                BindData();
             }
+        }
+
+        private void BindData()
+        {
+            dlShortcuts.DataSource = Wink.Shortcuts;
+            dlShortcuts.DataBind();
         }
 
         protected void imgIcon_Click(object sender, ImageClickEventArgs e)
@@ -74,6 +79,7 @@ namespace WinkAtHome.Controls
         protected void tbColumns_TextChanged(object sender, EventArgs e)
         {
             SettingMgmt.saveSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns", tbColumns.Text);
+            BindData();
         }
 
         protected void ibExpand_Click(object sender, ImageClickEventArgs e)

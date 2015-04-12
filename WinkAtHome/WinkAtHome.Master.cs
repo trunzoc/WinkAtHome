@@ -19,6 +19,7 @@ namespace WinkAtHome
 
             if (!IsPostBack)
             {
+                lblRefreshed.Text = DateTime.Now.ToString();
                 //CHECK SECURITY/SETTINGS VALIDITY
                 if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password")
                     HttpContext.Current.Response.Redirect("~/Settings.aspx");
@@ -40,11 +41,6 @@ namespace WinkAtHome
             }
         }
 
-        protected void ibRefresh_Click(object sender, ImageClickEventArgs e)
-        {
-            tmrRefresh.Interval = 500;
-        }
-
         protected void lbDashboard_Click(object sender, EventArgs e)
         {
             Response.Redirect("~/Default.aspx");
@@ -53,7 +49,9 @@ namespace WinkAtHome
         protected void tmrRefresh_Tick(object sender, EventArgs e)
         {
             tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
-            ScriptManager.RegisterStartupScript(Page, typeof(Page), "refresh", "clickTrigger()", true); 
+            Wink.reloadWink();
+            Response.Redirect(Request.RawUrl);
+            
         }
 
         protected void tbTimer_TextChanged(object sender, EventArgs e)

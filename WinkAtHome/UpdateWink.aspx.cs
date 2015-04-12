@@ -14,7 +14,6 @@ namespace WinkAtHome
             // Padding to circumvent IE's buffer.
             Response.Write(new string('*', 256));
             Response.Flush();
-            Wink.clearWink();
 
             UpdateProgress(0, "Getting Devices...");
             List<Wink.Device> devices =  Wink.Devices;
@@ -22,9 +21,12 @@ namespace WinkAtHome
             UpdateProgress(25, "Getting Shortcuts...");
             List<Wink.Shortcut> shortcuts = Wink.Shortcuts;
 
-            UpdateProgress(40, "Getting Groups...");
+            UpdateProgress(50, "Getting Groups...");
             List<Wink.Group> groups = Wink.Groups;
 
+            UpdateProgress(75, "Getting Robots...");
+            List<Wink.Robot> robots = Wink.Robots;
+            
             UpdateProgress(100, DateTime.Now.ToString(""));
         }
 

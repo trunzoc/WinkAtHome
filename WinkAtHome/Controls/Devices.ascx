@@ -2,8 +2,8 @@
 
 <asp:HiddenField ID="hfDeviceType" runat="server" />
 
-<asp:Table ID="Table1" runat="server" BorderColor="LightGray" BorderWidth="1" BorderStyle="Ridge" Width="100%">
-    <asp:TableHeaderRow BackColor="#22b9ec">
+<asp:Table ID="Table1" runat="server" BorderColor="LightGray" BorderWidth="1" Width="100%" BackColor="#22b9ec" >
+    <asp:TableHeaderRow>
         <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
             <asp:Label ID="lblHeader" runat="server" Text="Devices" ForeColor="White" />
         </asp:TableHeaderCell>
@@ -15,7 +15,7 @@
             <asp:ImageButton ID="ibExpand" runat="server" ImageUrl="~/Images/expand.png" Height="20" OnClick="ibExpand_Click" ToolTip="Show/Hide This Panel"/>
         </asp:TableCell>
     </asp:TableHeaderRow>
-    <asp:TableRow ID="rowData">
+    <asp:TableRow ID="rowData" BackColor="#eeeeee">
         <asp:TableCell style="padding:10px;" ColumnSpan="3">
             <asp:DataList ID="dlDevices" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" OnItemDataBound="dlDevices_ItemDataBound" Width="100%">
                 <ItemStyle Width="200" Height="100px" HorizontalAlign="Center" />
@@ -46,6 +46,9 @@
                                                         ItemType="None" ShowIncreaseHandle="false" ShowDecreaseHandle="false" IsDirectionReversed="true" AutoPostBack="true" LiveDrag="false"
                                                         AnimationDuration="400" ThumbsInteractionMode="Free" OnValueChanged="rsBrightness_ValueChanged" DecreaseText='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).name %>'>
                                                     </telerik:RadSlider>
+                                                </asp:TableCell>
+                                                <asp:TableCell VerticalAlign="Bottom">
+                                                    <asp:Image ID="imgAlert" runat="server" ImageUrl="~/Images/alert.png" Width="15" Visible="false" style="position:relative; right:15px;" />
                                                 </asp:TableCell>
                                             </asp:TableRow>
                                         </asp:Table>
@@ -222,14 +225,9 @@
                                                                 <br />
 
                                                                 <asp:Table ID="Table4" runat="server" BorderColor="LightGray" CellPadding="10" BorderWidth="0" Width="100%">
-                                                                    <asp:TableHeaderRow Visible="false">
-                                                                        <asp:TableHeaderCell ID="cellApply" BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;">
-                                                                            <asp:LinkButton ID="lbApplyThermostat" runat="server" OnClick="lbApplyThermostat_Click" Text="APPLY CHANGES" CommandArgument='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' ForeColor="White" style="text-decoration: none;" />
-                                                                        </asp:TableHeaderCell>
-                                                                    </asp:TableHeaderRow>
                                                                     <asp:TableHeaderRow>
-                                                                        <asp:TableHeaderCell BackColor="red" HorizontalAlign="Center" style="padding:10px;">
-                                                                            <asp:LinkButton ID="lbCancelThermostat" runat="server" Text="CANCEL & EXIT" ForeColor="White" style="text-decoration: none;" />
+                                                                        <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;">
+                                                                            <asp:LinkButton ID="lbCancelThermostat" runat="server" Text="Close" ForeColor="White" style="text-decoration: none;" OnClick="lbCancelThermostat_Click" />
                                                                         </asp:TableHeaderCell>
                                                                     </asp:TableHeaderRow>
                                                                     <asp:TableRow>

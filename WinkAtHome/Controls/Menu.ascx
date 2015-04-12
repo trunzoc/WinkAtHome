@@ -34,7 +34,7 @@
                             <telerik:RadMenuItem Text="All Devices" Value="all" />
                             <telerik:RadMenuItem Text="Controllable Devices" Value="controllable" />
                             <telerik:RadMenuItem Text="Sensors" Value="sensors" />
-                            <telerik:RadMenuItem Text="By Type..." Value="type">
+                            <telerik:RadMenuItem Text="By Type..." Value="devicetype">
                                 
                             </telerik:RadMenuItem>
                         </Items>

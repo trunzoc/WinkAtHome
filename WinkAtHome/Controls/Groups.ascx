@@ -1,6 +1,6 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="Groups.ascx.cs" Inherits="WinkAtHome.Controls.Groups" %>
 
-<asp:Table ID="Table1" runat="server" BorderColor="LightGray" BorderWidth="1" BorderStyle="Ridge" Width="100%">
+<asp:Table ID="Table1" runat="server" BorderColor="LightGray" BorderWidth="1"  BackColor="#22b9ec" Width="100%">
     <asp:TableHeaderRow BackColor="#22b9ec">
         <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
             <asp:Label ID="lblHeader" runat="server" Text="Groups" ForeColor="White" />
@@ -13,7 +13,7 @@
             <asp:ImageButton ID="ibExpand" runat="server" ImageUrl="~/Images/expand.png" Height="20" OnClick="ibExpand_Click" ToolTip="Show/Hide This Panel"/>
         </asp:TableCell>
     </asp:TableHeaderRow>
-    <asp:TableRow ID="rowData">
+    <asp:TableRow ID="rowData" BackColor="#eeeeee">
         <asp:TableCell style="padding:10px;" ColumnSpan="3">
             <asp:DataList ID="dlGroups" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" OnItemDataBound="dlGroups_ItemDataBound" Width="100%">
                 <ItemStyle Width="200" Height="100px" HorizontalAlign="Center" />

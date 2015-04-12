@@ -22,7 +22,7 @@ namespace WinkAtHome.Controls
                     {
                         if (item.Value.ToLower() == "devices")
                         {
-                            RadMenuItem byType = item.Items.FindItemByValue("type");
+                            RadMenuItem byType = item.Items.FindItemByValue("devicetype");
                             if (byType != null)
                             {
                                 byType.Items.Clear();
@@ -73,16 +73,21 @@ namespace WinkAtHome.Controls
         protected void RadMenu1_ItemClick(object sender, RadMenuEventArgs e)
         {
             RadMenuItem item = e.Item;
-            if (!string.IsNullOrWhiteSpace(item.Value) && item.Value != "type")
+            if (!string.IsNullOrWhiteSpace(item.Value) && item.Value != "devicetype")
             {
                 string pagename = string.Empty;
                 string querystring = string.Empty;
 
-                var parent = item.Parent.Parent;
+                var parent = item.Parent;
 
                 if (parent is RadMenuItem)
                 {
                     pagename = ((RadMenuItem)parent).Value.ToLower();
+                    if (pagename == "devicetype")
+                    {
+                        parent = parent.Parent;
+                        pagename = ((RadMenuItem)parent).Value.ToLower();
+                    }
                     if (pagename == "devices")
                     {
                         querystring = "?devicetype=" + item.Value;

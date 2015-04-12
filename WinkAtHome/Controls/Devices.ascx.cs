@@ -70,6 +70,10 @@ namespace WinkAtHome.Controls
 
                 BindData();
             }
+            else
+            {
+
+            }
         }
 
         public void BindData()
@@ -179,11 +183,6 @@ namespace WinkAtHome.Controls
                     gv.DataSource = dtStatus;
                     gv.DataBind();
                 }
-                //lists.Add(new KeyValuePair<string, object>("Desired States", device.desired_states));
-                //DataList dlOtherData = (DataList)e.Item.FindControl("dlOtherData");
-                //dlOtherData.DataSource = lists;
-                //dlOtherData.DataBind();
-
 
                 //SET BATTERY ICON
                 if (keys.Contains("battery"))
@@ -236,35 +235,6 @@ namespace WinkAtHome.Controls
                 {
                     displayDevices(e.Item);
                 }
-            }
-        }
-
-        protected void dlOtherData_ItemDataBound(object sender, DataListItemEventArgs e)
-        {
-            if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
-            {
-                KeyValuePair<string, object> pair = (KeyValuePair<string, object>)e.Item.DataItem;
-                Label lblOtherData = (Label)e.Item.FindControl("lblOtherData");
-                GridView gvOtherData = (GridView)e.Item.FindControl("gvOtherData");
-
-                DataTable dt = new DataTable();
-                var data = pair.Value;
-                if (data is List<Wink.DeviceStatus>)
-                {
-                    gvOtherData.DataSource = (List<Wink.DeviceStatus>)data;
-                }
-                else
-                {
-                    gvOtherData.DataSource = (List<string>)data;
-                }
-
-                
-                TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-                string propname = textInfo.ToTitleCase(pair.Key.Replace("_", " "));
-
-                lblOtherData.Text = propname;
-                gvOtherData.DataSource = data;
-                gvOtherData.DataBind();
             }
         }
 
@@ -362,8 +332,12 @@ namespace WinkAtHome.Controls
                 rs.Visible = true;
                 if (state == "true")
                 {
-                    rs.Value = Convert.ToInt32(degree);
-                    rs.ToolTip = degree + "%";
+                    decimal dim = 100;
+                    decimal.TryParse(degree, out dim);
+                    dim = Math.Round(dim);
+
+                    rs.Value = dim;
+                    rs.ToolTip = dim + "%";
                 }
             }
             else
@@ -377,6 +351,7 @@ namespace WinkAtHome.Controls
             ImageButton img = (ImageButton)item.FindControl("imgIcon");
             Table tblDefault = (Table)item.FindControl("tblDefault");
             tblDefault.Visible = true;
+            bool alert = false;
 
             Wink.Device device = ((Wink.Device)item.DataItem);
             string devicetype = device.type;
@@ -386,32 +361,27 @@ namespace WinkAtHome.Controls
             string state = string.Empty;
             string degree = "n/a";
 
-            if (keys.Contains("powered") || keys.Contains("locked"))
+            if (keys.Contains("remaining")||keys.Contains("position"))
             {
-                Wink.DeviceStatus stat = status.Single(p => p.name == "powered" || p.name == "locked");
-                state = stat.current_status.ToLower();
-            }
-            else if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
-            {
-                Wink.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
+                Wink.DeviceStatus stat = status.Single(p => p.name == "remaining" || p.name == "position");
                 Double converted = Convert.ToDouble(stat.current_status) * 100;
+                degree = converted.ToString();
                 state = converted > 0 ? "true" : "false";
+                alert = (converted <= 10);
             }
             else if (keys.Contains("connection"))
             {
                 Wink.DeviceStatus stat = status.Single(p => p.name == "connection");
                 state = stat.current_status.ToLower();
+                alert = !Convert.ToBoolean(state);
             }
 
-            if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
+            if (device.model.ToLower() == "tripper")
             {
-                Wink.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
-                degree = (Convert.ToDouble(stat.current_status) * 100).ToString();
-            }
-
-            if (devicetype == "light_bulbs" || devicetype == "binary_switches")
-            {
-                img.ImageUrl = "~/Images/Devices/lights" + state + ".png";
+                Wink.DeviceStatus stat = status.Single(p => p.name == "opened");
+                state = stat.current_status.ToLower();
+                img.ImageUrl = "~/Images/Devices/Tripper/Tripperdoor" + state + ".png";
+                alert = Convert.ToBoolean(state);
             }
             else if (degree != "n/a")
             {
@@ -716,8 +686,14 @@ namespace WinkAtHome.Controls
                 lblNotes.Text = "The command to turn power on has been sent";
             }
 
+            HiddenField hfDeviceID = (HiddenField)ib.NamingContainer.FindControl("hfDeviceID");
             string command = "{\"desired_state\": {\"mode\":null,\"powered\":" + newpower + ",\"modes_allowed\":null,\"min_set_point\":null,\"max_set_point\":null}}";
-            Wink.sendDeviceCommand(((HiddenField)ib.NamingContainer.FindControl("hfDeviceID")).Value, command);
+            Wink.sendDeviceCommand(hfDeviceID.Value, command);
+
+            Wink.Device device = Wink.Device.getDeviceByID(hfDeviceID.Value);
+            Wink.DeviceStatus status = device.status.Single(p => p.name == "powered");
+            status.current_status = newpower;
+
         }
 
         protected void ibThermModeChange_Click(object sender, ImageClickEventArgs e)
@@ -785,11 +761,16 @@ namespace WinkAtHome.Controls
                 }
             }
 
+            HiddenField hfDeviceID = (HiddenField)ib.NamingContainer.FindControl("hfDeviceID");
             string sendmode = mode == "auto" ? mode : mode + "_only";
             string command = "{\"desired_state\": {\"mode\":\""+ sendmode + "\",\"powered\":true,\"modes_allowed\":null,\"min_set_point\":null,\"max_set_point\":null}}";
-            Wink.sendDeviceCommand(((HiddenField)ib.NamingContainer.FindControl("hfDeviceID")).Value, command);
+            Wink.sendDeviceCommand(hfDeviceID.Value, command);
 
             lblNotes.Text = "The command to turn the mode to " + mode + " has been sent";
+
+            Wink.Device device = Wink.Device.getDeviceByID(hfDeviceID.Value);
+            Wink.DeviceStatus status = device.status.Single(p => p.name == "mode");
+            status.current_status = mode;
         }
 
         protected void ibThermChange_Click(object sender, ImageClickEventArgs e)
@@ -862,119 +843,25 @@ namespace WinkAtHome.Controls
                     tempHigh = Common.FromFahrenheitToCelsius(Convert.ToDouble(lblTempHeatSetauto.Text.Replace("&deg;", "")));
                 }
 
-                string command = "{\"desired_state\": {\"mode\":null,\"powered\":true,\"modes_allowed\":null,\"min_set_point\":" + tempLow +",\"max_set_point\":" + tempHigh +"}}";
-                Wink.sendDeviceCommand(((HiddenField)ib.NamingContainer.FindControl("hfDeviceID")).Value, command);
+                HiddenField hfDeviceID = (HiddenField)ib.NamingContainer.FindControl("hfDeviceID");
+                string command = "{\"desired_state\": {\"mode\":null,\"powered\":true,\"modes_allowed\":null,\"min_set_point\":" + tempLow + ",\"max_set_point\":" + tempHigh + "}}";
+                Wink.sendDeviceCommand(hfDeviceID.Value, command);
 
                 lblNotes.Text = "The command to change the temperature has been sent";
+
+                Wink.Device device = Wink.Device.getDeviceByID(hfDeviceID.Value);
+                Wink.DeviceStatus statuslow = device.status.Single(p => p.name == "min_set_point");
+                statuslow.current_status = tempLow.ToString();
+                Wink.DeviceStatus statushigh = device.status.Single(p => p.name == "max_set_point");
+                statushigh.current_status = tempHigh.ToString();
             }
         }
 
-        protected void lbApplyThermostat_Click(object sender, EventArgs e)
+        protected void lbCancelThermostat_Click(object sender, EventArgs e)
         {
-            LinkButton ib = (LinkButton)sender;
-            DataListItem dli = (DataListItem)ib.NamingContainer;
-
-            HiddenField hfOrigHighTemp = (HiddenField)dli.FindControl("hfOrigHighTemp");
-            HiddenField hfOrigLowTemp = (HiddenField)dli.FindControl("hfOrigLowTemp");
-            HiddenField hfOrigMode = (HiddenField)dli.FindControl("hfOrigMode");
-            HiddenField hfOrigPower = (HiddenField)dli.FindControl("hfOrigPower");
-
-            HiddenField hfSetHighTemp = (HiddenField)dli.FindControl("hfSetHighTemp");
-            HiddenField hfSetLowTemp = (HiddenField)dli.FindControl("hfSetLowTemp");
-            HiddenField hfSetMode = (HiddenField)dli.FindControl("hfSetMode");
-            HiddenField hfSetPower = (HiddenField)dli.FindControl("hfSetPower");
-
-            Label lblTempCoolSetauto = (Label)dli.FindControl("lblTempCoolSetauto");
-            Label lblTempHeatSetauto = (Label)dli.FindControl("lblTempHeatSetauto");
-            Label lblTempSet = (Label)dli.FindControl("lblTempSet");
-                
-            string deviceID = ib.CommandArgument;
-            string command = string.Empty;
-            
-            string thermmode = "null";
-            string thermpower = "null";
-            string highTemp = "null";
-            string lowTemp = "null";
-            string singleTemp = "null";
-
-            Double basetemp = 0;
-            Double thermmin = 0;
-            Double thermmax = 0;
-
-            thermpower = hfSetPower.Value.ToLower();
-
-            if (thermpower == "false")
-            {
-                command = "{\"desired_state\": {\"mode\":null,\"powered\":" + thermpower + ",\"modes_allowed\":null,\"min_set_point\":null,\"max_set_point\":null}}";
-                Wink.sendDeviceCommand(deviceID, command);
-            }
-            else
-            {
-                if (hfOrigMode.Value != hfSetMode.Value)
-                {
-                    thermmode = hfSetMode.Value.ToLower() == "auto" ? hfSetMode.Value.ToLower() : hfSetMode.Value.ToLower() + "_only";
-                }
-                command = "{\"desired_state\": {\"" + "\"mode\":\"" + thermmode + "\",\"powered\":true,\"modes_allowed\":null,\"min_set_point\":" + thermmin + ",\"max_set_point\":" + thermmax + "}}";
-                //Wink.sendDeviceCommand(deviceID, command);
-            }
-
-
-            if (hfSetMode.Value == "auto")
-            {
-                highTemp = lblTempHeatSetauto.Text.Replace("&deg;", "");
-                lowTemp = lblTempCoolSetauto.Text.Replace("&deg;", "");
-            }
-            else
-            {
-                singleTemp = lblTempSet.Text.Replace("&deg;", "");
-            }
-
-
-            if (hfSetMode.Value == "auto")
-            {
-                thermmin = Common.FromFahrenheitToCelsius(Convert.ToDouble(lowTemp));
-                thermmax = Common.FromFahrenheitToCelsius(Convert.ToDouble(highTemp));
-            }
-            else if (hfSetMode.Value == "cool")
-            {
-                basetemp = Convert.ToDouble(singleTemp);
-                thermmax = Common.FromFahrenheitToCelsius(basetemp);
-                thermmin = Common.FromFahrenheitToCelsius(basetemp - 2);
-            }
-            else if (hfSetMode.Value == "heat")
-            {
-                basetemp = Convert.ToDouble(singleTemp);
-                thermmin = Common.FromFahrenheitToCelsius(basetemp);
-                thermmax = Common.FromFahrenheitToCelsius(basetemp + 2);
-            }
-
-
-            Wink.Device device = Wink.Device.getDeviceByID(deviceID);
-            
-            Wink.DeviceStatus modestatus = device.status.Single(p => p.name == "mode");
-            if (modestatus != null)
-                modestatus.current_status = thermmode;
-
-            Wink.DeviceStatus poweredstatus = device.status.Single(p => p.name == "powered");
-            if (poweredstatus != null)
-                poweredstatus.current_status = thermpower;
-
-            Wink.DeviceStatus maxstatus = device.status.Single(p => p.name == "max_set_point");
-            if (maxstatus != null)
-                maxstatus.current_status = thermmax.ToString();
-
-            Wink.DeviceStatus minstatus = device.status.Single(p => p.name == "min_set_point");
-            if (minstatus != null)
-                minstatus.current_status = thermmin.ToString();
-
-            TableCell cellApply = (TableCell)ib.NamingContainer.FindControl("cellApply");
-            cellApply.BackColor = System.Drawing.Color.Green;
-
-            ModalPopupExtender mpe = (ModalPopupExtender)ib.NamingContainer.FindControl("mdeThermostats");
-            mpe.Hide();
             BindData();
         }
-
+        
         protected void tbColumns_TextChanged(object sender, EventArgs e)
         {
             SettingMgmt.saveSetting(Request.RawUrl.Replace("/", "") + "-Devices-" + "-" + ControllableOnly.ToString() + "-" + SensorsOnly.ToString() + "-" + typeToShow + "-Columns", tbColumns.Text);

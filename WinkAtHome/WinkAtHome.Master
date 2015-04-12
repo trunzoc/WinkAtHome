@@ -23,33 +23,7 @@
     </style>
 </head>
 <body style="background-color:#eeeeee;">
-    <script type="text/javascript">
-        function BeginProcess() {
-            // Create an iframe.
-            var iframe = document.createElement("iframe");
 
-            // Point the iframe to the location of the long running process.
-            iframe.src = "UpdateWink.aspx";
-
-            // Make the iframe invisible.
-            iframe.style.display = "none";
-
-            // Add the iframe to the DOM.  The process will begin execution at this point.
-            document.body.appendChild(iframe);
-        }
-
-        function UpdateProgress(PercentComplete, Message) {
-            document.getElementById('trigger').value = Message; //PercentComplete + '%: ' + 
-            if (PercentComplete == 100) {
-                __doPostBack('', '');
-            }
-        }
-
-        function clickTrigger() {
-            document.getElementById('trigger').click();
-        }
-    </script>
-    
     <form id="form1" runat="server">
     <div>
         <telerik:RadScriptManager ID="RadScriptManager1" runat="server"/>
@@ -65,81 +39,85 @@
         <asp:Table ID="Table1" runat="server" BorderWidth="0" CellPadding="0" CellSpacing="0" Width="100%">
             <asp:TableRow>
                 <asp:TableCell ColumnSpan="2" style="padding-bottom:20px" VerticalAlign="Top">
-                    <table style="background-color:#22b9ec;" width="100%" border="0">
-                        <tr>
-                            <td align="left" width="170px">
-                                <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/WinkatHome.png" Height="75px" />
-                            </td>
-                            <td align="center" style="vertical-align:middle">
-                                <asp:LinkButton ID="lbDashboard" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbDashboard_Click" style="text-decoration: none;" />
-                            </td>
-                            <td align="center" style="vertical-align:middle">
-                                <asp:LinkButton ID="lbMonitor" runat="server" Text="MONITOR" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbMonitor_Click" style="text-decoration: none;" />
-                            </td>
-                            <td align="right" width="200">
-                                <table>
-                                    <tr>
-                                        <td align="left">
-                                            <asp:Label ID="Label4" runat="server" Text="Last refreshed: " ForeColor="White" Font-Size="Small" />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td align="right">
-                                            <input type="submit" value='<% =DateTime.Now.ToString("")%>' id="trigger" onclick="BeginProcess(); return false;" style="color:white; background-color:#22b9ec;border:0;" />
-                                            <asp:UpdatePanel ID="UpdatePanel1" runat="server">
-                                                <ContentTemplate>
+                    <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+                        <ContentTemplate>
+                            <table style="background-color:#22b9ec;" width="100%" border="0">
+                                <tr>
+                                    <td align="left" width="170px">
+                                        <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/WinkatHome.png" Height="75px" />
+                                    </td>
+                                    <td align="center" style="vertical-align:middle">
+                                        <asp:LinkButton ID="lbDashboard" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbDashboard_Click" style="text-decoration: none;" />
+                                    </td>
+                                    <td align="center" style="vertical-align:middle">
+                                        <asp:LinkButton ID="lbMonitor" runat="server" Text="MONITOR" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbMonitor_Click" style="text-decoration: none;" />
+                                    </td>
+                                    <td align="right" width="200">
+                                        <table>
+                                            <tr>
+                                                <td align="left">
+                                                    <asp:Label ID="Label4" runat="server" Text="Last refreshed: " ForeColor="White" Font-Size="Small" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right">
                                                     <asp:Timer ID="tmrRefresh" runat="server" OnTick="tmrRefresh_Tick" Interval="300000" />
-                                                </ContentTemplate>
-                                            </asp:UpdatePanel> 
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                            <td width="50">
-                                <asp:ImageButton ID="ibRefresh" runat="server" ImageUrl="~/Images/refresh.png" Height="50px" OnClick="ibRefresh_Click" />
-                            </td>
-                            <td align="left" width="30">
-                                <asp:ImageButton ID="ibRefreshSettings" runat="server" ImageUrl="~/Images/wrench.png" Height="30" ToolTip="Refresh Settings" />
-                                <ajaxtoolkit:ModalPopupExtender ID="mpRefreshSettings" runat="server" PopupControlID="pnlRefreshSettings" 
-                                    TargetControlID="ibRefreshSettings" CancelControlID="btnClose" BackgroundCssClass="modalBackground" Y="100">
-                                </ajaxtoolkit:ModalPopupExtender>
-                                <asp:Panel ID="pnlRefreshSettings" runat="server" BorderWidth="1"  style="display:none">
-                                    <table cellpadding="5" cellspacing="5" style="background-color:#eeeeee;">
-                                        <tr>
-                                            <td colspan="2" style="background-color:#22b9ec;">
-                                                <asp:Label ID="Label5" runat="server" Text="Refresh Settings " ForeColor="White" Font-Bold="true"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <asp:Label ID="Label2" runat="server" Text="Auto-Refresh: "  Font-Size="Small" />
-                                            </td>
-                                            <td>
-                                                <asp:RadioButtonList ID="rblenabled" runat="server"  Font-Size="Small" RepeatDirection="Horizontal" OnSelectedIndexChanged="rblenabled_SelectedIndexChanged" AutoPostBack="true">
-                                                    <asp:ListItem Text="Enabled" Value="true" Selected="True" />
-                                                    <asp:ListItem Text="Disabled" Value="false" />
-                                                </asp:RadioButtonList>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <asp:Label ID="Label1" runat="server" Font-Size="Small"  Text="Refresh Rate: "  />
-                                            </td>
-                                            <td>
-                                                <asp:TextBox ID="tbTimer" runat="server" Font-Size="Small"  Text="5" OnTextChanged="tbTimer_TextChanged" Width="20px" AutoPostBack="true" />
-                                                <asp:Label ID="Label3" runat="server" Font-Size="Small"  Text=" minutes"  />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="2">
-                                                <asp:Button ID="btnClose" runat="server" Text="Close" />
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </asp:Panel>
-                            </td>
-                        </tr>
-                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <asp:Label ID="lblRefreshed" runat="server" Text="Last refreshed: " ForeColor="White" Font-Size="Small" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td width="50">
+                                        <asp:ImageButton ID="ibRefresh" runat="server" ImageUrl="~/Images/refresh.png" Height="50px" OnClick="tmrRefresh_Tick" />
+                                    </td>
+                                    <td align="left" width="30">
+                                        <asp:ImageButton ID="ibRefreshSettings" runat="server" ImageUrl="~/Images/wrench.png" Height="30" ToolTip="Refresh Settings" />
+                                        <ajaxtoolkit:ModalPopupExtender ID="mpRefreshSettings" runat="server" PopupControlID="pnlRefreshSettings" 
+                                            TargetControlID="ibRefreshSettings" CancelControlID="btnClose" BackgroundCssClass="modalBackground" Y="100">
+                                        </ajaxtoolkit:ModalPopupExtender>
+                                        <asp:Panel ID="pnlRefreshSettings" runat="server" BorderWidth="1"  style="display:none">
+                                            <table cellpadding="5" cellspacing="5" style="background-color:#eeeeee;">
+                                                <tr>
+                                                    <td colspan="2" style="background-color:#22b9ec;">
+                                                        <asp:Label ID="Label5" runat="server" Text="Refresh Settings " ForeColor="White" Font-Bold="true"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <asp:Label ID="Label2" runat="server" Text="Auto-Refresh: "  Font-Size="Small" />
+                                                    </td>
+                                                    <td>
+                                                        <asp:RadioButtonList ID="rblenabled" runat="server"  Font-Size="Small" RepeatDirection="Horizontal" OnSelectedIndexChanged="rblenabled_SelectedIndexChanged" AutoPostBack="true">
+                                                            <asp:ListItem Text="Enabled" Value="true" Selected="True" />
+                                                            <asp:ListItem Text="Disabled" Value="false" />
+                                                        </asp:RadioButtonList>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <asp:Label ID="Label1" runat="server" Font-Size="Small"  Text="Refresh Rate: "  />
+                                                    </td>
+                                                    <td>
+                                                        <asp:TextBox ID="tbTimer" runat="server" Font-Size="Small"  Text="5" OnTextChanged="tbTimer_TextChanged" Width="20px" AutoPostBack="true" />
+                                                        <asp:Label ID="Label3" runat="server" Font-Size="Small"  Text=" minutes"  />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <asp:Button ID="btnClose" runat="server" Text="Close" />
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </asp:Panel>
+                                    </td>
+                                </tr>
+                            </table>
+                        </ContentTemplate>
+                    </asp:UpdatePanel> 
                 </asp:TableCell>
             </asp:TableRow>
             <asp:TableRow>

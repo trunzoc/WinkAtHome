@@ -81,6 +81,14 @@
     <Content Include="Images\Battery\Battery25.png" />
     <Content Include="Images\Battery\Battery50.png" />
     <Content Include="Images\Battery\Battery75.png" />
+    <Content Include="Images\Devices\Tripper\Trippercabinetfalse.png" />
+    <Content Include="Images\Devices\Tripper\Trippercabinettrue.png" />
+    <Content Include="Images\Devices\Tripper\Tripperdeckfalse.png" />
+    <Content Include="Images\Devices\Tripper\Tripperdecktrue.png" />
+    <Content Include="Images\Devices\Tripper\Tripperdoorfalse.png" />
+    <Content Include="Images\Devices\Tripper\Tripperdoortrue.png" />
+    <Content Include="Images\Devices\Tripper\Tripperwindowfalse.png" />
+    <Content Include="Images\Devices\Tripper\Tripperwindowtrue.png" />
     <Content Include="Images\expand.png" />
     <Content Include="Images\loading.gif" />
     <Content Include="Images\Thermostats\thermbackbig.png" />
@@ -148,7 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Common.cs" />
-    <Compile Include="Controls\SettingMgmt.cs" />
+    <Compile Include="Classes\SettingMgmt.cs" />
     <Compile Include="Controls\Devices.ascx.cs">
       <DependentUpon>Devices.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

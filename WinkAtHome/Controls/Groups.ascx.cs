@@ -118,7 +118,7 @@ namespace WinkAtHome.Controls
         protected void imgIcon_Click(object sender, ImageClickEventArgs e)
         {
             ImageButton ib = (ImageButton)sender;
-            DataListItem li = (DataListItem)ib.Parent;
+            DataListItem li = (DataListItem)ib.NamingContainer;
             string groupID = ib.CommandArgument;
             string command = string.Empty;
 
