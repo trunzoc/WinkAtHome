@@ -47,8 +47,8 @@
                                                         AnimationDuration="400" ThumbsInteractionMode="Free" OnValueChanged="rsBrightness_ValueChanged" DecreaseText='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).name %>'>
                                                     </telerik:RadSlider>
                                                 </asp:TableCell>
-                                                <asp:TableCell VerticalAlign="Bottom">
-                                                    <asp:Image ID="imgAlert" runat="server" ImageUrl="~/Images/alert.png" Width="15" Visible="false" style="position:relative; right:15px;" />
+                                                <asp:TableCell VerticalAlign="Top">
+                                                    <asp:Image ID="imgAlert" runat="server" ImageUrl="~/Images/alert.png" Width="25" Visible="false" style="position:relative; right:20px;" />
                                                 </asp:TableCell>
                                             </asp:TableRow>
                                         </asp:Table>

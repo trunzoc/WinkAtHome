@@ -361,6 +361,41 @@ namespace WinkAtHome.Controls
             string state = string.Empty;
             string degree = "n/a";
 
+            if (keys.Contains("connection"))
+            {
+                Wink.DeviceStatus stat = status.Single(p => p.name == "connection");
+                state = stat.current_status.ToLower();
+                alert = !Convert.ToBoolean(state);
+            }
+
+            if (device.type == "smoke_detectors")
+            {
+                state = "true";
+                string strStatuses = string.Empty;
+                if (keys.Contains("co_detected"))
+                {
+                    Wink.DeviceStatus stat = status.SingleOrDefault(p => p.name == "co_detected");
+                    strStatuses += stat.current_status;
+                }
+                if (keys.Contains("smoke_detected"))
+                {
+                    Wink.DeviceStatus stat = status.SingleOrDefault(p => p.name == "smoke_detected");
+                    strStatuses += stat.current_status;
+                }
+
+                if (strStatuses.ToLower().Contains("true"))
+                    state = "true";
+                else
+                    state = "false";
+                
+                if (keys.Contains("test_activated"))
+                {
+                    Wink.DeviceStatus stat = status.SingleOrDefault(p => p.name == "test_activated");
+                    if (stat.current_status.ToLower() == "true")
+                        state = "test";
+                }
+            }
+
             if (keys.Contains("remaining")||keys.Contains("position"))
             {
                 Wink.DeviceStatus stat = status.Single(p => p.name == "remaining" || p.name == "position");
@@ -369,18 +404,23 @@ namespace WinkAtHome.Controls
                 state = converted > 0 ? "true" : "false";
                 alert = (converted <= 10);
             }
-            else if (keys.Contains("connection"))
-            {
-                Wink.DeviceStatus stat = status.Single(p => p.name == "connection");
-                state = stat.current_status.ToLower();
-                alert = !Convert.ToBoolean(state);
-            }
 
             if (device.model.ToLower() == "tripper")
             {
                 Wink.DeviceStatus stat = status.Single(p => p.name == "opened");
                 state = stat.current_status.ToLower();
-                img.ImageUrl = "~/Images/Devices/Tripper/Tripperdoor" + state + ".png";
+                
+                string type = "door";
+                string lowername = device.name.ToLower();
+                if (lowername.Contains("window"))
+                    type = "window";
+                else if (lowername.Contains("patio") || lowername.Contains("deck"))
+                    type = "deck";
+                else if (lowername.Contains("cabinet"))
+                    type = "cabinet";
+
+
+                img.ImageUrl = "~/Images/Devices/Tripper/Tripper" + type + state + ".png";
                 alert = Convert.ToBoolean(state);
             }
             else if (degree != "n/a")
@@ -404,6 +444,9 @@ namespace WinkAtHome.Controls
                     string url = "~/Images/Devices/" + devicetype + imgDegree + ".png";
                     img.ImageUrl = url;
                 }
+
+                if (deg < 25)
+                    alert = true;
             }
             else
             {
@@ -415,6 +458,8 @@ namespace WinkAtHome.Controls
                 }
 
             }
+
+            ((Image)item.FindControl("imgAlert")).Visible = alert;
         }
 
         protected void displayThermostats(DataListItem item)

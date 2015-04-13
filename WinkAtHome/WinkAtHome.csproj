@@ -81,6 +81,9 @@
     <Content Include="Images\Battery\Battery25.png" />
     <Content Include="Images\Battery\Battery50.png" />
     <Content Include="Images\Battery\Battery75.png" />
+    <Content Include="Images\Devices\smoke_detectorsfalse.png" />
+    <Content Include="Images\Devices\smoke_detectorstest.png" />
+    <Content Include="Images\Devices\smoke_detectorstrue.png" />
     <Content Include="Images\Devices\Tripper\Trippercabinetfalse.png" />
     <Content Include="Images\Devices\Tripper\Trippercabinettrue.png" />
     <Content Include="Images\Devices\Tripper\Tripperdeckfalse.png" />
@@ -89,6 +92,8 @@
     <Content Include="Images\Devices\Tripper\Tripperdoortrue.png" />
     <Content Include="Images\Devices\Tripper\Tripperwindowfalse.png" />
     <Content Include="Images\Devices\Tripper\Tripperwindowtrue.png" />
+    <Content Include="Images\Devices\wink_relaysfalse.png" />
+    <Content Include="Images\Devices\wink_relaystrue.png" />
     <Content Include="Images\expand.png" />
     <Content Include="Images\loading.gif" />
     <Content Include="Images\Thermostats\thermbackbig.png" />
