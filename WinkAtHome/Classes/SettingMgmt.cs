@@ -151,7 +151,7 @@ namespace WinkAtHome
                 File.Delete(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt");
             }
 
-            string text = "{\"winkUsername\":\"Username\",\"winkPassword\":\"Password\",\"winkClientID\":\"quirky_wink_android_app\",\"winkClientSecret\":\"e749124ad386a5a35c0ab554a4f2c045\"}";
+            string text = "{\"winkUsername\":\"Username\",\"winkPassword\":\"Password\",\"winkClientID\":\"quirky_wink_android_app\",\"winkClientSecret\":\"e749124ad386a5a35c0ab554a4f2c045\",\"StartPage\":\"Control.aspx\",\"Hide-Empty-Robots\":\"false\",\"Hide-Empty-Groups\":\"false\"}";
             string encrypedFile = Common.Encrypt(text);
 
             File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt", encrypedFile);

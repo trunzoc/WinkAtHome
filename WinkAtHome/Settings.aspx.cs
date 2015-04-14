@@ -75,7 +75,7 @@ namespace WinkAtHome
 
         protected void lbControl_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Default.aspx");
+            Response.Redirect("~/Control.aspx");
         }
 
         protected void btnRawDevData_Click(object sender, EventArgs e)

@@ -31,51 +31,50 @@
                                                         CommandArgument='<%# ((Wink.Robot)((IDataItemContainer)Container).DataItem).id %>' CommandName='<%# ((Wink.Robot)((IDataItemContainer)Container).DataItem).enabled %>' ToolTip='<%# ((Wink.Robot)((IDataItemContainer)Container).DataItem).name %>' />
                                                 </asp:TableCell>
                                                 <asp:TableCell HorizontalAlign="Left" VerticalAlign="Bottom">
-                                                    <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show Device data" />
-                                                    <ajaxtoolkit:ModalPopupExtender ID="ModalPopupExtender1" runat="server" PopupControlID="pnlInfo" 
-                                                        TargetControlID="ibInfo" CancelControlID="btnClose" BackgroundCssClass="modalBackground" Y="200">
+                                                    <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show Robot data" OnClick="ibInfo_Click" />
+
+                                                    <asp:button id="btnShowInfo" runat="server" style="display:none;" />
+
+                                                    <ajaxtoolkit:ModalPopupExtender ID="mpeInfo" runat="server" PopupControlID="pnlInfo"
+                                                        TargetControlID="btnShowInfo" BackgroundCssClass="modalBackground" Y="100">
                                                     </ajaxtoolkit:ModalPopupExtender>
                                                     <asp:Panel ID="pnlInfo" runat="server" BorderWidth="1"  style="display:none">
-                                                        <table cellpadding="5" cellspacing="5" style="background-color:#eeeeee;">
-                                                            <tr>
-                                                                <td>
-                                                                    <asp:DataList ID="dlProperties" runat="server">
-                                                                        <HeaderTemplate>
-                                                                            <table>
-                                                                        </HeaderTemplate>
-                                                                        <ItemTemplate>
-                                                                            <tr>
-                                                                                <td align="right">
-                                                                                    <asp:Label ID="lblPropertyName" runat="server" Text='<%# Eval("Key") + ": " %>' />
-                                                                                </td>
-                                                                                <td align="left">
-                                                                                    <asp:Label ID="lblPropertyValue" runat="server" Text='<%# Eval("Value") %>' />
-                                                                                </td>
-                                                                            </tr>
-                                                                        </ItemTemplate>
-                                                                        <FooterTemplate>
-                                                                            </table>
-                                                                        </FooterTemplate>
-                                                                    </asp:DataList>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td align="left">
-                                                                    <asp:Label ID="Label4" runat="server" Text="JSON:" />
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    <asp:Textbox ID="tbJSON" runat="server" Text='<%# ((Wink.Robot)((IDataItemContainer)Container).DataItem).json %>' TextMode="MultiLine" Height="200" Width="400" ReadOnly="true" />
-                                                                </td>
-                                                            </tr>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    <asp:Button ID="btnClose" runat="server" Text="Close" />
-                                                                </td>
-                                                            </tr>
-                                                        </table>
+                                            <asp:Table ID="Table6" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee">
+                                                <asp:TableRow>
+                                                    <asp:TableCell ColumnSpan="2">
+                                                        <asp:DataList ID="dlProperties" runat="server" RepeatColumns="2" Width="100%" RepeatLayout="Table">
+                                                            <HeaderTemplate>
+                                                                <table style="width:100%">
+                                                            </HeaderTemplate>
+                                                            <ItemTemplate>
+                                                                    <td align="right" style="width:100px">
+                                                                        <asp:Label ID="lblPropertyName" runat="server" Text='<%# Eval("Key") + ": " %>' Font-Size="Small" />
+                                                                    </td>
+                                                                    <td align="left">
+                                                                        <asp:Label ID="lblPropertyValue" runat="server" Text='<%# Eval("Value") %>' Font-Size="Small" />
+                                                                    </td>
+                                                            </ItemTemplate>
+                                                            <FooterTemplate>
+                                                                </table>
+                                                            </FooterTemplate>
+                                                        </asp:DataList>
+                                                    </asp:TableCell>
+                                                </asp:TableRow>
+
+                                                <asp:TableRow>
+                                                    <asp:TableCell HorizontalAlign="Right" VerticalAlign="Top">
+                                                        <asp:Label ID="lbl1" runat="server" Text="JSON:" Font-Size="Small" />
+                                                    </asp:TableCell>
+                                                    <asp:TableCell HorizontalAlign="Left">
+                                                        <asp:Textbox ID="tbJSON" runat="server" Text='<%# ((Wink.Robot)((IDataItemContainer)Container).DataItem).json %>' TextMode="MultiLine" Height="150" Width="400" ReadOnly="true" />
+                                                    </asp:TableCell>
+                                                </asp:TableRow>
+                                                <asp:TableRow>
+                                                    <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
+                                                        <asp:LinkButton ID="LinkButton1" runat="server" Text="Close" ForeColor="White" style="text-decoration: none;" OnClick="btnClose_Click" />
+                                                    </asp:TableHeaderCell>
+                                                </asp:TableRow>
+                                            </asp:Table>
                                                     </asp:Panel>
                                                 </asp:TableCell>
                                             </asp:TableRow>

@@ -106,7 +106,7 @@ namespace WinkAtHome.Controls
             }
             else if (typeToShow != "all")
             {
-                devices = Wink.Devices.Where(p => p.type==typeToShow).ToList();
+                devices = Wink.Devices.Where(p => p.menu_type==typeToShow).ToList();
             }
             else
             {
@@ -253,83 +253,136 @@ namespace WinkAtHome.Controls
 
             List<Wink.DeviceStatus> status = device.status;
             IList<string> keys = status.Select(p => p.name).ToList();
-            string state = string.Empty;
+            string state = "false";
+            bool hasConnection = false;
             string degree = "n/a";
 
-            if (keys.Contains("powered") || keys.Contains("locked"))
-            {
-                Wink.DeviceStatus stat = status.Single(p => p.name == "powered" || p.name == "locked");
-                state = stat.current_status.ToLower();
-                hfMainCommand.Value = stat.name;
-                hfCurrentStatus.Value = state;
-                img.Enabled = true;
-            }
-            else if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
-            {
-                Wink.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
-                Double converted = Convert.ToDouble(stat.current_status) * 100;
-                state = converted > 0 ? "true" : "false";
-                hfMainCommand.Value = stat.name;
-                hfCurrentStatus.Value = state;
-
-                if (device.iscontrollable)
-                    img.Enabled = true;
-            }
-            else if (keys.Contains("connection"))
+            if (keys.Contains("connection"))
             {
                 Wink.DeviceStatus stat = status.Single(p => p.name == "connection");
-                state = stat.current_status.ToLower();
-                hfMainCommand.Value = stat.name;
-                hfCurrentStatus.Value = state;
-            }
+                if (stat == null || (stat != null && string.IsNullOrWhiteSpace(stat.current_status)))
+                {
+                    hasConnection = false;
+                    state = "false";
+                    hfCurrentStatus.Value = state;
 
-            if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
-            {
-                Wink.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
-                hfLevelCommand.Value = stat.name;
-                degree = (Convert.ToDouble(stat.current_status) * 100).ToString();
-            }
-
-            if (devicetype == "light_bulbs" || devicetype == "binary_switches")
-            {
-                img.ImageUrl = "~/Images/Devices/lights" + state + ".png";
-            }
-            else if (hfLevelCommand.Value == "position" || hfLevelCommand.Value == "remaining")
-            {
-                string imgDegree = "100";
-                double deg = Convert.ToDouble(degree);
-                if (deg <= 10)
-                    imgDegree = "0";
-                else if (deg <= 30)
-                    imgDegree = "25";
-                else if (deg <= 60)
-                    imgDegree = "50";
-                else if (deg <= 90)
-                    imgDegree = "75";
+                    Label lblName = (Label)item.FindControl("lblName");
+                    lblName.ForeColor = System.Drawing.Color.Red;
+                    lblName.Text += "<br />NOT CONNECTED";
+                }
                 else
-                    imgDegree = "100";
-
-                string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\" + devicetype + imgDegree + ".png";
-                if (File.Exists(imgPath))
-                {
-                    string url = "~/Images/Devices/" + devicetype + imgDegree + ".png";
-                    img.ImageUrl = url;
-                }
+                    hasConnection = true;
             }
-            else
+
+            if (hasConnection)
             {
-                string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\" + devicetype + state + ".png";
-                if (File.Exists(imgPath))
+                if (keys.Contains("powered") || keys.Contains("locked"))
                 {
-                    string url = "~/Images/Devices/" + devicetype + state + ".png";
-                    img.ImageUrl = url;
+                    Wink.DeviceStatus stat = status.Single(p => p.name == "powered" || p.name == "locked");
+                    state = stat.current_status.ToLower();
+                    hfMainCommand.Value = stat.name;
+                    hfCurrentStatus.Value = state;
+                    img.Enabled = true;
+                }
+                else if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
+                {
+                    Wink.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
+                    Double converted = Convert.ToDouble(stat.current_status) * 100;
+                    state = converted > 0 ? "true" : "false";
+                    hfMainCommand.Value = stat.name;
+                    hfCurrentStatus.Value = state;
+
+                    if (device.iscontrollable)
+                        img.Enabled = true;
+                }
+                else if (hasConnection)
+                {
+                    state = hasConnection.ToString().ToLower();
+                    hfMainCommand.Value = "connection";
+                    hfCurrentStatus.Value = state;
                 }
 
+                if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
+                {
+                    Wink.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
+                    hfLevelCommand.Value = stat.name;
+                    double testdouble = 0;
+                    Double.TryParse(stat.current_status, out testdouble);
+                    degree = (testdouble * 100).ToString();
+                }
+
+                if (devicetype == "light_bulbs" || devicetype == "binary_switches")
+                {
+                    if (device.model.ToLower() == "outlet")
+                    {
+                        string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\outlets" + state + ".png";
+                        if (File.Exists(imgPath))
+                        {
+                            string url = "~/Images/Devices/outlets" + state + ".png";
+                            img.ImageUrl = url;
+                        }
+                    }
+                    else
+                    {
+                        string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\" + device.manufacturer + state + ".png";
+                        if (File.Exists(imgPath))
+                        {
+                            string url = "~/Images/Devices/" + device.manufacturer + state + ".png";
+                            img.ImageUrl = url;
+                        }
+                        else
+                            img.ImageUrl = "~/Images/Devices/lights" + state + ".png";
+                    }
+                }
+                else if (devicetype == "outlets")
+                {
+                    string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\" + device.menu_type + device.type + state + ".png";
+                    if (File.Exists(imgPath))
+                    {
+                        string url = "~/Images/Devices/" + device.menu_type + device.type + state + ".png";
+                        img.ImageUrl = url;
+                    }
+                    else
+                        img.ImageUrl = "~/Images/Devices/outlets" + state + ".png";
+                }
+                else if (hfLevelCommand.Value == "position" || hfLevelCommand.Value == "remaining")
+                {
+                    string imgDegree = "100";
+                    double deg = Convert.ToDouble(degree);
+                    if (deg <= 10)
+                        imgDegree = "0";
+                    else if (deg <= 30)
+                        imgDegree = "25";
+                    else if (deg <= 60)
+                        imgDegree = "50";
+                    else if (deg <= 90)
+                        imgDegree = "75";
+                    else
+                        imgDegree = "100";
+
+                    string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\" + devicetype + imgDegree + ".png";
+                    if (File.Exists(imgPath))
+                    {
+                        string url = "~/Images/Devices/" + devicetype + imgDegree + ".png";
+                        img.ImageUrl = url;
+                    }
+                }
+                else
+                {
+                    string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\" + devicetype + state + ".png";
+                    if (File.Exists(imgPath))
+                    {
+                        string url = "~/Images/Devices/" + devicetype + state + ".png";
+                        img.ImageUrl = url;
+                    }
+
+                }
             }
 
             if (device.isvariable)
             {
                 rs.Visible = true;
+                rs.Enabled = hasConnection;
                 if (state == "true")
                 {
                     decimal dim = 100;
@@ -405,23 +458,48 @@ namespace WinkAtHome.Controls
                 alert = (converted <= 10);
             }
 
-            if (device.model.ToLower() == "tripper")
+            if (device.type == "sensor_pods")
             {
-                Wink.DeviceStatus stat = status.Single(p => p.name == "opened");
-                state = stat.current_status.ToLower();
+                string model = device.model.ToLower();
+                if (model == "tripper")
+                {
+                    Wink.DeviceStatus stat = status.Single(p => p.name == "opened");
+                    state = stat.current_status.ToLower();
+
+                    string type = "door";
+                    string lowername = device.name.ToLower();
+                    if (lowername.Contains("window"))
+                        type = "window";
+                    else if (lowername.Contains("patio") || lowername.Contains("deck"))
+                        type = "deck";
+                    else if (lowername.Contains("cabinet"))
+                        type = "cabinet";
+
+                    string imgPath = Request.PhysicalApplicationPath + "\\Images\\Sensors\\tripper\\Tripper" + type + state + ".png";
+                    if (File.Exists(imgPath))
+                    {
+                        img.ImageUrl = "~/Images/Sensors/Tripper/Tripper" + type + state + ".png";
+                    }
+                }
+                else
+                {
+                    string imgPath = Request.PhysicalApplicationPath + "\\Images\\Sensors\\" + model + state + ".png";
+                    if (File.Exists(imgPath))
+                    {
+                        img.ImageUrl = "~/Images/Sensors/" + model + state + ".png";
+                    }
+                }
                 
-                string type = "door";
-                string lowername = device.name.ToLower();
-                if (lowername.Contains("window"))
-                    type = "window";
-                else if (lowername.Contains("patio") || lowername.Contains("deck"))
-                    type = "deck";
-                else if (lowername.Contains("cabinet"))
-                    type = "cabinet";
-
-
-                img.ImageUrl = "~/Images/Devices/Tripper/Tripper" + type + state + ".png";
                 alert = Convert.ToBoolean(state);
+            }
+            else if (device.menu_type == "hubs")
+            {
+                string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\" + devicetype + state + ".png";
+                if (File.Exists(imgPath))
+                {
+                    string url = "~/Images/Devices/" + devicetype + state + ".png";
+                    img.ImageUrl = url;
+                }
             }
             else if (degree != "n/a")
             {
@@ -438,10 +516,10 @@ namespace WinkAtHome.Controls
                 else
                     imgDegree = "100";
 
-                string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\" + devicetype + imgDegree + ".png";
+                string imgPath = Request.PhysicalApplicationPath + "\\Images\\Sensors\\" + devicetype + imgDegree + ".png";
                 if (File.Exists(imgPath))
                 {
-                    string url = "~/Images/Devices/" + devicetype + imgDegree + ".png";
+                    string url = "~/Images/Sensors/" + devicetype + imgDegree + ".png";
                     img.ImageUrl = url;
                 }
 
@@ -450,10 +528,10 @@ namespace WinkAtHome.Controls
             }
             else
             {
-                string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\" + devicetype + state + ".png";
+                string imgPath = Request.PhysicalApplicationPath + "\\Images\\Sensors\\" + devicetype + state + ".png";
                 if (File.Exists(imgPath))
                 {
-                    string url = "~/Images/Devices/" + devicetype + state + ".png";
+                    string url = "~/Images/Sensors/" + devicetype + state + ".png";
                     img.ImageUrl = url;
                 }
 
@@ -466,11 +544,6 @@ namespace WinkAtHome.Controls
         {
             HiddenField hfDeadband = (HiddenField)item.FindControl("hfDeadband");
  
-            HiddenField hfOrigHighTemp = (HiddenField)item.FindControl("hfOrigHighTemp");
-            HiddenField hfOrigLowTemp = (HiddenField)item.FindControl("hfOrigLowTemp");
-            HiddenField hfOrigMode = (HiddenField)item.FindControl("hfOrigMode");
-            HiddenField hfOrigPower = (HiddenField)item.FindControl("hfOrigPower");
-
             HiddenField hfSetHighTemp = (HiddenField)item.FindControl("hfSetHighTemp");
             HiddenField hfSetLowTemp = (HiddenField)item.FindControl("hfSetLowTemp");
             HiddenField hfSetMode = (HiddenField)item.FindControl("hfSetMode");
@@ -497,7 +570,7 @@ namespace WinkAtHome.Controls
 
                 ImageButton ibThermPowerSet = (ImageButton)item.FindControl("ibThermPowerSet");
                 ibThermPowerSet.ImageUrl = "~/Images/Thermostats/power" + powered + ".png";
-                hfOrigPower.Value = powered;
+                hfSetPower.Value = powered;
             }
 
             if (keys.Contains("temperature") && !string.IsNullOrWhiteSpace(status.Single(p => p.name == "temperature").current_status))
@@ -522,7 +595,7 @@ namespace WinkAtHome.Controls
                 ImageButton ibThermMode = (ImageButton)item.FindControl("ibTherm" + mode);
                 ibThermMode.ImageUrl = "~/Images/Thermostats/" + mode + "true.png";
 
-                hfOrigMode.Value = mode;
+                hfSetMode.Value = mode;
 
                 string mintemp = string.Empty;
                 string maxtemp = string.Empty;
@@ -602,13 +675,8 @@ namespace WinkAtHome.Controls
                         }
                     }
                 }
-                hfOrigLowTemp.Value = Common.FromCelsiusToFahrenheit(Convert.ToDouble(mintemp)).ToString();
-                hfOrigHighTemp.Value = Common.FromCelsiusToFahrenheit(Convert.ToDouble(maxtemp)).ToString();
-
-                hfSetHighTemp.Value = hfOrigHighTemp.Value;
-                hfSetLowTemp.Value = hfOrigLowTemp.Value;
-                hfSetMode.Value = hfOrigMode.Value;
-                hfSetPower.Value = hfOrigPower.Value;
+                hfSetLowTemp.Value = Common.FromCelsiusToFahrenheit(Convert.ToDouble(mintemp)).ToString();
+                hfSetHighTemp.Value = Common.FromCelsiusToFahrenheit(Convert.ToDouble(maxtemp)).ToString();
             }
         }
 
@@ -902,11 +970,6 @@ namespace WinkAtHome.Controls
             }
         }
 
-        protected void lbCancelThermostat_Click(object sender, EventArgs e)
-        {
-            BindData();
-        }
-        
         protected void tbColumns_TextChanged(object sender, EventArgs e)
         {
             SettingMgmt.saveSetting(Request.RawUrl.Replace("/", "") + "-Devices-" + "-" + ControllableOnly.ToString() + "-" + SensorsOnly.ToString() + "-" + typeToShow + "-Columns", tbColumns.Text);
@@ -917,6 +980,38 @@ namespace WinkAtHome.Controls
         {
             rowData.Visible = !rowData.Visible;
             SettingMgmt.saveSetting(Request.RawUrl.Replace("/", "") + "-Devices-" + "-" + ControllableOnly.ToString() + "-" + SensorsOnly.ToString() + "-" + typeToShow + "-Visible", rowData.Visible.ToString());
+        }
+
+        protected void ibThermostat_Click(object sender, EventArgs e)
+        {
+            LinkButton ib = (LinkButton)sender;
+
+            Session["modalshowing"] = "true";
+
+            ModalPopupExtender mdeThermostats = (ModalPopupExtender)ib.NamingContainer.FindControl("mdeThermostats");
+            mdeThermostats.Show();
+        }
+        
+        protected void ibInfo_Click(object sender, EventArgs e)
+        {
+            ImageButton ib = (ImageButton)sender;
+
+            Session["modalshowing"] = "true";
+
+            ModalPopupExtender mpeInfo = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeInfo");
+            mpeInfo.Show();
+        }
+
+        protected void btnClose_Click(object sender, EventArgs e)
+        {
+            LinkButton ib = (LinkButton)sender;
+
+            Session["modalshowing"] = "false";
+
+            ModalPopupExtender mpeInfo = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeInfo");
+            mpeInfo.Hide();
+
+            BindData();
         }
     }
 }

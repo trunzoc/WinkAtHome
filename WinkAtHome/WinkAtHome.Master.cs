@@ -41,17 +41,24 @@ namespace WinkAtHome
             }
         }
 
-        protected void lbDashboard_Click(object sender, EventArgs e)
+        protected void lbControl_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Default.aspx");
+            Response.Redirect("~/Control.aspx");
         }
 
         protected void tmrRefresh_Tick(object sender, EventArgs e)
         {
             tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
-            Wink.reloadWink();
-            Response.Redirect(Request.RawUrl);
-            
+
+            string modalshowing = "false";
+            if (Session["modalshowing"] != null)
+                modalshowing = Session["modalshowing"].ToString();
+
+            if (modalshowing == "false")
+            {
+                Wink.reloadWink();
+                Response.Redirect(Request.RawUrl);
+            }
         }
 
         protected void tbTimer_TextChanged(object sender, EventArgs e)

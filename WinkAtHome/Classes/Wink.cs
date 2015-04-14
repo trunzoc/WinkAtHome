@@ -68,6 +68,8 @@ public class Wink
         [SimpleProperty]
         public string type { get; set; }
         [SimpleProperty]
+        public string menu_type { get; set; }
+        [SimpleProperty]
         public bool iscontrollable { get; set; }
         [SimpleProperty]
         public bool issensor { get; set; }
@@ -108,9 +110,14 @@ public class Wink
 
             return devices;
         }
-        public static List<string> getDeviceTypes()
+        public static List<string> getDeviceTypes(bool forMenu = false)
         {
-            List<string> types = Devices.Select(t => t.type).Distinct().ToList();
+            List<string> types = null;
+            if (forMenu)
+                types = Devices.Select(t => t.menu_type).Distinct().ToList();
+            else
+                types = Devices.Select(t => t.type).Distinct().ToList();
+            
             if (types != null)
                 types.Sort();
 
@@ -158,10 +165,12 @@ public class Wink
                 {
                     foreach (JObject data in json["data"])
                     {
+                        List<Device> devicelist = new List<Device>();
                         IEnumerable<string> ikeys = data.Properties().Select(p => p.Name);
                         if (ikeys != null)
                         {
                             List<string> keys = ikeys.ToList();
+
                             string desired_states = string.Empty;
                             string last_readings = string.Empty;
 
@@ -174,37 +183,27 @@ public class Wink
                             device.id = data[typeName] != null ? data[typeName].ToString() : "error: typeName";
                             device.name = data["name"] != null ? data["name"].ToString() : "error: name";
                             device.type = data[typeName] != null ? typeName.Replace("_id", "s").Replace("switchs", "switches") : "error: type";
+                            device.menu_type = device.type;
 
                             if (keys.Contains("desired_state"))
                             {
                                 JObject states = (JObject)data["desired_state"];
                                 desired_states = states.ToString();
 
-                                if (states != null)
-                                {
-                                    foreach (var state in states)
-                                    {
-                                        device.desired_states.Add(state.Key);
-                                    }
-
-                                    if (device.desired_states.Count > 0)
-                                    {
-                                        device.iscontrollable = true;
-                                    }
-                                    else if (device.desired_states.Count == 0)
-                                    {
-                                        device.issensor = true;
-                                    }
-
-                                    if (states.ToString().Contains("brightness") || states.ToString().Contains("position"))
-                                    {
-                                        device.isvariable = true;
-                                    }
-                                }
+                                getDesired_States(device, states);
                             }
                             else
                             {
                                 device.issensor = true;
+                            }
+
+
+                            if (keys.Contains("last_reading"))
+                            {
+                                JObject readings = (JObject)data["last_reading"];
+                                last_readings = readings.ToString();
+
+                                getLast_Readings(device, readings);
                             }
 
                             if (keys.Contains("device_manufacturer"))
@@ -222,47 +221,52 @@ public class Wink
                                 device.model = data["model_name"].ToString();
                             }
 
-                            if (keys.Contains("last_reading"))
-                            {
-                                JObject readings = (JObject)data["last_reading"];
-                                last_readings = readings.ToString();
-
-                                if (readings != null)
-                                {
-                                    foreach (var reading in readings)
-                                    {
-                                        if (!reading.Key.Contains("_updated_at"))
-                                        {
-                                            DeviceStatus deviceStatus = new DeviceStatus();
-                                            deviceStatus.id = device.id;
-                                            deviceStatus.name = reading.Key;
-                                            deviceStatus.current_status = reading.Value.ToString();
-
-                                            if (readings[reading.Key + "_updated_at"] != null)
-                                            {
-                                                string lastupdated = readings[reading.Key + "_updated_at"].ToString();
-                                                deviceStatus.last_updated = Common.FromUnixTime(lastupdated);
-                                            }
-
-                                            if (reading.Key.Contains("units"))
-                                            {
-                                                device.units = readings["units"].ToString();
-                                            }
-
-                                            device.status.Add(deviceStatus);
-                                        }
-                                    }
-                                }
-                            }
-
                             #region DEVICE EXCEPTIONS
                             //DEVICE EXCEPTIONS
+
+                            //Power Pivot Genius
+                            if (keys.Contains("powerstrip_id"))
+                            {
+                                device.id = data["powerstrip_id"].ToString();
+                                device.type = "powerstrips";
+                                device.menu_type = device.type;
+                                device.issensor = false;
+                                foreach (DeviceStatus status in device.status)
+                                    status.id = device.id;
+
+                                foreach (var outlet in data["outlets"])
+                                {
+                                    Device outletdevice = new Device();
+                                    outletdevice.json = outlet.ToString();
+                                    outletdevice.id = outlet["outlet_id"].ToString();
+                                    outletdevice.name = device.name + " - " + outlet["name"].ToString();
+                                    outletdevice.type = "outlets";
+                                    outletdevice.menu_type = "powerstrips";
+                                    outletdevice.manufacturer = device.manufacturer;
+                                    outletdevice.radio_type = device.radio_type;
+                                    outletdevice.model = device.model;
+
+                                    JObject states = (JObject)outlet["desired_state"];
+                                    getDesired_States(outletdevice, states);
+
+                                    JObject readings = (JObject)outlet["last_reading"];
+                                    getLast_Readings(outletdevice, readings);
+
+                                    DeviceStatus connstatus = device.status.Single(s => s.name == "connection");
+                                    outletdevice.status.Add(connstatus);
+
+                                    Devices.Add(outletdevice);
+                                }
+                            }
 
                             //tripper
                             if (keys.Contains("sensor_pod_id"))
                             {
                                 device.id = data["sensor_pod_id"].ToString();
                                 device.type = "sensor_pods";
+                                device.menu_type = device.type;
+                                foreach (DeviceStatus status in device.status)
+                                    status.id = device.id;
                             }
 
                             //hubs
@@ -273,6 +277,13 @@ public class Wink
 
                                 if (device.model.ToLower() == "wink relay")
                                     device.type = "wink_relays";
+                            }
+
+                            //Relay
+                            if (device.type == "buttons" || device.type == "gangs")
+                            {
+                                device.issensor = false;
+                                device.menu_type = "unknown_devices";
                             }
 
                             //remotes
@@ -294,6 +305,9 @@ public class Wink
                                 device.name = data["name"] != null ? data["name"].ToString() : "error: name";
                                 device.type = "lock_pins";
                                 device.issensor = false;
+                                device.menu_type = "locks";
+                                foreach (DeviceStatus status in device.status)
+                                    status.id = device.id;
                             }
 
                             //refuel
@@ -654,7 +668,8 @@ public class Wink
                         }
                     }
 
-                    Groups.Add(group);
+                    if (group.members.Count > 0 || WinkAtHome.SettingMgmt.getSetting("Hide-Empty-Groups").ToLower() == "false")
+                        Groups.Add(group);
                 }
 
                 _groups = Groups.OrderBy(c => c.name).ToList();
@@ -772,7 +787,18 @@ public class Wink
                     robot.enabled = data["enabled"].ToString();
                     robot.last_fired = Common.FromUnixTime(data["last_fired"].ToString());
                     robot.json = data.ToString();
-                    Robots.Add(robot);
+
+                    bool hasData = false;
+                    foreach (var cause in data["causes"])
+                    {
+                        if (!string.IsNullOrWhiteSpace(cause["observed_object_id"].ToString()))
+                        {
+                            hasData = true;
+                            break;
+                        }
+                    }
+                    if (hasData || WinkAtHome.SettingMgmt.getSetting("Hide-Empty-Robots").ToLower() == "false")
+                        Robots.Add(robot);
                 }
 
                 _robots = Robots.OrderBy(c => c.name).ToList();
@@ -897,7 +923,7 @@ public class Wink
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"thermostat_id\": \"27239\",\"name\": \"zTest Honeywell\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419909349,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"f5cb03e4101d1668ff7933a703a864b4984fce5a|thermostat-27239|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"mode\": \"heat_only\",\"powered\": true,\"min_set_point\": 20.0,\"max_set_point\": 22.777777777777779},\"manufacturer_device_model\": \"MANHATTAN\",\"manufacturer_device_id\": \"798165\",\"device_manufacturer\": \"honeywell\",\"model_name\": \"Honeywell Wi-Fi Smart Thermostat\",\"upc_id\": \"151\",\"hub_id\": null,\"local_id\": \"00D02D49A90A\",\"radio_type\": null,\"linked_service_id\": \"57563\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428536316.8312173,\"mode\": \"heat_only\",\"mode_updated_at\": 1428536316.8312581,\"powered\": true,\"powered_updated_at\": 1428536316.831265,\"min_set_point\": 20.0,\"min_set_point_updated_at\": 1428536316.8312485,\"max_set_point\": 22.777777777777779,\"max_set_point_updated_at\": 1428536316.8312287,\"temperature\": 22.777777777777779,\"temperature_updated_at\": 1428536316.8312783,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.6666666666666667,\"deadband_updated_at\": 1428536316.831311,\"min_min_set_point\": 4.4444444444444446,\"min_min_set_point_updated_at\": 1428536316.8313046,\"max_min_set_point\": 29.444444444444443,\"max_min_set_point_updated_at\": 1428536316.8312914,\"min_max_set_point\": 16.666666666666668,\"min_max_set_point_updated_at\": 1428536316.8312984,\"max_max_set_point\": 37.222222222222221,\"max_max_set_point_updated_at\": 1428536316.831285,\"modes_allowed\": [\"auto\",\"cool_only\",\"heat_only\"],\"modes_allowed_updated_at\": 1428536316.8313177,\"units\": \"f\",\"units_updated_at\": 1428536316.8312719,\"desired_mode\": \"heat_only\",\"desired_mode_updated_at\": 1428365474.3775809,\"desired_powered\": true,\"desired_powered_updated_at\": 1424823532.9645114,\"desired_min_set_point\": 20.0,\"desired_min_set_point_updated_at\": 1428509375.1094887,\"desired_max_set_point\": 22.777777777777779,\"desired_max_set_point_updated_at\": 1428509375.109503},\"lat_lng\": [33.162074,-97.090928],\"location\": \"\",\"smart_schedule_enabled\": false},");
 
                         //Add Nest Thermostat
-                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"thermostat_id\": \"49534\",\"name\": \"zTest Nest A\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1427241058,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"0e67d43624e47b3633273f1236b7cde2c1823ac7|thermostat-49410|user-81926\"}},\"user_ids\": [\"81926\"],\"triggers\": [],\"desired_state\": {\"mode\": \"cool_only\",\"powered\": true,\"min_set_point\": 21.0,\"max_set_point\": 22.0,\"users_away\": false,\"fan_timer_active\": false},\"manufacturer_device_model\": \"nest\",\"manufacturer_device_id\": \"pHNukJTND3MHRBT9zks77kxx11Qobba_\",\"device_manufacturer\": \"nest\",\"model_name\": \"Learning Thermostat\",\"upc_id\": \"168\",\"hub_id\": null,\"local_id\": null,\"radio_type\": null,\"linked_service_id\": \"92972\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428516397.2914052,\"mode\": \"cool_only\",\"mode_updated_at\": 1428516397.2914376,\"powered\": true,\"powered_updated_at\": 1428516397.2914565,\"min_set_point\": 21.0,\"min_set_point_updated_at\": 1428461324.5980272,\"max_set_point\": 22.0,\"max_set_point_updated_at\": 1428516397.2914746,\"users_away\": false,\"users_away_updated_at\": 1428516397.2914917,\"fan_timer_active\": false,\"fan_timer_active_updated_at\": 1428516397.2914684,\"temperature\": 22.0,\"temperature_updated_at\": 1428516397.2914257,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.5,\"deadband_updated_at\": 1428516397.2914317,\"min_min_set_point\": null,\"min_min_set_point_updated_at\": null,\"max_min_set_point\": null,\"max_min_set_point_updated_at\": null,\"min_max_set_point\": null,\"min_max_set_point_updated_at\": null,\"max_max_set_point\": null,\"max_max_set_point_updated_at\": null,\"modes_allowed\": [\"auto\",\"heat_only\",\"cool_only\"],\"modes_allowed_updated_at\": 1428516397.2914805,\"units\": \"f\",\"units_updated_at\": 1428516397.2914197,\"eco_target\": false,\"eco_target_updated_at\": 1428516397.2914433,\"manufacturer_structure_id\": \"kdCrRKp3UahHp8xWEoJBRYX9xnQWDsoU1sb5ej9Mp5Zb41WEIOKJtg\",\"manufacturer_structure_id_updated_at\": 1428516397.2914503,\"has_fan\": true,\"has_fan_updated_at\": 1428516397.2914622,\"fan_duration\": 0,\"fan_duration_updated_at\": 1428516397.2914863,\"last_error\": null,\"last_error_updated_at\": 1427241058.6980464,\"desired_mode\": \"cool_only\",\"desired_mode_updated_at\": 1427593066.90498,\"desired_powered\": true,\"desired_powered_updated_at\": 1428462838.6427567,\"desired_min_set_point\": 21.0,\"desired_min_set_point_updated_at\": 1428427791.3297703,\"desired_max_set_point\": 22.0,\"desired_max_set_point_updated_at\": 1428497187.9092989,\"desired_users_away\": false,\"desired_users_away_updated_at\": 1428440888.9921448,\"desired_fan_timer_active\": false,\"desired_fan_timer_active_updated_at\": 1427241058.6981435},\"lat_lng\": [null,null],\"location\": \"\",\"smart_schedule_enabled\": false},");
+                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"thermostat_id\": \"49534\",\"name\": \"zTest Nest\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1427241058,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"0e67d43624e47b3633273f1236b7cde2c1823ac7|thermostat-49410|user-81926\"}},\"user_ids\": [\"81926\"],\"triggers\": [],\"desired_state\": {\"mode\": \"cool_only\",\"powered\": true,\"min_set_point\": 21.0,\"max_set_point\": 22.0,\"users_away\": false,\"fan_timer_active\": false},\"manufacturer_device_model\": \"nest\",\"manufacturer_device_id\": \"pHNukJTND3MHRBT9zks77kxx11Qobba_\",\"device_manufacturer\": \"nest\",\"model_name\": \"Learning Thermostat\",\"upc_id\": \"168\",\"hub_id\": null,\"local_id\": null,\"radio_type\": null,\"linked_service_id\": \"92972\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428516397.2914052,\"mode\": \"cool_only\",\"mode_updated_at\": 1428516397.2914376,\"powered\": true,\"powered_updated_at\": 1428516397.2914565,\"min_set_point\": 21.0,\"min_set_point_updated_at\": 1428461324.5980272,\"max_set_point\": 22.0,\"max_set_point_updated_at\": 1428516397.2914746,\"users_away\": false,\"users_away_updated_at\": 1428516397.2914917,\"fan_timer_active\": false,\"fan_timer_active_updated_at\": 1428516397.2914684,\"temperature\": 22.0,\"temperature_updated_at\": 1428516397.2914257,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.5,\"deadband_updated_at\": 1428516397.2914317,\"min_min_set_point\": null,\"min_min_set_point_updated_at\": null,\"max_min_set_point\": null,\"max_min_set_point_updated_at\": null,\"min_max_set_point\": null,\"min_max_set_point_updated_at\": null,\"max_max_set_point\": null,\"max_max_set_point_updated_at\": null,\"modes_allowed\": [\"auto\",\"heat_only\",\"cool_only\"],\"modes_allowed_updated_at\": 1428516397.2914805,\"units\": \"f\",\"units_updated_at\": 1428516397.2914197,\"eco_target\": false,\"eco_target_updated_at\": 1428516397.2914433,\"manufacturer_structure_id\": \"kdCrRKp3UahHp8xWEoJBRYX9xnQWDsoU1sb5ej9Mp5Zb41WEIOKJtg\",\"manufacturer_structure_id_updated_at\": 1428516397.2914503,\"has_fan\": true,\"has_fan_updated_at\": 1428516397.2914622,\"fan_duration\": 0,\"fan_duration_updated_at\": 1428516397.2914863,\"last_error\": null,\"last_error_updated_at\": 1427241058.6980464,\"desired_mode\": \"cool_only\",\"desired_mode_updated_at\": 1427593066.90498,\"desired_powered\": true,\"desired_powered_updated_at\": 1428462838.6427567,\"desired_min_set_point\": 21.0,\"desired_min_set_point_updated_at\": 1428427791.3297703,\"desired_max_set_point\": 22.0,\"desired_max_set_point_updated_at\": 1428497187.9092989,\"desired_users_away\": false,\"desired_users_away_updated_at\": 1428440888.9921448,\"desired_fan_timer_active\": false,\"desired_fan_timer_active_updated_at\": 1427241058.6981435},\"lat_lng\": [null,null],\"location\": \"\",\"smart_schedule_enabled\": false},");
 
                         //Add Refuel
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"propane_tank_id\": \"6521\",\"name\": \"zTest Refuel\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419569612,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"5055752531a8aac104827ec4ba2a3366038ee15a|propane_tank-6521|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"device_manufacturer\": \"quirky_ge\",\"model_name\": \"Refuel\",\"upc_id\": \"17\",\"last_reading\": {\"connection\": true,\"battery\": 0.52,\"remaining\": 0.5},\"lat_lng\": [33.162101,-97.090547],\"location\": \"76210\",\"mac_address\": \"0c2a6907025a\",\"serial\": \"ACAB00033589\",\"tare\": 18.0,\"tank_changed_at\": 1421352479},");
@@ -909,7 +935,7 @@ public class Wink
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"last_event\": { \"brightness_occurred_at\": null, \"loudness_occurred_at\": null, \"vibration_occurred_at\": null }, \"sensor_threshold_events\": [], \"sensor_pod_id\": \"45537\", \"name\": \"Deck Door\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1424586786, \"hidden_at\": null, \"capabilities\": { \"sensor_types\": [ { \"type\": \"boolean\", \"field\": \"opened\" }, { \"type\": \"percentage\", \"field\": \"battery\" } ] }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"ab781cc9f09fa3e446d9f51b5d1437101595daf6|sensor_pod-45537|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": {}, \"manufacturer_device_model\": \"quirky_ge_tripper\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"quirky_ge\", \"model_name\": \"Tripper\", \"upc_id\": \"184\", \"gang_id\": null, \"hub_id\": \"106928\", \"local_id\": \"9\", \"radio_type\": \"zigbee\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865002.3922381, \"agent_session_id\": null, \"agent_session_id_updated_at\": 1425420058.2428184, \"firmware_version\": \"1.8b00 / 5.1b21\", \"firmware_version_updated_at\": 1428865002.3922553, \"firmware_date_code\": \"20140814\", \"firmware_date_code_updated_at\": 1428865002.3922484, \"opened\": true, \"opened_updated_at\": 1428865002.3923037, \"battery\": 1.0, \"battery_updated_at\": 1428865002.39231, \"battery_voltage\": 26, \"battery_voltage_updated_at\": 1428865002.3922622, \"battery_alarm_mask\": 15, \"battery_alarm_mask_updated_at\": 1428865002.3922687, \"battery_voltage_min_threshold\": 0, \"battery_voltage_min_threshold_updated_at\": 1428865002.3922758, \"battery_voltage_threshold_1\": 25, \"battery_voltage_threshold_1_updated_at\": 1428865002.3922834, \"battery_voltage_threshold_2\": 0, \"battery_voltage_threshold_2_updated_at\": 1428865002.3922906, \"battery_voltage_threshold_3\": 0, \"battery_voltage_threshold_3_updated_at\": 1428865002.392297 }, \"lat_lng\": [ 0.0, 0.0 ], \"location\": \"\", \"uuid\": \"e00b1974-e190-4251-9a19-054c146caa03\" },");
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"last_event\": { \"brightness_occurred_at\": null, \"loudness_occurred_at\": null, \"vibration_occurred_at\": null }, \"sensor_threshold_events\": [], \"sensor_pod_id\": \"45558\", \"name\": \"Sink Cabinet\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1424586786, \"hidden_at\": null, \"capabilities\": { \"sensor_types\": [ { \"type\": \"boolean\", \"field\": \"opened\" }, { \"type\": \"percentage\", \"field\": \"battery\" } ] }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"ab781cc9f09fa3e446d9f51b5d1437101595daf6|sensor_pod-45537|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": {}, \"manufacturer_device_model\": \"quirky_ge_tripper\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"quirky_ge\", \"model_name\": \"Tripper\", \"upc_id\": \"184\", \"gang_id\": null, \"hub_id\": \"106928\", \"local_id\": \"9\", \"radio_type\": \"zigbee\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865002.3922381, \"agent_session_id\": null, \"agent_session_id_updated_at\": 1425420058.2428184, \"firmware_version\": \"1.8b00 / 5.1b21\", \"firmware_version_updated_at\": 1428865002.3922553, \"firmware_date_code\": \"20140814\", \"firmware_date_code_updated_at\": 1428865002.3922484, \"opened\": true, \"opened_updated_at\": 1428865002.3923037, \"battery\": 1.0, \"battery_updated_at\": 1428865002.39231, \"battery_voltage\": 26, \"battery_voltage_updated_at\": 1428865002.3922622, \"battery_alarm_mask\": 15, \"battery_alarm_mask_updated_at\": 1428865002.3922687, \"battery_voltage_min_threshold\": 0, \"battery_voltage_min_threshold_updated_at\": 1428865002.3922758, \"battery_voltage_threshold_1\": 25, \"battery_voltage_threshold_1_updated_at\": 1428865002.3922834, \"battery_voltage_threshold_2\": 0, \"battery_voltage_threshold_2_updated_at\": 1428865002.3922906, \"battery_voltage_threshold_3\": 0, \"battery_voltage_threshold_3_updated_at\": 1428865002.392297 }, \"lat_lng\": [ 0.0, 0.0 ], \"location\": \"\", \"uuid\": \"e00b1974-e190-4251-9a19-054c146caa03\" },");
 
-                        //Add Net Protect
+                        //Add Nest Protect
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"smoke_detector_id\": \"10076\", \"name\": \"zTest Nest Protect\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1419086573, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"5882005d3a98dbbd335c2cf778a6734557cd1f2f|smoke_detector-10076|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": \"nest\", \"manufacturer_device_id\": \"VpXN4GQ7MUD5QqV8vgvQOExx11Qobba_\", \"device_manufacturer\": \"nest\", \"model_name\": \"Smoke + Carbon Monoxide Detector\", \"upc_id\": \"170\", \"hub_id\": null, \"local_id\": null, \"radio_type\": null, \"linked_service_id\": \"50847\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865904.1217248, \"battery\": 1.0, \"battery_updated_at\": 1428865904.1217616, \"co_detected\": false, \"co_detected_updated_at\": 1428865904.1217353, \"smoke_detected\": false, \"smoke_detected_updated_at\": 1428865904.1217477, \"test_activated\": null, \"test_activated_updated_at\": null, \"smoke_severity\": 0.0, \"smoke_severity_updated_at\": 1428865904.1217549, \"co_severity\": 0.0, \"co_severity_updated_at\": 1428865904.1217415 }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
 
                         //Add Relay & Related
@@ -919,10 +945,13 @@ public class Wink
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"button_id\": \"13333\", \"name\": \"Smart Button\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"2894740376a764e392d566474aac56f634c3731f|button-13333|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"4\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855697.7729235, \"pressed\": false, \"pressed_updated_at\": 1428855697.7729335, \"long_pressed\": null, \"long_pressed_updated_at\": null }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"button_id\": \"13334\", \"name\": \"Smart Button\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"51c9e90c1b352231a0ce9bdbfa1295c052af91f2|button-13334|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"5\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855697.9626672, \"pressed\": false, \"pressed_updated_at\": 1428855697.962677, \"long_pressed\": null, \"long_pressed_updated_at\": null }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"gang_id\": \"6776\", \"name\": \"Gang\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545678, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"1d8877fe2c53439330ef7e72548c6fa38e111420|gang-6776|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"desired_state\": {}, \"manufacturer_device_model\": \"wink_project_one\", \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"hub_id\": \"132595\", \"local_id\": null, \"radio_type\": null, \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428545678.122422 }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
-                    }
 
-                    if (url == "https://winkapi.quirky.com/users/me/scenes")
-                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"scene_id\": \"323370\",\"name\": \"Living Room Dim\",\"order\": 0,\"members\": [{\"object_type\": \"light_bulb\",\"object_id\": \"351553\",\"desired_state\": {\"brightness_updated_at\": 1424559903.8736751,\"external_power\": null,\"firmware_version\": null,\"update_needed_updated_at\": null,\"cost\": null,\"units_updated_at\": null,\"identify_mode_updated_at\": null,\"update_needed\": null,\"powered_updated_at\": 1424559903.873662,\"budget_velocity_updated_at\": null,\"updating_firmware_updated_at\": null,\"powering_mode\": \"dumb\",\"units\": null,\"budget_percentage\": null,\"firmware_version_updated_at\": null,\"identify_mode\": null,\"battery\": null,\"battery_updated_at\": null,\"color\": null,\"consumption_updated_at\": null,\"consumption\": null,\"updating_firmware\": null,\"schedule_enabled\": null,\"color_updated_at\": null,\"last_error\": null,\"powered\": true,\"connection\": true,\"powering_mode_updated_at\": null,\"budget_percentage_updated_at\": null,\"external_power_updated_at\": null,\"budget_velocity\": null,\"last_error_updated_at\": null,\"connection_updated_at\": 1424559903.8736429,\"schedule_enabled_updated_at\": null,\"cost_updated_at\": null,\"brightness\": 0.02867925},\"local_scene_id\": null},{\"object_type\": \"light_bulb\",\"object_id\": \"351564\",\"desired_state\": {\"brightness_updated_at\": 1424560301.376138,\"external_power\": null,\"firmware_version\": null,\"update_needed_updated_at\": null,\"cost\": null,\"units_updated_at\": null,\"identify_mode_updated_at\": null,\"update_needed\": null,\"powered_updated_at\": 1424560301.376132,\"budget_velocity_updated_at\": null,\"updating_firmware_updated_at\": null,\"powering_mode\": \"dumb\",\"units\": null,\"budget_percentage\": null,\"firmware_version_updated_at\": null,\"identify_mode\": null,\"battery\": null,\"battery_updated_at\": null,\"color\": null,\"consumption_updated_at\": null,\"consumption\": null,\"updating_firmware\": null,\"schedule_enabled\": null,\"color_updated_at\": null,\"last_error\": null,\"powered\": false,\"connection\": true,\"powering_mode_updated_at\": null,\"budget_percentage_updated_at\": null,\"external_power_updated_at\": null,\"budget_velocity\": null,\"last_error_updated_at\": null,\"connection_updated_at\": 1424560301.376122,\"schedule_enabled_updated_at\": null,\"cost_updated_at\": null,\"brightness\": 0},\"local_scene_id\": null},{\"object_type\": \"light_bulb\",\"object_id\": \"457172\",\"desired_state\": {\"brightness_updated_at\": 1426548902.937418,\"external_power\": null,\"firmware_version\": \"16974848\",\"update_needed_updated_at\": null,\"cost\": null,\"units_updated_at\": null,\"identify_mode_updated_at\": null,\"update_needed\": null,\"powered_updated_at\": 1426548902.9374111,\"budget_velocity_updated_at\": null,\"updating_firmware_updated_at\": null,\"powering_mode\": \"dumb\",\"units\": null,\"budget_percentage\": null,\"firmware_version_updated_at\": 1426548902.9374249,\"identify_mode\": null,\"battery\": null,\"battery_updated_at\": null,\"color\": null,\"consumption_updated_at\": null,\"consumption\": null,\"updating_firmware\": null,\"schedule_enabled\": null,\"color_updated_at\": null,\"last_error\": null,\"powered\": true,\"connection\": true,\"powering_mode_updated_at\": null,\"budget_percentage_updated_at\": null,\"external_power_updated_at\": null,\"budget_velocity\": null,\"last_error_updated_at\": null,\"connection_updated_at\": 1426548902.937392,\"schedule_enabled_updated_at\": null,\"cost_updated_at\": null,\"brightness\": 0.04113207},\"local_scene_id\": null}],\"icon_id\": 2,\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"97f894fd33e1db7bc97e75a4073d582be50dc9f1\"}}},");
+                        //Spotter
+                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"last_event\":{\"brightness_occurred_at\":1428961404.2836313,\"loudness_occurred_at\":1427547964.9292188,\"vibration_occurred_at\":1428879300.9600453},\"sensor_threshold_events\":[],\"sensor_pod_id\":\"40794\",\"name\":\"zTest Spotter\",\"locale\":\"en_us\",\"units\":{\"temperature\":\"f\"},\"created_at\":1422657639,\"hidden_at\":null,\"capabilities\":{\"sensor_types\":[{\"type\":\"percentage\",\"field\":\"battery\"},{\"type\":\"percentage\",\"field\":\"brightness\"},{\"type\":\"boolean\",\"field\":\"external_power\"},{\"type\":\"integer_percentage\",\"field\":\"humidity\"},{\"type\":\"percentage\",\"field\":\"loudness\"},{\"type\":\"float\",\"field\":\"temperature\"},{\"type\":\"boolean\",\"field\":\"vibration\"}]},\"subscription\":{\"pubnub\":{\"subscribe_key\":\"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\":\"959bda140ade2f77ded3fd968bfac2242489175e|sensor_pod-40794|user-186645\"}},\"user_ids\":[\"186645\"],\"triggers\":[],\"desired_state\":{},\"manufacturer_device_model\":\"quirky_ge_spotter\",\"manufacturer_device_id\":null,\"device_manufacturer\":\"quirky_ge\",\"model_name\":\"Spotter\",\"upc_id\":\"25\",\"gang_id\":null,\"hub_id\":null,\"local_id\":null,\"radio_type\":null,\"last_reading\":{\"connection\":true,\"connection_updated_at\":1428969581.0099306,\"agent_session_id\":null,\"agent_session_id_updated_at\":1425384214.8524168,\"battery\":0.98,\"battery_updated_at\":1428969581.0099251,\"brightness\":1.0,\"brightness_updated_at\":1428969581.0098875,\"external_power\":true,\"external_power_updated_at\":1428969581.0098965,\"humidity\":35,\"humidity_updated_at\":1428969581.0099025,\"loudness\":0.0,\"loudness_updated_at\":1428969581.0099192,\"temperature\":19.0,\"temperature_updated_at\":1428969581.0099139,\"vibration\":false,\"vibration_updated_at\":1428969581.0099082,\"brightness_true\":\"N/A\",\"brightness_true_updated_at\":1428961404.2836313,\"loudness_true\":\"N/A\",\"loudness_true_updated_at\":1427547964.9292188,\"vibration_true\":\"N/A\",\"vibration_true_updated_at\":1428879300.9600453},\"lat_lng\":[0.0,0.0],\"location\":\"\",\"mac_address\":\"0c2a690656b3\",\"serial\":\"ABAB00029469\",\"uuid\":\"005f5493-2ab6-46fa-ab7d-f2932c37dd4a\"},");
+
+                        //Power Pivot Genius
+                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"powerstrip_triggers\":[],\"powerstrip_id\":\"14934\",\"name\":\"zTest Power Pivot Genius\",\"locale\":\"en_us\",\"units\":{\"temperature\":\"f\"},\"created_at\":1425598308,\"hidden_at\":null,\"capabilities\":{\"configuration\":null},\"subscription\":{\"pubnub\":{\"subscribe_key\":\"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\":\"d7494912a8d8fcb85eb71a4e68ff540071a27688|powerstrip-14934|user-186645\"}},\"user_ids\":[\"186645\"],\"triggers\":[],\"desired_state\":{},\"device_manufacturer\":\"quirky_ge\",\"model_name\":\"Pivot Power Genius\",\"upc_id\":\"24\",\"last_reading\":{\"connection\":true,\"connection_updated_at\":1428968058.934176},\"lat_lng\":[41.389192,-81.425188],\"location\":\"44139\",\"mac_address\":\"0c2a69025d34\",\"serial\":\"AAAA00002820\",\"outlets\":[{\"powered\":true,\"scheduled_outlet_states\":[],\"name\":\"Outlet A\",\"desired_state\":{\"powered\":true,\"powered_updated_at\":1428955233.9824348},\"last_reading\":{\"powered\":true,\"powered_updated_at\":1428955233.9834647,\"desired_powered\":true},\"outlet_index\":0,\"outlet_id\":\"29871\",\"icon_id\":\"9\",\"parent_object_type\":\"powerstrip\",\"parent_object_id\":\"14934\"},{\"powered\":false,\"scheduled_outlet_states\":[],\"name\":\"Outlet B\",\"desired_state\":{\"powered\":false,\"powered_updated_at\":1428970607.6637535},\"last_reading\":{\"powered\":false,\"powered_updated_at\":1428970607.663765,\"desired_powered\":false},\"outlet_index\":1,\"outlet_id\":\"29872\",\"icon_id\":null,\"parent_object_type\":\"powerstrip\",\"parent_object_id\":\"14934\"}]},");
+                    }
                 }
                 
                 jsonResponse = JObject.Parse(responseString);
@@ -937,5 +966,65 @@ public class Wink
 
         }
         return null;
+    }
+
+    private static Device getDesired_States(Device device, JObject states)
+    {
+        if (states != null)
+        {
+            foreach (var state in states)
+            {
+                device.desired_states.Add(state.Key);
+            }
+
+            if (device.desired_states.Count > 0)
+            {
+                device.iscontrollable = true;
+            }
+            else if (device.desired_states.Count == 0)
+            {
+                device.issensor = true;
+            }
+
+            if (states.ToString().Contains("brightness") || states.ToString().Contains("position"))
+            {
+                device.isvariable = true;
+            }
+        }
+
+        return device;
+    }
+    private static Device getLast_Readings(Device device, JObject readings)
+    {
+        List<DeviceStatus> states = new List<DeviceStatus>();
+
+        if (readings != null)
+        {
+            foreach (var reading in readings)
+            {
+                if (!reading.Key.Contains("_updated_at"))
+                {
+                    DeviceStatus deviceStatus = new DeviceStatus();
+                    deviceStatus.id = device.id;
+                    deviceStatus.name = reading.Key;
+                    deviceStatus.current_status = reading.Value.ToString();
+
+                    if (readings[reading.Key + "_updated_at"] != null)
+                    {
+                        string lastupdated = readings[reading.Key + "_updated_at"].ToString();
+                        deviceStatus.last_updated = Common.FromUnixTime(lastupdated);
+                    }
+
+                    if (reading.Key.Contains("units"))
+                    {
+                        device.units = readings["units"].ToString();
+                    }
+
+                    device.status.Add(deviceStatus);
+                }
+            }
+        }
+
+        return device;
     }
 }

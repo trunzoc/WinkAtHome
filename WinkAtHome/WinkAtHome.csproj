@@ -70,35 +70,49 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Control.aspx" />
     <Content Include="Controls\Devices.ascx" />
     <Content Include="Controls\Groups.ascx" />
     <Content Include="Controls\Menu.ascx" />
     <Content Include="Controls\Robots.ascx" />
     <Content Include="Controls\Shortcuts.ascx" />
     <Content Include="Controls\winkStatus.ascx" />
+    <Content Include="Default.aspx" />
+    <Content Include="Images\alert.png" />
     <Content Include="Images\Battery\Battery0.png" />
     <Content Include="Images\Battery\Battery100.png" />
     <Content Include="Images\Battery\Battery25.png" />
     <Content Include="Images\Battery\Battery50.png" />
     <Content Include="Images\Battery\Battery75.png" />
-    <Content Include="Images\Devices\smoke_detectorsfalse.png" />
-    <Content Include="Images\Devices\smoke_detectorstest.png" />
-    <Content Include="Images\Devices\smoke_detectorstrue.png" />
-    <Content Include="Images\Devices\Tripper\Trippercabinetfalse.png" />
-    <Content Include="Images\Devices\Tripper\Trippercabinettrue.png" />
-    <Content Include="Images\Devices\Tripper\Tripperdeckfalse.png" />
-    <Content Include="Images\Devices\Tripper\Tripperdecktrue.png" />
-    <Content Include="Images\Devices\Tripper\Tripperdoorfalse.png" />
-    <Content Include="Images\Devices\Tripper\Tripperdoortrue.png" />
-    <Content Include="Images\Devices\Tripper\Tripperwindowfalse.png" />
-    <Content Include="Images\Devices\Tripper\Tripperwindowtrue.png" />
+    <Content Include="Images\Devices\creefalse.png" />
+    <Content Include="Images\Devices\creetrue.png" />
+    <Content Include="Images\Devices\gefalse.png" />
+    <Content Include="Images\Devices\getrue.png" />
+    <Content Include="Images\Devices\outletsfalse.png" />
+    <Content Include="Images\Devices\outletstrue.png" />
+    <Content Include="Images\Devices\powerstripsfalse.png" />
+    <Content Include="Images\Devices\powerstripsoutletsfalse.png" />
+    <Content Include="Images\Devices\powerstripsoutletstrue.png" />
+    <Content Include="Images\Devices\powerstripstrue.png" />
+    <Content Include="Images\Sensors\spotterfalse.png" />
+    <Content Include="Images\Sensors\spottertrue.png" />
+    <Content Include="Images\Sensors\smoke_detectorsfalse.png" />
+    <Content Include="Images\Sensors\smoke_detectorstest.png" />
+    <Content Include="Images\Sensors\smoke_detectorstrue.png" />
+    <Content Include="Images\Sensors\tripper\Trippercabinetfalse.png" />
+    <Content Include="Images\Sensors\tripper\Trippercabinettrue.png" />
+    <Content Include="Images\Sensors\tripper\Tripperdeckfalse.png" />
+    <Content Include="Images\Sensors\tripper\Tripperdecktrue.png" />
+    <Content Include="Images\Sensors\tripper\Tripperdoorfalse.png" />
+    <Content Include="Images\Sensors\tripper\Tripperdoortrue.png" />
+    <Content Include="Images\Sensors\tripper\Tripperwindowfalse.png" />
+    <Content Include="Images\Sensors\tripper\Tripperwindowtrue.png" />
     <Content Include="Images\Devices\wink_relaysfalse.png" />
     <Content Include="Images\Devices\wink_relaystrue.png" />
     <Content Include="Images\expand.png" />
     <Content Include="Images\loading.gif" />
     <Content Include="Images\Thermostats\thermbackbig.png" />
     <Content Include="Monitor.aspx" />
-    <Content Include="Default.aspx" />
     <Content Include="Devices.aspx" />
     <Content Include="DLLs\AjaxControlToolkit.dll" />
     <Content Include="DLLs\Newtonsoft.Json.dll" />
@@ -114,11 +128,11 @@
     <Content Include="Images\Devices\locksfalse.png" />
     <Content Include="Images\Devices\lockstrue.png" />
     <Content Include="Images\Devices\lock_pins.png" />
-    <Content Include="Images\Devices\propane_tanks0.png" />
-    <Content Include="Images\Devices\propane_tanks100.png" />
-    <Content Include="Images\Devices\propane_tanks25.png" />
-    <Content Include="Images\Devices\propane_tanks50.png" />
-    <Content Include="Images\Devices\propane_tanks75.png" />
+    <Content Include="Images\Sensors\propane_tanks0.png" />
+    <Content Include="Images\Sensors\propane_tanks100.png" />
+    <Content Include="Images\Sensors\propane_tanks25.png" />
+    <Content Include="Images\Sensors\propane_tanks50.png" />
+    <Content Include="Images\Sensors\propane_tanks75.png" />
     <Content Include="Images\Devices\remotesfalse.png" />
     <Content Include="Images\Devices\remotestrue.png" />
     <Content Include="Images\Groups\false.png" />
@@ -162,6 +176,13 @@
   <ItemGroup>
     <Compile Include="Classes\Common.cs" />
     <Compile Include="Classes\SettingMgmt.cs" />
+    <Compile Include="Control.aspx.cs">
+      <DependentUpon>Control.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Control.aspx.designer.cs">
+      <DependentUpon>Control.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Devices.ascx.cs">
       <DependentUpon>Devices.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -204,19 +225,19 @@
     <Compile Include="Controls\winkStatus.ascx.designer.cs">
       <DependentUpon>winkStatus.ascx</DependentUpon>
     </Compile>
-    <Compile Include="Monitor.aspx.cs">
-      <DependentUpon>Monitor.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Monitor.aspx.designer.cs">
-      <DependentUpon>Monitor.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Monitor.aspx.cs">
+      <DependentUpon>Monitor.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Monitor.aspx.designer.cs">
+      <DependentUpon>Monitor.aspx</DependentUpon>
     </Compile>
     <Compile Include="Devices.aspx.cs">
       <DependentUpon>Devices.aspx</DependentUpon>

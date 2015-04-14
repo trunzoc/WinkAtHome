@@ -18,7 +18,7 @@
     <asp:TableRow ID="rowData" BackColor="#eeeeee">
         <asp:TableCell style="padding:10px;" ColumnSpan="3">
             <asp:DataList ID="dlDevices" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" OnItemDataBound="dlDevices_ItemDataBound" Width="100%">
-                <ItemStyle Width="200" Height="100px" HorizontalAlign="Center" />
+                <ItemStyle Width="200" Height="100px" HorizontalAlign="Center" VerticalAlign="Top" />
                 <ItemTemplate>
                     <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
                         <ContentTemplate>
@@ -56,7 +56,7 @@
                                         <asp:Table ID="tblThermostat" runat="server" Visible="false" CellPadding="0" CellSpacing="0">
                                             <asp:TableRow>
                                                 <asp:TableCell HorizontalAlign="Center">
-                                                    <asp:LinkButton ID="lbThermostat" runat="server"  ToolTip='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).name %>' style="text-decoration:none;">
+                                                    <asp:LinkButton ID="lbThermostat" runat="server"  ToolTip='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).name %>' style="text-decoration:none;" OnClick="ibThermostat_Click">
 
                                                     <asp:Table ID="Table2" runat="server" BackImageUrl="~/Images/Thermostats/thermback.png" Width="100" Height="100" style="background-repeat:no-repeat" CellPadding="0" CellSpacing="0">
                                                         <asp:TableRow>
@@ -106,8 +106,10 @@
 
                                                     </asp:LinkButton>
 
-                                                    <ajaxtoolkit:ModalPopupExtender ID="mdeThermostats" runat="server" PopupControlID="pnlThermostats" TargetControlID="lbThermostat"
-                                                        CancelControlID="lbCancelThermostat" OkControlID="lbApplyThermostat" BackgroundCssClass="modalBackground" Y="200">
+                                                    <asp:button id="btnShowThermostat" runat="server" style="display:none;" />
+
+                                                    <ajaxtoolkit:ModalPopupExtender ID="mdeThermostats" runat="server" PopupControlID="pnlThermostats" TargetControlID="btnShowThermostat"
+                                                        BackgroundCssClass="modalBackground" Y="200">
                                                     </ajaxtoolkit:ModalPopupExtender>
 
                                                     <asp:Panel ID="pnlThermostats" runat="server" Width="250" Height="350" BorderWidth="1"  style="display:none" BackColor="#eeeeee">
@@ -119,15 +121,10 @@
                                                             <ContentTemplate>
                                                                 
                                                                 <asp:HiddenField ID="hfDeadband" runat="server" />
-                                                                <asp:HiddenField ID="hfOrigHighTemp" runat="server" />
                                                                 <asp:HiddenField ID="hfSetHighTemp" runat="server" />
-                                                                <asp:HiddenField ID="hfOrigLowTemp" runat="server" />
                                                                 <asp:HiddenField ID="hfSetLowTemp" runat="server" />
-                                                                <asp:HiddenField ID="hfOrigTemp" runat="server" />
                                                                 <asp:HiddenField ID="hfSetTemp" runat="server" />
-                                                                <asp:HiddenField ID="hfOrigMode" runat="server" />
                                                                 <asp:HiddenField ID="hfSetMode" runat="server" />
-                                                                <asp:HiddenField ID="hfOrigPower" runat="server" />
                                                                 <asp:HiddenField ID="hfSetPower" runat="server" />
 
                                                                 <asp:Table ID="Table5" runat="server" BackImageUrl="~/Images/Thermostats/thermbackbig.png" Width="200" Height="200" style="background-repeat:no-repeat" CellPadding="0" CellSpacing="0">
@@ -227,7 +224,7 @@
                                                                 <asp:Table ID="Table4" runat="server" BorderColor="LightGray" CellPadding="10" BorderWidth="0" Width="100%">
                                                                     <asp:TableHeaderRow>
                                                                         <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;">
-                                                                            <asp:LinkButton ID="lbCancelThermostat" runat="server" Text="Close" ForeColor="White" style="text-decoration: none;" OnClick="lbCancelThermostat_Click" />
+                                                                            <asp:LinkButton ID="lbCancelThermostat" runat="server" Text="Close" ForeColor="White" style="text-decoration: none;" OnClick="btnClose_Click" />
                                                                         </asp:TableHeaderCell>
                                                                     </asp:TableHeaderRow>
                                                                     <asp:TableRow>
@@ -251,9 +248,12 @@
                                         <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).name %>' Font-Size="small" />
                                     </asp:TableCell>
                                     <asp:TableCell VerticalAlign="Top" HorizontalAlign="Right" Width="23" style="padding-right:3px;">
-                                        <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show Device data" />
-                                        <ajaxtoolkit:ModalPopupExtender ID="mpInfo" runat="server" PopupControlID="pnlInfo" 
-                                            TargetControlID="ibInfo" CancelControlID="btnClose" BackgroundCssClass="modalBackground" Y="100">
+                                        <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show Device data" OnClick="ibInfo_Click" />
+
+                                        <asp:button id="btnShowInfo" runat="server" style="display:none;" />
+
+                                        <ajaxtoolkit:ModalPopupExtender ID="mpeInfo" runat="server" PopupControlID="pnlInfo"
+                                            TargetControlID="btnShowInfo" BackgroundCssClass="modalBackground" Y="100">
                                         </ajaxtoolkit:ModalPopupExtender>
                                         <asp:Panel ID="pnlInfo" runat="server" Height="600" style="display:none">
                                             <asp:Table ID="Table6" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee">
@@ -310,10 +310,9 @@
                                                     </asp:TableCell>
                                                 </asp:TableRow>
                                                 <asp:TableRow>
-                                                    <asp:TableCell>
-                                                        <asp:Button ID="btnClose" runat="server" Text="Close" />
-                                                    </asp:TableCell>
-                                                    <asp:TableCell></asp:TableCell>
+                                                    <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
+                                                        <asp:LinkButton ID="LinkButton1" runat="server" Text="Close" ForeColor="White" style="text-decoration: none;" OnClick="btnClose_Click" />
+                                                    </asp:TableHeaderCell>
                                                 </asp:TableRow>
                                             </asp:Table>
                                         </asp:Panel>

@@ -26,7 +26,7 @@ namespace WinkAtHome.Controls
                             if (byType != null)
                             {
                                 byType.Items.Clear();
-                                List<string> deviceTypes = Wink.Device.getDeviceTypes();
+                                List<string> deviceTypes = Wink.Device.getDeviceTypes(true);
 
                                 if (deviceTypes != null)
                                 {

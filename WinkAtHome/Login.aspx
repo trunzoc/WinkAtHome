@@ -38,7 +38,7 @@
                     <asp:Table ID="Table1" runat="server">
                         <asp:TableHeaderRow>
                             <asp:TableHeaderCell ColumnSpan="2" BackColor="#22b9ec" HorizontalAlign="Left" style="padding:10px;">
-                                <asp:Label ID="lblHeader" runat="server" Text="Login" ForeColor="White" />
+                                <asp:Label ID="lblHeader" runat="server" Text="LOGIN" ForeColor="White" />
                             </asp:TableHeaderCell>
                         </asp:TableHeaderRow>
                         <asp:TableRow>

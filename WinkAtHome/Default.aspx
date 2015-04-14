@@ -1,25 +1,16 @@
-﻿<%@ Page Title="Controls" Language="C#" MasterPageFile="~/WinkAtHome.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="WinkAtHome.Default" %>
-<%@ Register Src="~/Controls/Devices.ascx" TagName="ucDevices" TagPrefix="ucD" %>
-<%@ Register Src="~/Controls/Shortcuts.ascx" TagName="ucShortcuts" TagPrefix="ucS" %>
-<%@ Register Src="~/Controls/Groups.ascx" TagName="ucGroups" TagPrefix="ucG" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="WinkAtHome.Default" %>
 
-<asp:Content ID="Content1" ContentPlaceHolderID="cphMain" runat="server">
-    <asp:Table ID="Table1" runat="server" Width="100%">
-        <asp:TableRow style="padding-bottom:30px;">
-            <asp:TableCell>
-                <ucS:ucShortcuts ID="ucShortcuts" runat="server" />
-            </asp:TableCell>
-        </asp:TableRow>
-        <asp:TableRow>
-            <asp:TableCell>
-                <ucG:ucGroups ID="ucGroups" runat="server" />
-            </asp:TableCell>
-        </asp:TableRow>
-        <asp:TableRow>
-            <asp:TableCell>
-                <ucD:ucDevices ID="ucDevices" runat="server" ControllableOnly="true" />
-            </asp:TableCell>
-        </asp:TableRow>
-    </asp:Table>
-</asp:Content>
+<!DOCTYPE html>
 
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Default</title>
+</head>
+<body>
+    <form id="form1" runat="server">
+    <div>
+    
+    </div>
+    </form>
+</body>
+</html>

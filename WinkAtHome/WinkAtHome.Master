@@ -47,7 +47,7 @@
                                         <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/WinkatHome.png" Height="75px" />
                                     </td>
                                     <td align="center" style="vertical-align:middle">
-                                        <asp:LinkButton ID="lbDashboard" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbDashboard_Click" style="text-decoration: none;" />
+                                        <asp:LinkButton ID="lbControl" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbControl_Click" style="text-decoration: none;" />
                                     </td>
                                     <td align="center" style="vertical-align:middle">
                                         <asp:LinkButton ID="lbMonitor" runat="server" Text="MONITOR" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbMonitor_Click" style="text-decoration: none;" />

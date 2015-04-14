@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AjaxControlToolkit;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -190,14 +191,7 @@ namespace WinkAtHome.Controls
                 }
             }
 
-            if (Request.RawUrl.ToLower().Contains("default.aspx"))
-            {
-                Response.Redirect(Request.RawUrl);
-            }
-            else
-            {
-                BindData();
-            }
+            Response.Redirect(Request.RawUrl);
         }
 
         protected void tbColumns_TextChanged(object sender, EventArgs e)
@@ -209,6 +203,26 @@ namespace WinkAtHome.Controls
         {
             rowData.Visible = !rowData.Visible;
             SettingMgmt.saveSetting("Groups-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Visible", rowData.Visible.ToString());
+        }
+
+        protected void ibInfo_Click(object sender, EventArgs e)
+        {
+            ImageButton ib = (ImageButton)sender;
+
+            Session["modalshowing"] = "true";
+
+            ModalPopupExtender mpeInfo = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeInfo");
+            mpeInfo.Show();
+        }
+
+        protected void btnClose_Click(object sender, EventArgs e)
+        {
+            LinkButton ib = (LinkButton)sender;
+
+            Session["modalshowing"] = "false";
+
+            ModalPopupExtender mpeInfo = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeInfo");
+            mpeInfo.Hide();
         }
     }
 }
