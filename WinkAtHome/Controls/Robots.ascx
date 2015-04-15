@@ -29,7 +29,7 @@
                                         <asp:Table ID="Table3" runat="server">
                                             <asp:TableRow>
                                                 <asp:TableCell HorizontalAlign="Right">
-                                                    <asp:ImageButton ID="imgIcon" runat="server" ImageUrl='<%# "~/Images/Robots/" + ((Wink.Robot)((IDataItemContainer)Container).DataItem).enabled + ".png" %>' Height="75" OnClick="imgIcon_Click" 
+                                                    <asp:ImageButton ID="imgIcon" runat="server" ImageUrl='<%# "~/Images/Robots/robotfalse.png" %>' Height="75" OnClick="imgIcon_Click" 
                                                         CommandArgument='<%# ((Wink.Robot)((IDataItemContainer)Container).DataItem).id %>' CommandName='<%# ((Wink.Robot)((IDataItemContainer)Container).DataItem).enabled %>' ToolTip='<%# ((Wink.Robot)((IDataItemContainer)Container).DataItem).name %>' />
                                                 </asp:TableCell>
                                                 <asp:TableCell HorizontalAlign="Left" VerticalAlign="Bottom">

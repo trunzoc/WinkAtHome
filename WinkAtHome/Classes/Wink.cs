@@ -286,6 +286,16 @@ public class Wink
                                 device.menu_type = "unknown_devices";
                             }
 
+                            //Relay Switches
+                            if (device.type == "binary_switches" && device.radio_type == "project_one")
+                            {
+                                DeviceStatus status = device.status.SingleOrDefault(s => s.name == "powering_mode");
+                                if (status.current_status=="none")
+                                {
+                                    device.iscontrollable = false;
+                                }
+                            }
+
                             //remotes
                             if (device.type == "remotes")
                             {
@@ -563,6 +573,8 @@ public class Wink
         public string name { get; set; }
         [SimpleProperty]
         public string json { get; set; }
+        [SimpleProperty]
+        public bool isempty { get; set; }
         public List<GroupMember> members = new List<GroupMember>();
         public List<GroupStatus> status = new List<GroupStatus>();
 
@@ -668,8 +680,10 @@ public class Wink
                         }
                     }
 
-                    if (group.members.Count > 0 || WinkAtHome.SettingMgmt.getSetting("Hide-Empty-Groups", true).ToLower() == "false")
-                        Groups.Add(group);
+                    if (group.members.Count == 0)
+                        group.isempty = true;
+
+                    Groups.Add(group);
                 }
 
                 _groups = Groups.OrderBy(c => c.name).ToList();
@@ -748,7 +762,10 @@ public class Wink
         [SimpleProperty]
         public DateTime last_fired { get; set; }
         [SimpleProperty]
+        public DateTime next_run { get; set; }
+        [SimpleProperty]
         public string json { get; set; }
+        public List<string> members = new List<string>();
         public static Robot getRobotByID(string RobotID)
         {
             Robot robot = Robots.SingleOrDefault(s => s.id.Equals(RobotID));
@@ -787,22 +804,47 @@ public class Wink
                 foreach (JObject data in json["data"])
                 {
                     Robot robot = new Robot();
+                    bool hasData = false;
 
                     robot.id = data["robot_id"].ToString();
                     robot.name = data["name"].ToString();
                     robot.enabled = data["enabled"].ToString();
                     robot.last_fired = Common.FromUnixTime(data["last_fired"].ToString());
                     robot.json = data.ToString();
+                    robot.isschedule = (data["automation_mode"].ToString() == "schedule");
 
-                    bool hasData = false;
-                    foreach (var cause in data["causes"])
+                    robot.next_run = Common.FromUnixTime(data["causes"][0]["next_at"].ToString());
+
+                    foreach (var effect in data["effects"])
                     {
-                        if (!string.IsNullOrWhiteSpace(cause["observed_object_id"].ToString()))
+                        var scene = effect["scene"];
+                        if (!string.IsNullOrWhiteSpace(scene.ToString()))
                         {
-                            hasData = true;
-                            break;
+                            var members = scene["members"];
+                            if (!string.IsNullOrWhiteSpace(members.ToString()))
+                            {
+                                foreach (var member in members)
+                                {
+                                    robot.members.Add(member["object_id"].ToString());
+                                }
+                            }
                         }
                     }
+
+                    if (robot.members.Count > 0)
+                        hasData = true;
+                    else
+                    {
+                        foreach (var cause in data["causes"])
+                        {
+                            if (!string.IsNullOrWhiteSpace(cause["observed_object_id"].ToString()))
+                            {
+                                hasData = true;
+                                break;
+                            }
+                        }
+                    }
+
                     if (!hasData)
                         robot.isempty = true;
 
@@ -949,7 +991,7 @@ public class Wink
                         //Add Relay & Related
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"hub_id\": \"132595\", \"name\": \"Wink Relay\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545678, \"hidden_at\": null, \"capabilities\": { \"oauth2_clients\": [ \"wink_project_one\" ] }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"d9be1fe3abeb9fc46bec54a7cb62719a5a576c86|hub-132595|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": { \"pairing_mode\": null }, \"manufacturer_device_model\": \"wink_project_one\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"wink\", \"model_name\": \"Wink Relay\", \"upc_id\": \"186\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865074.9676549, \"agent_session_id\": \"9c99e3314c3a39f2eb9830a78d10684c\", \"agent_session_id_updated_at\": 1428855693.8299525, \"remote_pairable\": null, \"remote_pairable_updated_at\": null, \"updating_firmware\": false, \"updating_firmware_updated_at\": 1428855688.0774271, \"app_rootfs_version\": \"1.0.221\", \"app_rootfs_version_updated_at\": 1428855697.3881633, \"firmware_version\": \"1.0.221\", \"firmware_version_updated_at\": 1428855697.3881423, \"update_needed\": false, \"update_needed_updated_at\": 1428855697.3881698, \"mac_address\": \"B4:79:A7:0F:F7:DF\", \"mac_address_updated_at\": 1428855697.3881495, \"ip_address\": \"192.168.1.187\", \"ip_address_updated_at\": 1428855697.3881567, \"hub_version\": \"user\", \"hub_version_updated_at\": 1428855697.3881316, \"pairing_mode\": null, \"pairing_mode_updated_at\": 1428545678.0519505, \"desired_pairing_mode\": null, \"desired_pairing_mode_updated_at\": 1428545678.0519564 }, \"lat_lng\": [ null, null ], \"location\": \"\", \"configuration\": null, \"update_needed\": false, \"uuid\": \"9bb6a0d5-30f2-4bf7-8b37-d667c30e05bc\" },");
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"binary_switch_id\": \"46401\", \"name\": \"zTest Relay Switch A\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": { \"configuration\": null }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"bb1cb7a5d146cbc2cf09dca3655f684b2e24be89|binary_switch-46401|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": { \"powered\": false, \"powering_mode\": \"dumb\" }, \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"1\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855698.9869163, \"powered\": false, \"powered_updated_at\": 1428855698.9869256, \"powering_mode\": \"dumb\", \"powering_mode_updated_at\": 1428545815.5253267, \"consumption\": null, \"consumption_updated_at\": null, \"cost\": null, \"cost_updated_at\": null, \"budget_percentage\": null, \"budget_percentage_updated_at\": null, \"budget_velocity\": null, \"budget_velocity_updated_at\": null, \"summation_delivered\": null, \"summation_delivered_updated_at\": null, \"sum_delivered_multiplier\": null, \"sum_delivered_multiplier_updated_at\": null, \"sum_delivered_divisor\": null, \"sum_delivered_divisor_updated_at\": null, \"sum_delivered_formatting\": null, \"sum_delivered_formatting_updated_at\": null, \"sum_unit_of_measure\": null, \"sum_unit_of_measure_updated_at\": null, \"desired_powered\": false, \"desired_powered_updated_at\": 1428546752.8178129, \"desired_powering_mode\": \"dumb\", \"desired_powering_mode_updated_at\": 1428545815.5253191 }, \"current_budget\": null, \"lat_lng\": [ 0.0, 0.0 ], \"location\": \"\", \"order\": 0 },");
-                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"binary_switch_id\": \"46402\", \"name\": \"zTest Relay Switch B\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545702, \"hidden_at\": null, \"capabilities\": { \"configuration\": null }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"4dbd1c293d2939f9cb34a0cfa76aeb5cb20e4492|binary_switch-46402|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": { \"powered\": false, \"powering_mode\": \"dumb\" }, \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"2\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865075.2364638, \"powered\": false, \"powered_updated_at\": 1428865075.2364752, \"powering_mode\": \"dumb\", \"powering_mode_updated_at\": 1428545821.53191, \"consumption\": null, \"consumption_updated_at\": null, \"cost\": null, \"cost_updated_at\": null, \"budget_percentage\": null, \"budget_percentage_updated_at\": null, \"budget_velocity\": null, \"budget_velocity_updated_at\": null, \"summation_delivered\": null, \"summation_delivered_updated_at\": null, \"sum_delivered_multiplier\": null, \"sum_delivered_multiplier_updated_at\": null, \"sum_delivered_divisor\": null, \"sum_delivered_divisor_updated_at\": null, \"sum_delivered_formatting\": null, \"sum_delivered_formatting_updated_at\": null, \"sum_unit_of_measure\": null, \"sum_unit_of_measure_updated_at\": null, \"desired_powered\": false, \"desired_powered_updated_at\": 1428797690.7563465, \"desired_powering_mode\": \"dumb\", \"desired_powering_mode_updated_at\": 1428545821.5319033 }, \"current_budget\": null, \"lat_lng\": [ 0.0, 0.0 ], \"location\": \"\", \"order\": 0 },");
+                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"binary_switch_id\": \"30320\", \"name\": \"zTest Relay Switch B\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1422813943,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"8afe2bdfa540e4459b510bff44db636388afea88|binary_switch-30320|user-186645\"}},\"user_ids\": [\"186645\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"powering_mode\": \"none\"},\"manufacturer_device_model\": null,\"manufacturer_device_id\": null,\"device_manufacturer\": null,\"model_name\": null,\"upc_id\": null,\"gang_id\": \"2997\",\"hub_id\": \"98045\",\"local_id\": \"2\",\"radio_type\": \"project_one\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1429016828.833034,\"powered\": false,\"powered_updated_at\": 1429016828.8330438,\"powering_mode\": \"none\",\"powering_mode_updated_at\": 1422824216.9928842,\"consumption\": null,\"consumption_updated_at\": null,\"cost\": null,\"cost_updated_at\": null,\"budget_percentage\": null,\"budget_percentage_updated_at\": null,\"budget_velocity\": null,\"budget_velocity_updated_at\": null,\"summation_delivered\": null,\"summation_delivered_updated_at\": null,\"sum_delivered_multiplier\": null,\"sum_delivered_multiplier_updated_at\": null,\"sum_delivered_divisor\": null,\"sum_delivered_divisor_updated_at\": null,\"sum_delivered_formatting\": null,\"sum_delivered_formatting_updated_at\": null,\"sum_unit_of_measure\": null,\"sum_unit_of_measure_updated_at\": null,\"desired_powered\": false,\"desired_powered_updated_at\": 1422824138.418901,\"desired_powering_mode\": \"none\",\"desired_powering_mode_updated_at\": 1422824216.9928727},\"current_budget\": null,\"lat_lng\": [0.0,0.0],\"location\": \"\",\"order\": 0},");
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"button_id\": \"13333\", \"name\": \"Smart Button\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"2894740376a764e392d566474aac56f634c3731f|button-13333|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"4\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855697.7729235, \"pressed\": false, \"pressed_updated_at\": 1428855697.7729335, \"long_pressed\": null, \"long_pressed_updated_at\": null }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"button_id\": \"13334\", \"name\": \"Smart Button\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"51c9e90c1b352231a0ce9bdbfa1295c052af91f2|button-13334|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"5\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855697.9626672, \"pressed\": false, \"pressed_updated_at\": 1428855697.962677, \"long_pressed\": null, \"long_pressed_updated_at\": null }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"gang_id\": \"6776\", \"name\": \"Gang\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545678, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"1d8877fe2c53439330ef7e72548c6fa38e111420|gang-6776|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"desired_state\": {}, \"manufacturer_device_model\": \"wink_project_one\", \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"hub_id\": \"132595\", \"local_id\": null, \"radio_type\": null, \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428545678.122422 }, \"lat_lng\": [ null, null ], \"location\": \"\" },");

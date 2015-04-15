@@ -275,7 +275,8 @@ namespace WinkAtHome.Controls
                     state = stat.current_status.ToLower();
                     hfMainCommand.Value = stat.name;
                     hfCurrentStatus.Value = state;
-                    img.Enabled = true;
+                    if (device.iscontrollable)
+                        img.Enabled = true;
                 }
                 else if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
                 {

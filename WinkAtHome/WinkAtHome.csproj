@@ -96,6 +96,10 @@
     <Content Include="Images\Devices\powerstripstrue.png" />
     <Content Include="Images\left.png" />
     <Content Include="Images\right.png" />
+    <Content Include="Images\Robots\robotfalse.png" />
+    <Content Include="Images\Robots\robottrue.png" />
+    <Content Include="Images\Robots\schedulefalse.png" />
+    <Content Include="Images\Robots\scheduletrue.png" />
     <Content Include="Images\Sensors\spotterfalse.png" />
     <Content Include="Images\Sensors\spottertrue.png" />
     <Content Include="Images\Sensors\smoke_detectorsfalse.png" />
@@ -141,8 +145,6 @@
     <Content Include="Images\Groups\true.png" />
     <Content Include="Images\info.png" />
     <Content Include="Images\refresh.png" />
-    <Content Include="Images\Robots\false.png" />
-    <Content Include="Images\Robots\true.png" />
     <Content Include="Images\Shortcut.png" />
     <Content Include="Images\Thermostats\autofalse.png" />
     <Content Include="Images\Thermostats\autotrue.png" />

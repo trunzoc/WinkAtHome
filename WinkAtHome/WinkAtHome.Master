@@ -159,12 +159,12 @@
                                 </asp:TableRow>
                                 <asp:TableHeaderRow>
                                     <asp:TableHeaderCell VerticalAlign="Middle" HorizontalAlign="Center">
-                                        <asp:LinkButton ID="lbTallMenu" runat="server" Text="MENU" ForeColor="White" Font-Size="Larger" Height="200" style="writing-mode:tb-rl;text-decoration:none;" OnClick="ibExpand_Click" CommandArgument="show" />
+                                        <asp:LinkButton ID="lbTallMenu" runat="server" Text="MENU" ForeColor="White" Font-Size="X-Large" Font-Bold="true" Height="200" style="writing-mode:tb-rl;text-decoration:none;" OnClick="ibExpand_Click" CommandArgument="show" />
                                     </asp:TableHeaderCell>
                                 </asp:TableHeaderRow>
                                 <asp:TableHeaderRow>
                                     <asp:TableHeaderCell VerticalAlign="Middle" HorizontalAlign="Center">
-                                        <asp:LinkButton ID="lbSettings" runat="server" Text="SETTINGS" ForeColor="White" Font-Size="Larger" Height="200" style="writing-mode:tb-rl;text-decoration:none;" OnClick="lbSettings_Click" />
+                                        <asp:LinkButton ID="lbSettings" runat="server" Text="SETTINGS" ForeColor="White" Font-Size="X-Large" Font-Bold="true" Height="200" style="writing-mode:tb-rl;text-decoration:none;" OnClick="lbSettings_Click" />
                                     </asp:TableHeaderCell>
                                 </asp:TableHeaderRow>
                             </asp:Table>                    

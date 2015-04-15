@@ -38,7 +38,16 @@ namespace WinkAtHome.Controls
             dlGroups.DataSource = null;
             dlGroups.DataBind();
 
-            dlGroups.DataSource = Wink.Groups;
+            List<Wink.Group> groups;
+
+            if (SettingMgmt.getSetting("Hide-Empty-Groups").ToLower() == "true")
+            {
+                groups = Wink.Groups.Where(p => !p.isempty).ToList();
+            }
+            else
+                groups = Wink.Groups;
+
+            dlGroups.DataSource = groups;
             dlGroups.DataBind();
         }
 

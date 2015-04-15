@@ -16,10 +16,7 @@ namespace WinkAtHome.Controls
             if (!IsPostBack)
             {
                 hfSettingBase.Value = Request.RawUrl.Replace("/", "") + "-Robots-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
-
-                dlRobots.DataSource = Wink.Robots;
-                dlRobots.DataBind();
-
+                
                 string columns = SettingMgmt.getSetting(hfSettingBase.Value + "-Columns");
                 if (columns != null)
                 {
@@ -34,7 +31,28 @@ namespace WinkAtHome.Controls
                     bool.TryParse(dataVisible, out visible);
                     rowData.Visible = visible;
                 }
+
+                BindData();
             }
+        }
+
+        private void BindData()
+        {
+            dlRobots.DataSource = null;
+            dlRobots.DataBind();
+
+            List<Wink.Robot> robots;
+
+            if (SettingMgmt.getSetting("Hide-Empty-Robots").ToLower() == "true")
+            {
+                robots = Wink.Robots.Where(p => !p.isempty).ToList();
+            }
+            else
+                robots = Wink.Robots;
+
+            dlRobots.DataSource = robots;
+            dlRobots.DataBind();
+
         }
 
         protected void imgIcon_Click(object sender, ImageClickEventArgs e)
@@ -76,6 +94,10 @@ namespace WinkAtHome.Controls
                     dlProperties.DataSource = properties;
                     dlProperties.DataBind();
                 }
+
+                //Assign Image
+                ImageButton imgIcon = (ImageButton)e.Item.FindControl("imgIcon");
+                imgIcon.ImageUrl = "~/Images/Robots/" + (robot.isschedule ? "schedule" : "robot") + robot.enabled + ".png";
             }
         }
 
