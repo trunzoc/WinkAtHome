@@ -52,6 +52,9 @@ namespace WinkAtHome.Controls
                         referrer = referrer.Substring(referrer.LastIndexOf('/') + 1);
                         referrer = referrer.Substring(0, referrer.LastIndexOf(".aspx"));
 
+                        if (Request.QueryString.ToString().Contains("sensors"))
+                            referrer = "sensors";
+
                         RadMenuItem item = RadMenu1.Items.FindItemByValue(referrer.ToLower());
                         if (item != null)
                         {
@@ -92,6 +95,11 @@ namespace WinkAtHome.Controls
                     {
                         querystring = "?devicetype=" + item.Value;
                     }
+                }
+                else if (item.Value == "sensors")
+                {
+                    pagename = "devices";
+                    querystring = "?devicetype=" + item.Value;
                 }
                 else
                 {

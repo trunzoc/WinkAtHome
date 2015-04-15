@@ -4,15 +4,17 @@
 <%@ Register Src="~/Controls/Groups.ascx" TagName="ucGroups" TagPrefix="ucG" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="cphMain" runat="server">
-    <asp:Table ID="Table1" runat="server" Width="100%">
+    <asp:Table ID="Table1" runat="server" Width="100%" BorderWidth="0" CellPadding="0" CellSpacing="0">
         <asp:TableRow style="padding-bottom:30px;">
             <asp:TableCell>
                 <ucS:ucShortcuts ID="ucShortcuts" runat="server" />
+                <br />
             </asp:TableCell>
         </asp:TableRow>
         <asp:TableRow>
             <asp:TableCell>
                 <ucG:ucGroups ID="ucGroups" runat="server" />
+                <br />
             </asp:TableCell>
         </asp:TableRow>
         <asp:TableRow>

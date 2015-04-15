@@ -10,6 +10,7 @@ namespace WinkAtHome
 {
     public class SettingMgmt
     {
+        private static string basicSettings = "{\"winkUsername\":\"Username\",\"winkPassword\":\"Password\",\"winkClientID\":\"quirky_wink_android_app\",\"winkClientSecret\":\"e749124ad386a5a35c0ab554a4f2c045\",\"StartPage\":\"Control.aspx\",\"Hide-Empty-Robots\":\"false\",\"Hide-Empty-Groups\":\"false\"}";
         public class Setting
         {
             public string key;
@@ -28,13 +29,22 @@ namespace WinkAtHome
         }
         private static List<Setting> _settings;
 
-        public static string getSetting(string KeyName)
+        public static string getSetting(string KeyName, bool requiredSetting = false)
         {
             Setting setting = Settings.SingleOrDefault(s => s.key.ToLower().Equals(KeyName.ToLower()));
-            if (setting != null)
-                return setting.value;
+            if (setting == null || (requiredSetting && string.IsNullOrWhiteSpace(setting.value)))
+            {
+                if (requiredSetting)
+                {
+                    string value = addMissingRequiredSetting(KeyName);
+                    return value;
+                }
+                else
+                    return null;
+            }
             else
-                return null;
+                return setting.value;
+
         }
 
         public static List<Setting> loadSettings(bool forceReset = false)
@@ -91,7 +101,7 @@ namespace WinkAtHome
             try
             {
                 bool keyfound = false;
-                foreach (Setting setting in Settings)
+                foreach (Setting setting in _settings)
                 {
                     if (setting.key.ToLower() == key.ToLower())
                     {
@@ -106,12 +116,12 @@ namespace WinkAtHome
                     Setting setting = new Setting();
                     setting.key = key;
                     setting.value = value;
-                    Settings.Add(setting);
+                    _settings.Add(setting);
                 }
 
                 string strJSON = "";
 
-                foreach (Setting setting in Settings)
+                foreach (Setting setting in _settings)
                 {
                     strJSON += ",\"" + setting.key + "\":\"" + setting.value + "\"" ;
                 }
@@ -144,18 +154,48 @@ namespace WinkAtHome
             }
         }
 
+        private static string addMissingRequiredSetting(string keyName)
+        {
+            JObject settings = JObject.Parse(basicSettings);
+            var setting = settings[keyName];
+            if (setting != null)
+            {
+                saveSetting(keyName, setting.ToString());
+                return setting.ToString();
+            }
+            else
+                return null;
+        }
+
         public static string wipeSettings()
         {
             if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt"))
             {
+                File.Copy(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt", AppDomain.CurrentDomain.BaseDirectory + "Settings_Backup_" + DateTime.Now.Ticks + ".txt");
                 File.Delete(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt");
             }
 
-            string text = "{\"winkUsername\":\"Username\",\"winkPassword\":\"Password\",\"winkClientID\":\"quirky_wink_android_app\",\"winkClientSecret\":\"e749124ad386a5a35c0ab554a4f2c045\",\"StartPage\":\"Control.aspx\",\"Hide-Empty-Robots\":\"false\",\"Hide-Empty-Groups\":\"false\"}";
-            string encrypedFile = Common.Encrypt(text);
+            string encrypedFile = Common.Encrypt(basicSettings);
 
             File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt", encrypedFile);
-            return text;
+
+            _settings = null;
+            
+            return basicSettings;
+
+
+            //string text = "{ \"Required_Settings\": [ { \"setting_name\": \"winkUsername\", \"setting_value\": \"Username\", \"encrypted\": \"true\", }, { \"setting_name\": \"winkPassowrd\", \"setting_value\": \"Password\", \"encrypted\": \"true\", }, { \"setting_name\": \"winkClientID\", \"setting_value\": \"quirky_wink_android_app\", \"encrypted\": \"true\", }, { \"setting_name\": \"winkClientSecret\", \"setting_value\": \"e749124ad386a5a35c0ab554a4f2c045\", \"encrypted\": \"true\", }, { \"setting_name\": \"StartPage\", \"setting_value\": \"Control.aspx\", \"encrypted\": \"false\", }, { \"setting_name\": \"Hide-Empty-Robots\", \"setting_value\": \"false\", \"encrypted\": \"false\", }, { \"setting_name\": \"Hide-Empty-Groups\", \"setting_value\": \"false\", \"encrypted\": \"false\", } ], \"Optional_Settings\": [ ]}";
+            //JObject settings = JObject.Parse(text);
+            //foreach (var setting in settings["Required_Settings"])
+            //{
+            //    if (setting["encrypted"].ToString() == "true")
+            //    {
+            //        setting["setting_value"] = Common.Encrypt(setting["setting_value"].ToString());
+            //    }
+            //}
+
+            //File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt", settings.ToString());
+            //return text;
         }
     }
 }

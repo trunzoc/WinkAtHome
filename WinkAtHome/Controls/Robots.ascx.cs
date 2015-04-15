@@ -15,17 +15,19 @@ namespace WinkAtHome.Controls
         {
             if (!IsPostBack)
             {
+                hfSettingBase.Value = Request.RawUrl.Replace("/", "") + "-Robots-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
+
                 dlRobots.DataSource = Wink.Robots;
                 dlRobots.DataBind();
 
-                string columns = SettingMgmt.getSetting("Robots-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns");
+                string columns = SettingMgmt.getSetting(hfSettingBase.Value + "-Columns");
                 if (columns != null)
                 {
                     tbColumns.Text = columns;
                     dlRobots.RepeatColumns = Convert.ToInt32(tbColumns.Text);
                 }
 
-                string dataVisible = SettingMgmt.getSetting("Robots-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Visible");
+                string dataVisible = SettingMgmt.getSetting(hfSettingBase.Value + "-Visible");
                 if (dataVisible != null)
                 {
                     bool visible = true;
@@ -80,13 +82,13 @@ namespace WinkAtHome.Controls
         protected void tbColumns_TextChanged(object sender, EventArgs e)
         {
             dlRobots.RepeatColumns = Convert.ToInt32(tbColumns.Text);
-            SettingMgmt.saveSetting("Robots-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns", tbColumns.Text);
+            SettingMgmt.saveSetting(hfSettingBase.Value + "-Columns", tbColumns.Text);
         }
 
         protected void ibExpand_Click(object sender, ImageClickEventArgs e)
         {
             rowData.Visible = !rowData.Visible;
-            SettingMgmt.saveSetting("Robots-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Visible", rowData.Visible.ToString());
+            SettingMgmt.saveSetting(hfSettingBase.Value + "-Visible", rowData.Visible.ToString());
         }
 
         protected void ibInfo_Click(object sender, EventArgs e)

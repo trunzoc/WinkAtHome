@@ -13,6 +13,15 @@ namespace WinkAtHome.Controls {
     public partial class Robots {
         
         /// <summary>
+        /// hfSettingBase control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfSettingBase;
+        
+        /// <summary>
         /// Table1 control.
         /// </summary>
         /// <remarks>

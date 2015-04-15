@@ -36,11 +36,12 @@
             </ProgressTemplate>
         </asp:UpdateProgress>
 
-        <asp:Table ID="Table1" runat="server" BorderWidth="0" CellPadding="0" CellSpacing="0" Width="100%">
-            <asp:TableRow>
-                <asp:TableCell ColumnSpan="2" style="padding-bottom:20px" VerticalAlign="Top">
-                    <asp:UpdatePanel ID="UpdatePanel1" runat="server">
-                        <ContentTemplate>
+        <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+            <ContentTemplate>
+
+                <asp:Table ID="Table1" runat="server" CellPadding="0" CellSpacing="0" Width="100%" >
+                    <asp:TableRow>
+                        <asp:TableCell ColumnSpan="2" style="padding-bottom:20px" VerticalAlign="Top">
                             <table style="background-color:#22b9ec;" width="100%" border="0">
                                 <tr>
                                     <td align="left" width="170px">
@@ -116,41 +117,65 @@
                                     </td>
                                 </tr>
                             </table>
-                        </ContentTemplate>
-                    </asp:UpdatePanel> 
-                </asp:TableCell>
-            </asp:TableRow>
-            <asp:TableRow>
-                <asp:TableCell VerticalAlign="Top" Width="300px">
-                    <table cellpadding="0" cellspacing="0">
-                        <tr>
-                            <td style="padding-bottom:20px">
-                                <ucM:ucMenu ID="ucMenu" runat="server" />
-                           </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <ucWS:ucWinkStatus ID="ucWinkStatus" runat="server" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <asp:Table ID="Table2" runat="server" BorderColor="LightGray" BorderWidth="0" Width="100%">
-                                    <asp:TableHeaderRow>
-                                        <asp:TableHeaderCell BackColor="red" HorizontalAlign="Center" style="padding:10px;">
-                                            <asp:LinkButton ID="lbLogout" runat="server" Text="LOGOUT" ForeColor="White" OnClick="lbLogout_Click" style="text-decoration: none;" />
-                                        </asp:TableHeaderCell>
-                                    </asp:TableHeaderRow>
-                                </asp:Table>
-                            </td>
-                        </tr>
-                    </table>
-                </asp:TableCell>
-                <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top">
-                    <asp:ContentPlaceHolder ID="cphMain" runat="server" />
-                </asp:TableCell>
-            </asp:TableRow>
-        </asp:Table>
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow>
+                        <asp:TableCell ID="cellMenu" VerticalAlign="Top" Width="40">
+                            <asp:Table ID="tblExpand" runat="server" CellPadding="0" CellSpacing="0" Width="300px" Visible="true">
+                                <asp:TableRow>
+                                    <asp:TableCell style="padding-bottom:20px">
+                                        <ucM:ucMenu ID="ucMenu" runat="server" />
+                                    </asp:TableCell>
+                                    <asp:TableCell HorizontalAlign="Center" VerticalAlign="Top" Width="30">
+                                        <asp:Table ID="Table2" runat="server" CellPadding="0" CellSpacing="0">
+                                            <asp:TableRow Height="40" BackColor="#22b9ec">
+                                                <asp:TableCell Width="30">
+                                                    <asp:ImageButton ID="ibCollapse" runat="server" ImageUrl="~/Images/left.png" Height="25" OnClick="ibExpand_Click" CommandArgument="hide" />
+                                                </asp:TableCell>
+                                            </asp:TableRow>
+                                            <asp:TableRow>
+                                                <asp:TableCell></asp:TableCell>
+                                            </asp:TableRow>
+                                        </asp:Table>
+                                    </asp:TableCell>
+                                </asp:TableRow>
+                                <asp:TableRow>
+                                    <asp:TableCell ColumnSpan="2">
+                                        <ucWS:ucWinkStatus ID="ucWinkStatus" runat="server" />
+                                    </asp:TableCell>
+                                </asp:TableRow>
+                                <asp:TableHeaderRow>
+                                    <asp:TableHeaderCell BackColor="red" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
+                                        <asp:LinkButton ID="lbLogout" runat="server" Text="LOGOUT" ForeColor="White" OnClick="lbLogout_Click" style="text-decoration: none;" />
+                                    </asp:TableHeaderCell>
+                                </asp:TableHeaderRow>
+                            </asp:Table>
+
+                            <asp:Table ID="tblCollapsed" runat="server" BackColor="#22b9ec" Width="40" Visible="false">
+                                <asp:TableRow>
+                                    <asp:TableCell HorizontalAlign="Center" style="padding-top:5px">
+                                        <asp:ImageButton ID="ibExpand" runat="server" ImageUrl="~/Images/right.png" Height="25" OnClick="ibExpand_Click" CommandArgument="show" />
+                                    </asp:TableCell>
+                                </asp:TableRow>
+                                <asp:TableHeaderRow>
+                                    <asp:TableHeaderCell VerticalAlign="Middle" HorizontalAlign="Center">
+                                        <asp:LinkButton ID="lbTallMenu" runat="server" Text="MENU" ForeColor="White" Font-Size="Larger" Height="200" style="writing-mode:tb-rl;text-decoration:none;" OnClick="ibExpand_Click" CommandArgument="show" />
+                                    </asp:TableHeaderCell>
+                                </asp:TableHeaderRow>
+                                <asp:TableHeaderRow>
+                                    <asp:TableHeaderCell VerticalAlign="Middle" HorizontalAlign="Center">
+                                        <asp:LinkButton ID="lbSettings" runat="server" Text="SETTINGS" ForeColor="White" Font-Size="Larger" Height="200" style="writing-mode:tb-rl;text-decoration:none;" OnClick="lbSettings_Click" />
+                                    </asp:TableHeaderCell>
+                                </asp:TableHeaderRow>
+                            </asp:Table>                    
+                       </asp:TableCell>
+                        <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top" BorderColor="#22b9ec" BorderWidth="0">
+                            <asp:ContentPlaceHolder ID="cphMain" runat="server" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                </asp:Table>
+            </ContentTemplate>
+        </asp:UpdatePanel> 
     </div>
     </form>
 </body>

@@ -20,8 +20,8 @@
 </style>
 
 <asp:Table ID="Table1" runat="server" Width="100%" CellPadding="5" CellSpacing="0">
-    <asp:TableHeaderRow>
-        <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Left" Height="30">
+    <asp:TableHeaderRow BackColor="#22b9ec">
+        <asp:TableHeaderCell HorizontalAlign="Left" Height="30">
             <asp:Label ID="Label1" runat="server" Text="&nbsp;WINK ITEMS" ForeColor="White" />
         </asp:TableHeaderCell>
     </asp:TableHeaderRow>
@@ -31,14 +31,13 @@
                 <Items>
                     <telerik:RadMenuItem Text="Devices" Value="devices">
                         <Items>
-                            <telerik:RadMenuItem Text="All Devices" Value="all" />
                             <telerik:RadMenuItem Text="Controllable Devices" Value="controllable" />
-                            <telerik:RadMenuItem Text="Sensors" Value="sensors" />
                             <telerik:RadMenuItem Text="By Type..." Value="devicetype">
                                 
                             </telerik:RadMenuItem>
                         </Items>
                     </telerik:RadMenuItem>
+                    <telerik:RadMenuItem Text="Sensors" Value="sensors" />
                     <telerik:RadMenuItem Text="Groups" Value="groups" />
                     <telerik:RadMenuItem Text="Shortcuts" Value="shortcuts" />
                     <telerik:RadMenuItem Text="Robots" Value="robots" />
@@ -48,4 +47,3 @@
         </asp:TableCell>
     </asp:TableRow>
 </asp:Table>
-

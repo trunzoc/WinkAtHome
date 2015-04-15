@@ -28,17 +28,17 @@ public class Wink
         }
     }
     private static string _winkToken;
-    
-    public static string winkGetToken()
+
+    public static string winkGetToken(bool forceRefresh = false, string forceUsername = null, string forcePassword = null, string forceClientID = null, string forceClientSecret = null)
     {
         try
         {
-            if (_winkToken == null)
+            if (_winkToken == null || forceRefresh)
             {
-                string winkUsername = SettingMgmt.getSetting("winkUsername");
-                string winkPassword = SettingMgmt.getSetting("winkPassword");
-                string winkClientID = SettingMgmt.getSetting("winkClientID");
-                string winkClientSecret = SettingMgmt.getSetting("winkClientSecret");
+                string winkUsername = forceUsername == null ? SettingMgmt.getSetting("winkUsername", true) : forceUsername;
+                string winkPassword = forcePassword == null ? SettingMgmt.getSetting("winkPassword", true) : forcePassword;
+                string winkClientID = forceClientID == null ? SettingMgmt.getSetting("winkClientID", true) : forceClientID;
+                string winkClientSecret = forceClientSecret == null ? SettingMgmt.getSetting("winkClientSecret", true) : forceClientSecret;
 
                 string oAuthURL = ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkOAuthURL"];
                 string sendstring = "{\"client_id\":\"" + winkClientID + "\",\"client_secret\":\"" + winkClientSecret + "\",\"username\":\"" + winkUsername + "\",\"password\":\"" + winkPassword + "\",\"grant_type\":\"password\"}";
@@ -52,7 +52,7 @@ public class Wink
         }
         catch (Exception e)
         {
-            HttpContext.Current.Response.Redirect("~/Settings.aspx");
+            HttpContext.Current.Response.Redirect("~/Settings.aspx?warning=Unable%20to%20verify%20your%20Username%20and%20Password%20with%20Wink");
             return null;
         }
     }
@@ -668,7 +668,7 @@ public class Wink
                         }
                     }
 
-                    if (group.members.Count > 0 || WinkAtHome.SettingMgmt.getSetting("Hide-Empty-Groups").ToLower() == "false")
+                    if (group.members.Count > 0 || WinkAtHome.SettingMgmt.getSetting("Hide-Empty-Groups", true).ToLower() == "false")
                         Groups.Add(group);
                 }
 
@@ -742,6 +742,10 @@ public class Wink
         [SimpleProperty]
         public string enabled { get; set; }
         [SimpleProperty]
+        public bool isschedule { get; set; }
+        [SimpleProperty]
+        public bool isempty { get; set; }
+        [SimpleProperty]
         public DateTime last_fired { get; set; }
         [SimpleProperty]
         public string json { get; set; }
@@ -775,6 +779,8 @@ public class Wink
         {
             if (_robots == null)
             {
+                string hideEmpty = SettingMgmt.getSetting("Hide-Empty-Robots", true);
+
                 JObject json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetRobotsURL"]);
                 List<Robot> Robots = new List<Robot>();
 
@@ -797,8 +803,10 @@ public class Wink
                             break;
                         }
                     }
-                    if (hasData || WinkAtHome.SettingMgmt.getSetting("Hide-Empty-Robots").ToLower() == "false")
-                        Robots.Add(robot);
+                    if (!hasData)
+                        robot.isempty = true;
+
+                    Robots.Add(robot);
                 }
 
                 _robots = Robots.OrderBy(c => c.name).ToList();
@@ -912,7 +920,7 @@ public class Wink
             if (responseString != null)
             {
                 Settings setting = new Settings();
-                if (SettingMgmt.getSetting("winkUsername").ToLower().Contains("trunzo"))
+                if (SettingMgmt.getSetting("winkUsername", true).ToLower().Contains("trunzo"))
                 {
                     if (url == "https://winkapi.quirky.com/users/me/wink_devices")
                     {

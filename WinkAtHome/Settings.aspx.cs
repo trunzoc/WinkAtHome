@@ -12,21 +12,25 @@ namespace WinkAtHome
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword") == "password")
+            if (SettingMgmt.getSetting("winkUsername",true).ToLower() == "username" || SettingMgmt.getSetting("winkPassword",true) == "password")
             {
-                rowWarning.Visible = true;
+                lblMessage.Text = "You must set your Username and Password before you can continue.";
+                lblMessage.ForeColor = System.Drawing.Color.Red;
             }
-            else if (Session["loggedin"] == null || SettingMgmt.getSetting("winkUsername") != Common.Decrypt(Session["loggedin"].ToString()))
+            else if (Session["loggedin"] == null || SettingMgmt.getSetting("winkUsername",true) != Common.Decrypt(Session["loggedin"].ToString()))
             {
                 Response.Redirect("~/Login.aspx");
-            }
-            else
-            {
-                rowWarning.Visible = false;
             }
 
             if (!IsPostBack)
             {
+                if (Request.QueryString["warning"] != null)
+                {
+                    string message = Request.QueryString["warning"];
+                    lblMessage.Text = message;
+                    lblMessage.ForeColor = System.Drawing.Color.Red;
+                }
+
                 dlSettings.DataSource = SettingMgmt.Settings;
                 dlSettings.DataBind();
             }
@@ -34,16 +38,19 @@ namespace WinkAtHome
 
         protected void btnSave_Click(object sender, EventArgs e)
         {
-            foreach (DataListItem item in dlSettings.Items)
+            if (validatePassword())
             {
-                if (item.ItemType == ListItemType.Item || item.ItemType == ListItemType.AlternatingItem)
+                foreach (DataListItem item in dlSettings.Items)
                 {
-                    Label lbl = (Label)item.FindControl("lblKey");
-                    TextBox tb = (TextBox)item.FindControl("tbValue");
-                    HiddenField hf = (HiddenField)item.FindControl("hfValue");
+                    if (item.ItemType == ListItemType.Item || item.ItemType == ListItemType.AlternatingItem)
+                    {
+                        Label lbl = (Label)item.FindControl("lblKey");
+                        TextBox tb = (TextBox)item.FindControl("tbValue");
+                        HiddenField hf = (HiddenField)item.FindControl("hfValue");
 
-                    if (tb.Text != hf.Value)
-                        SettingMgmt.saveSetting(lbl.Text, tb.Text);
+                        if (tb.Text != hf.Value)
+                            SettingMgmt.saveSetting(lbl.Text, tb.Text);
+                    }
                 }
             }
         }
@@ -51,6 +58,16 @@ namespace WinkAtHome
         protected void btnWipe_Click(object sender, EventArgs e)
         {
             SettingMgmt.wipeSettings();
+
+            if (Request.Cookies["login"] != null)
+            {
+                HttpCookie aCookie = new HttpCookie("login");
+                aCookie.Expires = DateTime.Now.AddDays(-1d);
+                Response.Cookies.Add(aCookie);
+            }
+
+            Session.Abandon();
+
             Response.Redirect("~/Settings.aspx");
         }
 
@@ -73,11 +90,6 @@ namespace WinkAtHome
             Response.Redirect(Request.RawUrl);
         }
 
-        protected void lbControl_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("~/Control.aspx");
-        }
-
         protected void btnRawDevData_Click(object sender, EventArgs e)
         {
             JObject json = Wink.getDeviceJSON();
@@ -90,9 +102,54 @@ namespace WinkAtHome
 
         }
 
-        protected void lbMonitor_Click(object sender, EventArgs e)
+        protected void btnDefault_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Monitor.aspx");
+            if (validatePassword())
+            {
+                string strPage = string.Empty;
+                if (sender is ImageButton)
+                {
+                    ImageButton btn = (ImageButton)sender;
+                    strPage = btn.CommandArgument;
+                }
+                else if (sender is Button)
+                {
+                    Button btn = (Button)sender;
+                    strPage = btn.CommandArgument;
+                }
+                else
+                    strPage = "~/Default.aspx";
+
+                Response.Redirect(strPage);
+            }
+        }
+
+        protected bool validatePassword()
+        {
+            string user = null;
+            string pass = null;
+
+            foreach (DataListItem item in dlSettings.Items)
+            {
+                if (item.ItemType == ListItemType.Item || item.ItemType == ListItemType.AlternatingItem)
+                {
+                    Label lblKey = (Label)item.FindControl("lblKey");
+                    if (lblKey != null)
+                    {
+                        TextBox tbValue = (TextBox)item.FindControl("tbValue");
+
+                        if (lblKey.Text.ToLower() == "winkusername")
+                            user = tbValue.Text;
+                        if (lblKey.Text.ToLower() == "winkpassword")
+                            pass = tbValue.Text;
+                    }
+                }
+            }
+
+            string strToken = Wink.winkGetToken(true,user,pass);
+            lblMessage.Text = "Username & Password verified";
+            lblMessage.ForeColor = System.Drawing.Color.Green;
+            return true;
         }
     }
 }

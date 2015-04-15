@@ -94,6 +94,8 @@
     <Content Include="Images\Devices\powerstripsoutletsfalse.png" />
     <Content Include="Images\Devices\powerstripsoutletstrue.png" />
     <Content Include="Images\Devices\powerstripstrue.png" />
+    <Content Include="Images\left.png" />
+    <Content Include="Images\right.png" />
     <Content Include="Images\Sensors\spotterfalse.png" />
     <Content Include="Images\Sensors\spottertrue.png" />
     <Content Include="Images\Sensors\smoke_detectorsfalse.png" />

@@ -11,7 +11,7 @@ namespace WinkAtHome
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            string startpage = SettingMgmt.getSetting("StartPage");
+            string startpage = SettingMgmt.getSetting("StartPage",true);
             if (startpage == null)
                 startpage = "Control.aspx";
 

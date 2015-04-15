@@ -19,11 +19,12 @@ namespace WinkAtHome.Controls
         public string typeToShow = "all";
         public bool SensorsOnly = false;
 
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
+                hfSettingBase.Value = Request.RawUrl.Replace("/", "") + "-Devices-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString() + "-CO" + ControllableOnly.ToString() + "-SO" + SensorsOnly.ToString() + "-Type" + typeToShow;
+
                 if (Request.QueryString["devicetype"] != null)
                 {
                     string type = Request.QueryString["devicetype"].ToLower();
@@ -38,29 +39,11 @@ namespace WinkAtHome.Controls
                     }
                 }
 
-                if (ControllableOnly)
-                {
-                    lblHeader.Text = "Devices: Controllable Only";
-                }
-                else if (SensorsOnly)
-                {
-                    lblHeader.Text = "Sensors";
-                }
-                else if (typeToShow != null)
-                {
-                    TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-                    lblHeader.Text = "Devices: " + textInfo.ToTitleCase(typeToShow.Replace("_", " "));
-                }
-                else
-                {
-                    lblHeader.Text = "All Devices";
-                }
-
-                string columns = SettingMgmt.getSetting(Request.RawUrl.Replace("/", "") + "-Devices-" + "-" + ControllableOnly.ToString() + "-" + SensorsOnly.ToString() + "-" + typeToShow + "-Columns");
+                string columns = SettingMgmt.getSetting(hfSettingBase.Value + "-Columns");
                 if (columns != null)
                     tbColumns.Text = columns;
 
-                string dataVisible = SettingMgmt.getSetting(Request.RawUrl.Replace("/", "") + "-Devices-" + "-" + ControllableOnly.ToString() + "-" + SensorsOnly.ToString() + "-" + typeToShow + "-Visible");
+                string dataVisible = SettingMgmt.getSetting(hfSettingBase.Value + "-Visible");
                 if (dataVisible != null)
                 {
                     bool visible = true;
@@ -87,6 +70,7 @@ namespace WinkAtHome.Controls
             List<Wink.Device> devices = new List<Wink.Device>();
             if (ControllableOnly)
             {
+                lblHeader.Text = "Devices: Controllable Only";
                 devices = Wink.Devices.Where(p => p.iscontrollable == true).ToList();
                 UserControl ucSensors = (UserControl)Page.Master.FindControl("cphMain").FindControl("ucSensors");
                 if (ucSensors != null)
@@ -102,15 +86,19 @@ namespace WinkAtHome.Controls
             }
             else if (SensorsOnly)
             {
+                lblHeader.Text = "Sensors";
                 devices = Wink.Devices.Where(p => p.issensor == true).ToList();
             }
             else if (typeToShow != "all")
             {
-                devices = Wink.Devices.Where(p => p.menu_type==typeToShow).ToList();
+                TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+                lblHeader.Text = "Devices: " + textInfo.ToTitleCase(typeToShow.Replace("_", " "));
+                devices = Wink.Devices.Where(p => p.menu_type == typeToShow).ToList();
             }
             else
             {
-                devices = Wink.Devices;
+                lblHeader.Text = "All Devices";
+                devices = Wink.Devices.Where(p => p.issensor != true || p.menu_type=="hubs").ToList();
             }
 
             dlDevices.DataSource = devices;
@@ -253,8 +241,9 @@ namespace WinkAtHome.Controls
 
             List<Wink.DeviceStatus> status = device.status;
             IList<string> keys = status.Select(p => p.name).ToList();
-            string state = "false";
+            string state = string.Empty;
             bool hasConnection = false;
+            bool noConnectionValue = false;
             string degree = "n/a";
 
             if (keys.Contains("connection"))
@@ -273,8 +262,12 @@ namespace WinkAtHome.Controls
                 else
                     hasConnection = true;
             }
+            else
+            {
+                noConnectionValue = true;
+            }
 
-            if (hasConnection)
+            if (hasConnection || noConnectionValue)
             {
                 if (keys.Contains("powered") || keys.Contains("locked"))
                 {
@@ -675,8 +668,17 @@ namespace WinkAtHome.Controls
                         }
                     }
                 }
-                hfSetLowTemp.Value = Common.FromCelsiusToFahrenheit(Convert.ToDouble(mintemp)).ToString();
-                hfSetHighTemp.Value = Common.FromCelsiusToFahrenheit(Convert.ToDouble(maxtemp)).ToString();
+
+                Double min;
+                Double max;
+                Double.TryParse(mintemp, out min);
+                Double.TryParse(maxtemp, out max);
+
+                if (min > 0)
+                    hfSetLowTemp.Value = Common.FromCelsiusToFahrenheit(Convert.ToDouble(mintemp)).ToString();
+
+                if (max > 0)
+                    hfSetHighTemp.Value = Common.FromCelsiusToFahrenheit(Convert.ToDouble(maxtemp)).ToString();
             }
         }
 
@@ -972,14 +974,14 @@ namespace WinkAtHome.Controls
 
         protected void tbColumns_TextChanged(object sender, EventArgs e)
         {
-            SettingMgmt.saveSetting(Request.RawUrl.Replace("/", "") + "-Devices-" + "-" + ControllableOnly.ToString() + "-" + SensorsOnly.ToString() + "-" + typeToShow + "-Columns", tbColumns.Text);
+            SettingMgmt.saveSetting(hfSettingBase.Value + "-Columns", tbColumns.Text);
             BindData();
         }
 
         protected void ibExpand_Click(object sender, ImageClickEventArgs e)
         {
             rowData.Visible = !rowData.Visible;
-            SettingMgmt.saveSetting(Request.RawUrl.Replace("/", "") + "-Devices-" + "-" + ControllableOnly.ToString() + "-" + SensorsOnly.ToString() + "-" + typeToShow + "-Visible", rowData.Visible.ToString());
+            SettingMgmt.saveSetting(hfSettingBase.Value + "-Visible", rowData.Visible.ToString());
         }
 
         protected void ibThermostat_Click(object sender, EventArgs e)

@@ -15,11 +15,13 @@ namespace WinkAtHome.Controls
         {
             if (!IsPostBack)
             {
-                string columns = SettingMgmt.getSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns");
+                hfSettingBase.Value = Request.RawUrl.Replace("/", "") + "-Shortcuts-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
+
+                string columns = SettingMgmt.getSetting(hfSettingBase.Value + "-Columns");
                 if (columns != null)
                     tbColumns.Text = columns;
 
-                string dataVisible = SettingMgmt.getSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Visible");
+                string dataVisible = SettingMgmt.getSetting(hfSettingBase.Value + "-Visible");
                 if (dataVisible != null)
                 {
                     bool visible = true;
@@ -79,14 +81,14 @@ namespace WinkAtHome.Controls
 
         protected void tbColumns_TextChanged(object sender, EventArgs e)
         {
-            SettingMgmt.saveSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Columns", tbColumns.Text);
+            SettingMgmt.saveSetting(hfSettingBase.Value + "-Columns", tbColumns.Text);
             BindData();
         }
 
         protected void ibExpand_Click(object sender, ImageClickEventArgs e)
         {
             rowData.Visible = !rowData.Visible;
-            SettingMgmt.saveSetting("Shortcuts-" + Request.RawUrl.Replace("/", "").Replace(".aspx", "") + "Visible", rowData.Visible.ToString());
+            SettingMgmt.saveSetting(hfSettingBase.Value + "-Visible", rowData.Visible.ToString());
         }
 
         protected void ibInfo_Click(object sender, EventArgs e)

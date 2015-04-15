@@ -1,8 +1,9 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="Devices.ascx.cs" Inherits="WinkAtHome.Controls.Devices" %>
 
 <asp:HiddenField ID="hfDeviceType" runat="server" />
+<asp:HiddenField ID="hfSettingBase" runat="server" />
 
-<asp:Table ID="Table1" runat="server" BorderColor="LightGray" BorderWidth="1" Width="100%" BackColor="#22b9ec" >
+<asp:Table ID="Table1" runat="server" BorderColor="#22b9ec" BorderWidth="1" Width="100%" BackColor="#22b9ec" >
     <asp:TableHeaderRow>
         <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
             <asp:Label ID="lblHeader" runat="server" Text="Devices" ForeColor="White" />

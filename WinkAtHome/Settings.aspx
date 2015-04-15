@@ -41,10 +41,10 @@
                                 <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/WinkatHome.png" Height="75px" />
                             </td>
                             <td align="center" style="vertical-align:middle">
-                                <asp:LinkButton ID="lbContol" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbControl_Click" style="text-decoration: none;" />
+                                <asp:LinkButton ID="lbContol" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="btnDefault_Click" CommandArgument="~/Control.aspx" style="text-decoration: none;" />
                             </td>
                             <td align="center" style="vertical-align:middle">
-                                <asp:LinkButton ID="lbMonitor" runat="server" Text="MONITOR" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbMonitor_Click" style="text-decoration: none;" />
+                                <asp:LinkButton ID="lbMonitor" runat="server" Text="MONITOR" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="btnDefault_Click" CommandArgument="~/Monitor.aspx" style="text-decoration: none;" />
                             </td>
                             <td align="right" width="280">
                                 &nbsp;
@@ -60,17 +60,17 @@
                 <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top">
                     <asp:Table ID="Table1" runat="server">
                         <asp:TableHeaderRow>
-                            <asp:TableHeaderCell ColumnSpan="2" BackColor="#22b9ec" HorizontalAlign="Left" style="padding:10px;">
+                            <asp:TableHeaderCell ColumnSpan="3" BackColor="#22b9ec" HorizontalAlign="Left" style="padding:10px;">
                                 <asp:Label ID="lblHeader" runat="server" Text="Settings" ForeColor="White" />
                             </asp:TableHeaderCell>
                         </asp:TableHeaderRow>
-                        <asp:TableRow ID="rowWarning" Visible="false">
-                            <asp:TableCell ColumnSpan="2">
-                                <asp:Label ID="Label2" runat="server" Text="You must set your Username and<br />Password before you can continue." Font-Bold="true" ForeColor="Red" />
+                        <asp:TableRow ID="rowWarning">
+                            <asp:TableCell ColumnSpan="3">
+                                <asp:Label ID="lblMessage" runat="server" Text="" Font-Bold="true" />
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow>
-                            <asp:TableCell ColumnSpan="2">
+                            <asp:TableCell ColumnSpan="3">
                                 <asp:DataList ID="dlSettings" runat="server">
                                     <HeaderTemplate>
                                         <table>
@@ -97,28 +97,28 @@
                                 <asp:Button ID="btnSave" runat="server" Text="Save" OnClick="btnSave_Click" OnClientClick="if ( ! saveConfirmation()) return false;" />
                             </asp:TableCell>
                             <asp:TableCell HorizontalAlign="Right">
-                                <asp:Button ID="btnDashboard" runat="server" Text="Exit Settings" OnClick="lbMonitor_Click" OnClientClick="if ( ! cancelConfirmation()) return false;" />
+                                <asp:Button ID="btnDefault" runat="server" Text="Exit Settings" OnClick="btnDefault_Click" CommandArgument="~/Default.aspx" OnClientClick="if ( ! cancelConfirmation()) return false;" />
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow>
-                            <asp:TableCell ColumnSpan="2">
+                            <asp:TableCell ColumnSpan="3">
                                 &nbsp;
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow>
-                            <asp:TableCell ColumnSpan="2">
+                            <asp:TableCell ColumnSpan="3">
                                 <asp:Label ID="Label1" runat="server" Text="Danger Ahead!" ForeColor="Red" Font-Bold="true" />
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow>
-                            <asp:TableCell ColumnSpan="2">
+                            <asp:TableCell ColumnSpan="3">
                                 <asp:Button ID="btnManualEdit" runat="server" Text="Manually Edit Settings" OnClick="btnManualEdit_Click" />&nbsp;
                                 <asp:Button ID="btnRawDevData" runat="server" Text="Show Raw Device Data" OnClick="btnRawDevData_Click" />&nbsp;
                                 <asp:Button ID="btnWipe" runat="server" Text="Wipe Settings" OnClick="btnWipe_Click" OnClientClick="if ( ! deleteConfirmation()) return false;" />
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow ID="rowEdit" Visible="false">
-                            <asp:TableCell ColumnSpan="2">
+                            <asp:TableCell ColumnSpan="3">
                                 <asp:TextBox ID="tbEdit" runat="server" TextMode="MultiLine" Height="250px" Width="100%" />
                                 <br />
                                 <asp:Button ID="btnSaveEdit" runat="server" Text="Save Edit" OnClick="btnSaveEdit_Click" OnClientClick="if ( ! saveConfirmation()) return false;" />
