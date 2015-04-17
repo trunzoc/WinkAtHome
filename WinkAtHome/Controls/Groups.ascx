@@ -2,7 +2,7 @@
 
 <asp:HiddenField ID="hfSettingBase" runat="server" />
 
-<asp:Table ID="Table1" runat="server" BorderColor="#22b9ec" BorderWidth="1"  BackColor="#22b9ec" Width="100%">
+<asp:Table ID="Table1" runat="server" BorderColor="#22b9ec" BorderWidth="1"  BackColor="#22b9ec" Width="100%" CellPadding="0" CellSpacing="0">
     <asp:TableHeaderRow BackColor="#22b9ec">
         <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
             <asp:Label ID="lblHeader" runat="server" Text="Groups" ForeColor="White" />

@@ -13,9 +13,9 @@ namespace WinkAtHome.Controls
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Robots-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
             if (!IsPostBack)
             {
-                hfSettingBase.Value = Request.RawUrl.Replace("/", "") + "-Robots-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
                 
                 string columns = SettingMgmt.getSetting(hfSettingBase.Value + "-Columns");
                 if (columns != null)
@@ -41,7 +41,7 @@ namespace WinkAtHome.Controls
             dlRobots.DataSource = null;
             dlRobots.DataBind();
 
-            List<Wink.Robot> robots;
+            List<Wink.Robot> robots = new List<Wink.Robot>();
 
             if (SettingMgmt.getSetting("Hide-Empty-Robots").ToLower() == "true")
             {
@@ -98,6 +98,16 @@ namespace WinkAtHome.Controls
                 //Assign Image
                 ImageButton imgIcon = (ImageButton)e.Item.FindControl("imgIcon");
                 imgIcon.ImageUrl = "~/Images/Robots/" + (robot.isschedule ? "schedule" : "robot") + robot.enabled + ".png";
+
+                if (robot.isschedule)
+                    imgIcon.Enabled = false;
+
+                TextBox tbName = (TextBox)e.Item.FindControl("tbName");
+                string tooltip = "Last Triggered: " + (robot.last_fired.ToString().Contains("1/1/1970") ? "Never" : robot.last_fired.ToString());
+                if (robot.isschedule)
+                    tooltip += Environment.NewLine + "Next Scheduled Run: " + (robot.next_run.ToString().Contains("1/1/1970") ? "Never" : robot.next_run.ToString());
+
+                tbName.ToolTip = tooltip;
             }
         }
 

@@ -22,7 +22,7 @@
         }
     </style>
 </head>
-<body style="background-color:#eeeeee;">
+<body style="background-color:#eeeeee;margin: 0px ">
 
     <form id="form1" runat="server">
     <div>
@@ -39,9 +39,9 @@
         <asp:UpdatePanel ID="UpdatePanel1" runat="server">
             <ContentTemplate>
 
-                <asp:Table ID="Table1" runat="server" CellPadding="0" CellSpacing="0" Width="100%" >
+                <asp:Table ID="Table1" runat="server" CellPadding="0" CellSpacing="0" Width="100%">
                     <asp:TableRow>
-                        <asp:TableCell ColumnSpan="2" style="padding-bottom:20px" VerticalAlign="Top">
+                        <asp:TableCell ColumnSpan="2" style="padding-bottom:10px" VerticalAlign="Top">
                             <table style="background-color:#22b9ec;" width="100%" border="0">
                                 <tr>
                                     <td align="left" width="170px">
@@ -151,7 +151,7 @@
                                 </asp:TableHeaderRow>
                             </asp:Table>
 
-                            <asp:Table ID="tblCollapsed" runat="server" BackColor="#22b9ec" Width="40" Visible="false">
+                            <asp:Table ID="tblCollapsed" runat="server" BackColor="#22b9ec" Width="40" Visible="false" CellPadding="0" CellSpacing="0">
                                 <asp:TableRow>
                                     <asp:TableCell HorizontalAlign="Center" style="padding-top:5px">
                                         <asp:ImageButton ID="ibExpand" runat="server" ImageUrl="~/Images/right.png" Height="25" OnClick="ibExpand_Click" CommandArgument="show" />
@@ -159,17 +159,19 @@
                                 </asp:TableRow>
                                 <asp:TableHeaderRow>
                                     <asp:TableHeaderCell VerticalAlign="Middle" HorizontalAlign="Center">
-                                        <asp:LinkButton ID="lbTallMenu" runat="server" Text="MENU" ForeColor="White" Font-Size="X-Large" Font-Bold="true" Height="200" style="writing-mode:tb-rl;text-decoration:none;" OnClick="ibExpand_Click" CommandArgument="show" />
+                                        <asp:LinkButton ID="lbTallMenu" runat="server" Text="MENU" ForeColor="White" Font-Size="X-Large" Font-Bold="true" Height="200" OnClick="ibExpand_Click" CommandArgument="show" 
+                                            style="-ms-writing-mode: tb-rl; -webkit-writing-mode: vertical-rl;-moz-writing-mode: vertical-rl;-ms-writing-mode: vertical-rl;writing-mode: vertical-rl;text-decoration:none;"/>
                                     </asp:TableHeaderCell>
                                 </asp:TableHeaderRow>
                                 <asp:TableHeaderRow>
                                     <asp:TableHeaderCell VerticalAlign="Middle" HorizontalAlign="Center">
-                                        <asp:LinkButton ID="lbSettings" runat="server" Text="SETTINGS" ForeColor="White" Font-Size="X-Large" Font-Bold="true" Height="200" style="writing-mode:tb-rl;text-decoration:none;" OnClick="lbSettings_Click" />
+                                        <asp:LinkButton ID="lbSettings" runat="server" Text="SETTINGS" ForeColor="White" Font-Size="X-Large" Font-Bold="true" Height="200"  OnClick="lbSettings_Click" 
+                                            style="-ms-writing-mode: tb-rl; -webkit-writing-mode: vertical-rl;-moz-writing-mode: vertical-rl;-ms-writing-mode: vertical-rl;writing-mode: vertical-rl;text-decoration:none;"/>
                                     </asp:TableHeaderCell>
                                 </asp:TableHeaderRow>
                             </asp:Table>                    
                        </asp:TableCell>
-                        <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top" BorderColor="#22b9ec" BorderWidth="0">
+                        <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top" BorderColor="#22b9ec">
                             <asp:ContentPlaceHolder ID="cphMain" runat="server" />
                         </asp:TableCell>
                     </asp:TableRow>

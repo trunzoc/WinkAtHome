@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Telerik.Web.UI;
+using System.Reflection;
 
 namespace WinkAtHome
 {
@@ -144,6 +145,7 @@ namespace WinkAtHome
 
             cellMenu.BackColor = tblExpand.Visible ? System.Drawing.ColorTranslator.FromHtml("#eeeeee") : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
 
+            Response.Redirect(Request.RawUrl);
         }
 
         protected void lbSettings_Click(object sender, EventArgs e)

@@ -21,10 +21,9 @@ namespace WinkAtHome.Controls
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Devices-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString() + "-CO" + ControllableOnly.ToString() + "-SO" + SensorsOnly.ToString() + "-Type" + typeToShow;
             if (!IsPostBack)
             {
-                hfSettingBase.Value = Request.RawUrl.Replace("/", "") + "-Devices-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString() + "-CO" + ControllableOnly.ToString() + "-SO" + SensorsOnly.ToString() + "-Type" + typeToShow;
-
                 if (Request.QueryString["devicetype"] != null)
                 {
                     string type = Request.QueryString["devicetype"].ToLower();
@@ -101,6 +100,27 @@ namespace WinkAtHome.Controls
                 devices = Wink.Devices.Where(p => p.issensor != true || p.menu_type=="hubs").ToList();
             }
 
+            //SORT
+            string displayorder = SettingMgmt.getSetting(hfSettingBase.Value + "-DisplayOrder");
+            if (displayorder != null)
+            {
+                List<string> existingList = displayorder.Split(',').ToList();
+
+                foreach (Wink.Device device in devices)
+                {
+                    int pos = existingList.IndexOf(device.id);
+                    if (pos > -1)
+                    {
+                        device.position = pos;
+                    }
+                }
+
+                devices = devices.OrderBy(c => c.position).ThenBy(c => c.name).ToList();
+            }
+
+            //rgDevices.DataSource = devices;
+            //rgDevices.DataBind();
+
             dlDevices.DataSource = devices;
             dlDevices.DataBind();
         }
@@ -114,6 +134,10 @@ namespace WinkAtHome.Controls
 
                 HiddenField hfDeviceID = (HiddenField)e.Item.FindControl("hfDeviceID");
                 hfDeviceID.Value = device.id;
+
+                TextBox tbPosition = (TextBox)e.Item.FindControl("tbPosition");
+                tbPosition.Text = device.position == 9999? "":(device.position +1).ToString();
+
 
                 List<Wink.DeviceStatus> status = device.status;
                 IList<string> keys = status.Select(p => p.name).ToList();
@@ -171,6 +195,8 @@ namespace WinkAtHome.Controls
                     gv.DataSource = dtStatus;
                     gv.DataBind();
                 }
+
+                string displayorder = SettingMgmt.getSetting(hfSettingBase + "-DisplayOrder");
 
                 //SET BATTERY ICON
                 if (keys.Contains("battery"))
@@ -401,7 +427,7 @@ namespace WinkAtHome.Controls
             bool alert = false;
 
             Wink.Device device = ((Wink.Device)item.DataItem);
-            string devicetype = device.type;
+            string devicetype = device.sensor_type;
 
             List<Wink.DeviceStatus> status = device.status;
             IList<string> keys = status.Select(p => p.name).ToList();
@@ -411,124 +437,38 @@ namespace WinkAtHome.Controls
             if (keys.Contains("connection"))
             {
                 Wink.DeviceStatus stat = status.Single(p => p.name == "connection");
-                state = stat.current_status.ToLower();
-                alert = !Convert.ToBoolean(state);
+                bool reverse = !Convert.ToBoolean(stat.current_status);
+                alert = reverse;
+                state = reverse.ToString().ToLower();
             }
 
-            if (device.type == "smoke_detectors")
+
+            double dblTest;
+            if (device.sensortripped == "true")
             {
                 state = "true";
-                string strStatuses = string.Empty;
-                if (keys.Contains("co_detected"))
-                {
-                    Wink.DeviceStatus stat = status.SingleOrDefault(p => p.name == "co_detected");
-                    strStatuses += stat.current_status;
-                }
-                if (keys.Contains("smoke_detected"))
-                {
-                    Wink.DeviceStatus stat = status.SingleOrDefault(p => p.name == "smoke_detected");
-                    strStatuses += stat.current_status;
-                }
-
-                if (strStatuses.ToLower().Contains("true"))
-                    state = "true";
-                else
-                    state = "false";
-                
-                if (keys.Contains("test_activated"))
-                {
-                    Wink.DeviceStatus stat = status.SingleOrDefault(p => p.name == "test_activated");
-                    if (stat.current_status.ToLower() == "true")
-                        state = "test";
-                }
+                alert = true;
             }
-
-            if (keys.Contains("remaining")||keys.Contains("position"))
+            else if (device.sensortripped == "test")
             {
-                Wink.DeviceStatus stat = status.Single(p => p.name == "remaining" || p.name == "position");
-                Double converted = Convert.ToDouble(stat.current_status) * 100;
-                degree = converted.ToString();
-                state = converted > 0 ? "true" : "false";
-                alert = (converted <= 10);
+                state = "test";
             }
-
-            if (device.type == "sensor_pods")
+            else if (double.TryParse(device.sensortripped, out dblTest))
             {
-                string model = device.model.ToLower();
-                if (model == "tripper")
-                {
-                    Wink.DeviceStatus stat = status.Single(p => p.name == "opened");
-                    state = stat.current_status.ToLower();
-
-                    string type = "door";
-                    string lowername = device.name.ToLower();
-                    if (lowername.Contains("window"))
-                        type = "window";
-                    else if (lowername.Contains("patio") || lowername.Contains("deck"))
-                        type = "deck";
-                    else if (lowername.Contains("cabinet"))
-                        type = "cabinet";
-
-                    string imgPath = Request.PhysicalApplicationPath + "\\Images\\Sensors\\tripper\\Tripper" + type + state + ".png";
-                    if (File.Exists(imgPath))
-                    {
-                        img.ImageUrl = "~/Images/Sensors/Tripper/Tripper" + type + state + ".png";
-                    }
-                }
-                else
-                {
-                    string imgPath = Request.PhysicalApplicationPath + "\\Images\\Sensors\\" + model + state + ".png";
-                    if (File.Exists(imgPath))
-                    {
-                        img.ImageUrl = "~/Images/Sensors/" + model + state + ".png";
-                    }
-                }
-                
-                alert = Convert.ToBoolean(state);
-            }
-            else if (device.menu_type == "hubs")
-            {
-                string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\" + devicetype + state + ".png";
-                if (File.Exists(imgPath))
-                {
-                    string url = "~/Images/Devices/" + devicetype + state + ".png";
-                    img.ImageUrl = url;
-                }
-            }
-            else if (degree != "n/a")
-            {
-                string imgDegree = "100";
-                double deg = Convert.ToDouble(degree);
-                if (deg <= 10)
-                    imgDegree = "0";
-                else if (deg <= 30)
-                    imgDegree = "25";
-                else if (deg <= 60)
-                    imgDegree = "50";
-                else if (deg <= 90)
-                    imgDegree = "75";
-                else
-                    imgDegree = "100";
-
-                string imgPath = Request.PhysicalApplicationPath + "\\Images\\Sensors\\" + devicetype + imgDegree + ".png";
-                if (File.Exists(imgPath))
-                {
-                    string url = "~/Images/Sensors/" + devicetype + imgDegree + ".png";
-                    img.ImageUrl = url;
-                }
-
-                if (deg < 25)
+                state = device.sensortripped;
+                if (dblTest < 25)
                     alert = true;
+            }
+
+            string imgPath = Request.PhysicalApplicationPath + "\\Images\\Sensors\\" + devicetype + state + ".png";
+            if (File.Exists(imgPath))
+            {
+                string url = "~/Images/Sensors/" + devicetype + state + ".png";
+                img.ImageUrl = url;
             }
             else
             {
-                string imgPath = Request.PhysicalApplicationPath + "\\Images\\Sensors\\" + devicetype + state + ".png";
-                if (File.Exists(imgPath))
-                {
-                    string url = "~/Images/Sensors/" + devicetype + state + ".png";
-                    img.ImageUrl = url;
-                }
-
+                img.ImageUrl = "";
             }
 
             ((Image)item.FindControl("imgAlert")).Visible = alert;
@@ -762,7 +702,6 @@ namespace WinkAtHome.Controls
                 BindData();
             }
         }
-
 
         protected void ibThermPower_Click(object sender, ImageClickEventArgs e)
         {
@@ -1015,6 +954,30 @@ namespace WinkAtHome.Controls
             mpeInfo.Hide();
 
             BindData();
+        }
+
+        protected void btnSetPosition_Click(object sender, EventArgs e)
+        {
+            Button btn = (Button)sender;
+            TextBox tbPosition = (TextBox)btn.NamingContainer.FindControl("tbPosition");
+            Label lblPositionBad = (Label)btn.NamingContainer.FindControl("lblPositionBad");
+
+            Int32 pos = 9999;
+            if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
+            {
+                string displayorder = SettingMgmt.getSetting(hfSettingBase.Value + "-DisplayOrder");
+                List<string> existingList = displayorder.Split(',').ToList();
+
+                string newDevice = btn.CommandArgument;
+
+                existingList.RemoveAll(s => s == newDevice);
+                existingList.Insert(pos - 1, newDevice);
+
+                string newList = string.Join(",", existingList);
+                SettingMgmt.saveSetting(hfSettingBase.Value + "-DisplayOrder", string.Join(",", newList));
+            }
+
+            ((ModalPopupExtender)btn.NamingContainer.FindControl("mpeInfo")).Show();
         }
     }
 }

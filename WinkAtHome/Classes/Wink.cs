@@ -70,9 +70,13 @@ public class Wink
         [SimpleProperty]
         public string menu_type { get; set; }
         [SimpleProperty]
-        public bool iscontrollable { get; set; }
+        public string sensor_type { get; set; }
         [SimpleProperty]
         public bool issensor { get; set; }
+        [SimpleProperty]
+        public string sensortripped { get; set; }
+        [SimpleProperty]
+        public bool iscontrollable { get; set; }
         [SimpleProperty]
         public string json { get; set; }
         [SimpleProperty]
@@ -85,6 +89,7 @@ public class Wink
         public string radio_type { get; set; }
         [SimpleProperty]
         public bool isvariable { get; set; }
+        public int position = 9999;
         public List<string> desired_states = new List<string>();
         public List<DeviceStatus> status = new List<DeviceStatus>();
 
@@ -221,7 +226,7 @@ public class Wink
                                 device.model = data["model_name"].ToString();
                             }
 
-                            #region DEVICE EXCEPTIONS
+                            #region NON-SENSOR DEVICE-SPECIFIC CONFIGURATIONS
                             //DEVICE EXCEPTIONS
 
                             //Power Pivot Genius
@@ -257,26 +262,6 @@ public class Wink
 
                                     Devices.Add(outletdevice);
                                 }
-                            }
-
-                            //tripper
-                            if (keys.Contains("sensor_pod_id"))
-                            {
-                                device.id = data["sensor_pod_id"].ToString();
-                                device.type = "sensor_pods";
-                                device.menu_type = device.type;
-                                foreach (DeviceStatus status in device.status)
-                                    status.id = device.id;
-                            }
-
-                            //hubs
-                            if (device.type == "hubs")
-                            {
-                                device.issensor = true;
-                                device.iscontrollable = false;
-
-                                if (device.model.ToLower() == "wink relay")
-                                    device.type = "wink_relays";
                             }
 
                             //Relay
@@ -319,6 +304,28 @@ public class Wink
                                 foreach (DeviceStatus status in device.status)
                                     status.id = device.id;
                             }
+                            #endregion
+
+                            #region SENSOR DEVICE CONFIGURATIONS
+                            //Sensor Pods
+                            if (keys.Contains("sensor_pod_id"))
+                            {
+                                device.id = data["sensor_pod_id"].ToString();
+                                device.type = "sensor_pods";
+                                device.menu_type = device.type;
+                                foreach (DeviceStatus status in device.status)
+                                    status.id = device.id;
+                            }
+
+                            //hubs
+                            if (device.type == "hubs")
+                            {
+                                device.issensor = true;
+                                device.iscontrollable = false;
+
+                                if (device.model.ToLower() == "wink relay")
+                                    device.type = "wink_relays";
+                            }
 
                             //refuel
                             if (device.type == "propane_tanks")
@@ -332,6 +339,99 @@ public class Wink
                                     tankstatus.last_updated = Common.FromUnixTime(data["tank_changed_at"].ToString());
                                     device.status.Add(tankstatus);
                                 }
+                                
+                                Wink.DeviceStatus stat = device.status.SingleOrDefault(p => p.name == "remaining");
+                                if (stat != null)
+                                {
+                                    Double converted = Convert.ToDouble(stat.current_status) * 100;
+                                    string degree = converted.ToString();
+
+                                    string imgDegree = "100";
+                                    if (converted <= 10)
+                                        imgDegree = "0";
+                                    else if (converted <= 30)
+                                        imgDegree = "25";
+                                    else if (converted <= 60)
+                                        imgDegree = "50";
+                                    else if (converted <= 90)
+                                        imgDegree = "75";
+                                    else
+                                        imgDegree = "100";
+
+                                    device.sensortripped = imgDegree;
+                                }
+
+                            }
+
+                            //POS
+                            if (device.model != null && device.model.ToLower() == "egg minder")
+                            {
+                                device.id = data["eggtray_id"] != null ? data["eggtray_id"].ToString() : "error: key_id";
+                                device.type = "eggtray";
+                                device.menu_type = "eggtray";
+                            }
+
+                            if (device.type == "smoke_detectors")
+                            {
+                                device.sensortripped = null;
+                                    
+                                string strStatuses = string.Empty;
+
+                                Wink.DeviceStatus costat = device.status.SingleOrDefault(p => p.name == "co_detected");
+                                if (costat != null)
+                                    strStatuses += costat.current_status;
+
+                                Wink.DeviceStatus smstat = device.status.SingleOrDefault(p => p.name == "smoke_detected");
+                                if (smstat != null)
+                                    strStatuses += smstat.current_status;
+
+                                Wink.DeviceStatus teststat = device.status.SingleOrDefault(p => p.name == "test_activated");
+                                if (teststat != null && teststat.current_status.ToLower() == "true")
+                                    strStatuses += "test";
+
+                                if (strStatuses.ToLower().Contains("true"))
+                                    device.sensortripped = "true";
+                                else if (strStatuses.ToLower().Contains("test"))
+                                    device.sensortripped = "test";
+
+                                device.sensor_type = device.type;
+                            }                            
+                            
+                            if (device.issensor)
+                            {
+                                string model = device.model.ToLower();
+                                List<Wink.DeviceStatus> OpenClose = device.status.Where(s => s.name == "opened").ToList();
+
+                                if (OpenClose.Count > 0)
+                                {
+                                    Wink.DeviceStatus stat = device.status.Single(p => p.name == "opened");
+                                    device.sensortripped = stat.current_status.ToLower();
+
+                                    string type = "dooropen";
+                                    string lowername = device.name.ToLower();
+                                    if (lowername.Contains("window"))
+                                        type = "windowopen";
+                                    else if (lowername.Contains("patio") || lowername.Contains("deck"))
+                                        type = "deckopen";
+                                    else if (lowername.Contains("cabinet"))
+                                        type = "cabinetopen";
+
+                                    device.sensor_type = type;
+                                }
+                                else if (model == "spotter")
+                                {
+                                    device.sensor_type = "spotter";
+                                }
+                                else if (model.Contains("pir") || model.Contains("infrared"))
+                                {
+                                    device.sensor_type = "motion_sensor";
+                                }
+                                
+                                if (string.IsNullOrWhiteSpace(device.sensor_type))
+                                {
+                                    device.sensor_type = device.type;
+                                }
+
                             }
                             #endregion
 
@@ -799,6 +899,7 @@ public class Wink
                 string hideEmpty = SettingMgmt.getSetting("Hide-Empty-Robots", true);
 
                 JObject json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetRobotsURL"]);
+
                 List<Robot> Robots = new List<Robot>();
 
                 foreach (JObject data in json["data"])
@@ -813,7 +914,17 @@ public class Wink
                     robot.json = data.ToString();
                     robot.isschedule = (data["automation_mode"].ToString() == "schedule");
 
-                    robot.next_run = Common.FromUnixTime(data["causes"][0]["next_at"].ToString());
+                    if (data["causes"] != null)
+                    {
+                        var causes = data["causes"];
+                        if (causes.HasValues)
+                        {
+                            if (data["causes"][0] != null && data["causes"][0]["next_at"] != null)
+                            {
+                                robot.next_run = Common.FromUnixTime(data["causes"][0]["next_at"].ToString());
+                            }
+                        }
+                    }
 
                     foreach (var effect in data["effects"])
                     {
@@ -881,6 +992,14 @@ public class Wink
         {
             throw e;
         }
+    }
+    public static JObject getRobotJSON()
+    {
+        JObject json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetRobotsURL"]);
+        if (json != null)
+            return json;
+
+        return null;
     }
     #endregion
 
@@ -979,14 +1098,10 @@ public class Wink
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"propane_tank_id\": \"6521\",\"name\": \"zTest Refuel\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419569612,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"5055752531a8aac104827ec4ba2a3366038ee15a|propane_tank-6521|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"device_manufacturer\": \"quirky_ge\",\"model_name\": \"Refuel\",\"upc_id\": \"17\",\"last_reading\": {\"connection\": true,\"battery\": 0.52,\"remaining\": 0.5},\"lat_lng\": [33.162101,-97.090547],\"location\": \"76210\",\"mac_address\": \"0c2a6907025a\",\"serial\": \"ACAB00033589\",\"tare\": 18.0,\"tank_changed_at\": 1421352479},");
 
                         //Add Trippers
-                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"last_event\": { \"brightness_occurred_at\": null, \"loudness_occurred_at\": null, \"vibration_occurred_at\": null }, \"sensor_threshold_events\": [], \"sensor_pod_id\": \"44936\", \"name\": \"Front Window\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1424390065, \"hidden_at\": null, \"capabilities\": { \"sensor_types\": [ { \"field\": \"opened\", \"type\": \"boolean\" }, { \"field\": \"battery\", \"type\": \"percentage\" } ] }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"e8cb7dff90aff5bf783116430e052eac2b26fee2|sensor_pod-44936|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": {}, \"manufacturer_device_model\": \"quirky_ge_tripper\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"quirky_ge\", \"model_name\": \"Tripper\", \"upc_id\": \"184\", \"gang_id\": null, \"hub_id\": \"106928\", \"local_id\": \"1\", \"radio_type\": \"zigbee\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865184.906538, \"agent_session_id\": null, \"agent_session_id_updated_at\": 1425384306.700017, \"firmware_version\": \"1.8b00 / 5.1b21\", \"firmware_version_updated_at\": 1428865184.9065545, \"firmware_date_code\": \"\", \"firmware_date_code_updated_at\": 1428865184.9065475, \"opened\": false, \"opened_updated_at\": 1428865184.9066038, \"battery\": 0.1, \"battery_updated_at\": 1428865184.9066103, \"battery_voltage\": 27, \"battery_voltage_updated_at\": 1428865184.9065614, \"battery_alarm_mask\": 15, \"battery_alarm_mask_updated_at\": 1428865184.9065681, \"battery_voltage_min_threshold\": 0, \"battery_voltage_min_threshold_updated_at\": 1428865184.9065757, \"battery_voltage_threshold_1\": 25, \"battery_voltage_threshold_1_updated_at\": 1428865184.9065828, \"battery_voltage_threshold_2\": 25, \"battery_voltage_threshold_2_updated_at\": 1428865184.90659, \"battery_voltage_threshold_3\": 0, \"battery_voltage_threshold_3_updated_at\": 1428865184.9065971 }, \"lat_lng\": [ 0.0, 0.0 ], \"location\": \"\", \"uuid\": \"b3fb7f85-4819-4ff7-ad4c-e070d58febed\" },");
-                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"last_event\": { \"brightness_occurred_at\": null, \"loudness_occurred_at\": null, \"vibration_occurred_at\": null }, \"sensor_threshold_events\": [], \"sensor_pod_id\": \"44939\", \"name\": \"Patio Door\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1424390504, \"hidden_at\": null, \"capabilities\": { \"sensor_types\": [ { \"field\": \"opened\", \"type\": \"boolean\" }, { \"field\": \"battery\", \"type\": \"percentage\" } ] }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"efdaaf15839a14d9b68a87a084b15e515988ba22|sensor_pod-44939|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": {}, \"manufacturer_device_model\": \"quirky_ge_tripper\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"quirky_ge\", \"model_name\": \"Tripper\", \"upc_id\": \"184\", \"gang_id\": null, \"hub_id\": \"106928\", \"local_id\": \"2\", \"radio_type\": \"zigbee\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428864712.0239367, \"agent_session_id\": null, \"agent_session_id_updated_at\": 1425407935.8848121, \"firmware_version\": \"1.8b00 / 5.1b21\", \"firmware_version_updated_at\": 1428864712.0239549, \"firmware_date_code\": \"20140814\", \"firmware_date_code_updated_at\": 1428864712.0239472, \"opened\": false, \"opened_updated_at\": 1428864712.0240068, \"battery\": 1.0, \"battery_updated_at\": 1428864712.0240135, \"battery_voltage\": 29, \"battery_voltage_updated_at\": 1428864712.0239623, \"battery_alarm_mask\": 15, \"battery_alarm_mask_updated_at\": 1428864712.02397, \"battery_voltage_min_threshold\": 0, \"battery_voltage_min_threshold_updated_at\": 1428864712.0239785, \"battery_voltage_threshold_1\": 0, \"battery_voltage_threshold_1_updated_at\": 1428864712.0239854, \"battery_voltage_threshold_2\": 0, \"battery_voltage_threshold_2_updated_at\": 1428864712.0239928, \"battery_voltage_threshold_3\": 26, \"battery_voltage_threshold_3_updated_at\": 1428864712.0239997 }, \"lat_lng\": [ 0.0, 0.0 ], \"location\": \"\", \"uuid\": \"80c306fb-ab60-4eff-add8-a37a26563788\" },");
-                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"last_event\": { \"brightness_occurred_at\": null, \"loudness_occurred_at\": null, \"vibration_occurred_at\": null }, \"sensor_threshold_events\": [], \"sensor_pod_id\": \"44941\", \"name\": \"Front Door\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1424391106, \"hidden_at\": null, \"capabilities\": { \"sensor_types\": [ { \"field\": \"opened\", \"type\": \"boolean\" }, { \"field\": \"battery\", \"type\": \"percentage\" } ] }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"30e4001ef5bc960756bcb3b418767d2316819441|sensor_pod-44941|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": {}, \"manufacturer_device_model\": \"quirky_ge_tripper\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"quirky_ge\", \"model_name\": \"Tripper\", \"upc_id\": \"184\", \"gang_id\": null, \"hub_id\": \"106928\", \"local_id\": \"3\", \"radio_type\": \"zigbee\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865502.1844118, \"agent_session_id\": null, \"agent_session_id_updated_at\": 1425384310.4226985, \"firmware_version\": \"1.8b00 / 5.1b21\", \"firmware_version_updated_at\": 1428865502.1844277, \"firmware_date_code\": \"20140814\", \"firmware_date_code_updated_at\": 1428865502.1844211, \"opened\": true, \"opened_updated_at\": 1428865502.1844759, \"battery\": 1.0, \"battery_updated_at\": 1428865502.1844823, \"battery_voltage\": 26, \"battery_voltage_updated_at\": 1428865502.1844344, \"battery_alarm_mask\": 15, \"battery_alarm_mask_updated_at\": 1428865502.1844409, \"battery_voltage_min_threshold\": 25, \"battery_voltage_min_threshold_updated_at\": 1428865502.184448, \"battery_voltage_threshold_1\": 25, \"battery_voltage_threshold_1_updated_at\": 1428865502.1844552, \"battery_voltage_threshold_2\": 25, \"battery_voltage_threshold_2_updated_at\": 1428865502.1844621, \"battery_voltage_threshold_3\": 26, \"battery_voltage_threshold_3_updated_at\": 1428865502.1844692 }, \"lat_lng\": [ 0.0, 0.0 ], \"location\": \"\", \"uuid\": \"f3745acb-9c5d-48ab-b907-3f5e1aceb0e7\" },");
-                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"last_event\": { \"brightness_occurred_at\": null, \"loudness_occurred_at\": null, \"vibration_occurred_at\": null }, \"sensor_threshold_events\": [], \"sensor_pod_id\": \"45537\", \"name\": \"Deck Door\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1424586786, \"hidden_at\": null, \"capabilities\": { \"sensor_types\": [ { \"type\": \"boolean\", \"field\": \"opened\" }, { \"type\": \"percentage\", \"field\": \"battery\" } ] }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"ab781cc9f09fa3e446d9f51b5d1437101595daf6|sensor_pod-45537|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": {}, \"manufacturer_device_model\": \"quirky_ge_tripper\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"quirky_ge\", \"model_name\": \"Tripper\", \"upc_id\": \"184\", \"gang_id\": null, \"hub_id\": \"106928\", \"local_id\": \"9\", \"radio_type\": \"zigbee\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865002.3922381, \"agent_session_id\": null, \"agent_session_id_updated_at\": 1425420058.2428184, \"firmware_version\": \"1.8b00 / 5.1b21\", \"firmware_version_updated_at\": 1428865002.3922553, \"firmware_date_code\": \"20140814\", \"firmware_date_code_updated_at\": 1428865002.3922484, \"opened\": true, \"opened_updated_at\": 1428865002.3923037, \"battery\": 1.0, \"battery_updated_at\": 1428865002.39231, \"battery_voltage\": 26, \"battery_voltage_updated_at\": 1428865002.3922622, \"battery_alarm_mask\": 15, \"battery_alarm_mask_updated_at\": 1428865002.3922687, \"battery_voltage_min_threshold\": 0, \"battery_voltage_min_threshold_updated_at\": 1428865002.3922758, \"battery_voltage_threshold_1\": 25, \"battery_voltage_threshold_1_updated_at\": 1428865002.3922834, \"battery_voltage_threshold_2\": 0, \"battery_voltage_threshold_2_updated_at\": 1428865002.3922906, \"battery_voltage_threshold_3\": 0, \"battery_voltage_threshold_3_updated_at\": 1428865002.392297 }, \"lat_lng\": [ 0.0, 0.0 ], \"location\": \"\", \"uuid\": \"e00b1974-e190-4251-9a19-054c146caa03\" },");
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"last_event\": { \"brightness_occurred_at\": null, \"loudness_occurred_at\": null, \"vibration_occurred_at\": null }, \"sensor_threshold_events\": [], \"sensor_pod_id\": \"45558\", \"name\": \"Sink Cabinet\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1424586786, \"hidden_at\": null, \"capabilities\": { \"sensor_types\": [ { \"type\": \"boolean\", \"field\": \"opened\" }, { \"type\": \"percentage\", \"field\": \"battery\" } ] }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"ab781cc9f09fa3e446d9f51b5d1437101595daf6|sensor_pod-45537|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": {}, \"manufacturer_device_model\": \"quirky_ge_tripper\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"quirky_ge\", \"model_name\": \"Tripper\", \"upc_id\": \"184\", \"gang_id\": null, \"hub_id\": \"106928\", \"local_id\": \"9\", \"radio_type\": \"zigbee\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865002.3922381, \"agent_session_id\": null, \"agent_session_id_updated_at\": 1425420058.2428184, \"firmware_version\": \"1.8b00 / 5.1b21\", \"firmware_version_updated_at\": 1428865002.3922553, \"firmware_date_code\": \"20140814\", \"firmware_date_code_updated_at\": 1428865002.3922484, \"opened\": true, \"opened_updated_at\": 1428865002.3923037, \"battery\": 1.0, \"battery_updated_at\": 1428865002.39231, \"battery_voltage\": 26, \"battery_voltage_updated_at\": 1428865002.3922622, \"battery_alarm_mask\": 15, \"battery_alarm_mask_updated_at\": 1428865002.3922687, \"battery_voltage_min_threshold\": 0, \"battery_voltage_min_threshold_updated_at\": 1428865002.3922758, \"battery_voltage_threshold_1\": 25, \"battery_voltage_threshold_1_updated_at\": 1428865002.3922834, \"battery_voltage_threshold_2\": 0, \"battery_voltage_threshold_2_updated_at\": 1428865002.3922906, \"battery_voltage_threshold_3\": 0, \"battery_voltage_threshold_3_updated_at\": 1428865002.392297 }, \"lat_lng\": [ 0.0, 0.0 ], \"location\": \"\", \"uuid\": \"e00b1974-e190-4251-9a19-054c146caa03\" },");
 
                         //Add Nest Protect
-                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"smoke_detector_id\": \"10076\", \"name\": \"zTest Nest Protect\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1419086573, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"5882005d3a98dbbd335c2cf778a6734557cd1f2f|smoke_detector-10076|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": \"nest\", \"manufacturer_device_id\": \"VpXN4GQ7MUD5QqV8vgvQOExx11Qobba_\", \"device_manufacturer\": \"nest\", \"model_name\": \"Smoke + Carbon Monoxide Detector\", \"upc_id\": \"170\", \"hub_id\": null, \"local_id\": null, \"radio_type\": null, \"linked_service_id\": \"50847\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865904.1217248, \"battery\": 1.0, \"battery_updated_at\": 1428865904.1217616, \"co_detected\": false, \"co_detected_updated_at\": 1428865904.1217353, \"smoke_detected\": false, \"smoke_detected_updated_at\": 1428865904.1217477, \"test_activated\": null, \"test_activated_updated_at\": null, \"smoke_severity\": 0.0, \"smoke_severity_updated_at\": 1428865904.1217549, \"co_severity\": 0.0, \"co_severity_updated_at\": 1428865904.1217415 }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
+                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"smoke_detector_id\": \"10076\", \"name\": \"zTest Nest Protect\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1419086573, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"5882005d3a98dbbd335c2cf778a6734557cd1f2f|smoke_detector-10076|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": \"nest\", \"manufacturer_device_id\": \"VpXN4GQ7MUD5QqV8vgvQOExx11Qobba_\", \"device_manufacturer\": \"nest\", \"model_name\": \"Smoke + Carbon Monoxide Detector\", \"upc_id\": \"170\", \"hub_id\": null, \"local_id\": null, \"radio_type\": null, \"linked_service_id\": \"50847\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865904.1217248, \"battery\": 1.0, \"battery_updated_at\": 1428865904.1217616, \"co_detected\": false, \"co_detected_updated_at\": 1428865904.1217353, \"smoke_detected\": false, \"smoke_detected_updated_at\": 1428865904.1217477, \"test_activated\": null, \"test_activated_updated_at\": 1428855697.3881633, \"smoke_severity\": 0.0, \"smoke_severity_updated_at\": 1428865904.1217549, \"co_severity\": 0.0, \"co_severity_updated_at\": 1428865904.1217415 }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
 
                         //Add Relay & Related
                         responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"hub_id\": \"132595\", \"name\": \"Wink Relay\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545678, \"hidden_at\": null, \"capabilities\": { \"oauth2_clients\": [ \"wink_project_one\" ] }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"d9be1fe3abeb9fc46bec54a7cb62719a5a576c86|hub-132595|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": { \"pairing_mode\": null }, \"manufacturer_device_model\": \"wink_project_one\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"wink\", \"model_name\": \"Wink Relay\", \"upc_id\": \"186\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865074.9676549, \"agent_session_id\": \"9c99e3314c3a39f2eb9830a78d10684c\", \"agent_session_id_updated_at\": 1428855693.8299525, \"remote_pairable\": null, \"remote_pairable_updated_at\": null, \"updating_firmware\": false, \"updating_firmware_updated_at\": 1428855688.0774271, \"app_rootfs_version\": \"1.0.221\", \"app_rootfs_version_updated_at\": 1428855697.3881633, \"firmware_version\": \"1.0.221\", \"firmware_version_updated_at\": 1428855697.3881423, \"update_needed\": false, \"update_needed_updated_at\": 1428855697.3881698, \"mac_address\": \"B4:79:A7:0F:F7:DF\", \"mac_address_updated_at\": 1428855697.3881495, \"ip_address\": \"192.168.1.187\", \"ip_address_updated_at\": 1428855697.3881567, \"hub_version\": \"user\", \"hub_version_updated_at\": 1428855697.3881316, \"pairing_mode\": null, \"pairing_mode_updated_at\": 1428545678.0519505, \"desired_pairing_mode\": null, \"desired_pairing_mode_updated_at\": 1428545678.0519564 }, \"lat_lng\": [ null, null ], \"location\": \"\", \"configuration\": null, \"update_needed\": false, \"uuid\": \"9bb6a0d5-30f2-4bf7-8b37-d667c30e05bc\" },");

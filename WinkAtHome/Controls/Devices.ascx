@@ -3,7 +3,7 @@
 <asp:HiddenField ID="hfDeviceType" runat="server" />
 <asp:HiddenField ID="hfSettingBase" runat="server" />
 
-<asp:Table ID="Table1" runat="server" BorderColor="#22b9ec" BorderWidth="1" Width="100%" BackColor="#22b9ec" >
+<asp:Table ID="Table1" runat="server" BorderColor="#22b9ec" BorderWidth="1" Width="100%" BackColor="#22b9ec"  CellPadding="0" CellSpacing="0">
     <asp:TableHeaderRow>
         <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
             <asp:Label ID="lblHeader" runat="server" Text="Devices" ForeColor="White" />
@@ -254,7 +254,7 @@
                                         <asp:button id="btnShowInfo" runat="server" style="display:none;" />
 
                                         <ajaxtoolkit:ModalPopupExtender ID="mpeInfo" runat="server" PopupControlID="pnlInfo"
-                                            TargetControlID="btnShowInfo" BackgroundCssClass="modalBackground" Y="100">
+                                            TargetControlID="btnShowInfo" BackgroundCssClass="modalBackground" Y="100" Drag="True" >
                                         </ajaxtoolkit:ModalPopupExtender>
                                         <asp:Panel ID="pnlInfo" runat="server" Height="600" style="display:none">
                                             <asp:Table ID="Table6" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee">
@@ -308,6 +308,18 @@
                                                     </asp:TableCell>
                                                     <asp:TableCell HorizontalAlign="Left">
                                                         <asp:Textbox ID="tbJSON" runat="server" Text='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).json %>' TextMode="MultiLine" Height="150" Width="400" ReadOnly="true" />
+                                                    </asp:TableCell>
+                                                </asp:TableRow>
+                                                <asp:TableRow>
+                                                    <asp:TableCell>
+                                                        <asp:Label ID="Label4" runat="server" Text="Item Position:" Font-Size="Small" />
+                                                    </asp:TableCell>
+                                                    <asp:TableCell>
+                                                        <asp:TextBox ID="tbPosition" runat="server" Width="40" CausesValidation="True" />
+                                                        <asp:Button ID="btnSetPosition" runat="server" Text="Set" OnClick="btnSetPosition_Click" CausesValidation="True" 
+                                                            CommandArgument='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' ValidationGroup="position" />
+                                                        <asp:RangeValidator ID="rangeValidator1" runat="server" ControlToValidate="tbPosition" Type="Integer" MinimumValue="1" MaximumValue="1000" ValidationGroup="position"
+                                                            ForeColor="Red" ErrorMessage="Please enter a whole number between 1 and 1000" Display="Dynamic" SetFocusOnError="true"  />
                                                     </asp:TableCell>
                                                 </asp:TableRow>
                                                 <asp:TableRow>

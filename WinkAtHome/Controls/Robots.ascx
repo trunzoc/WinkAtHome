@@ -2,7 +2,7 @@
 
 <asp:HiddenField ID="hfSettingBase" runat="server" />
 
-<asp:Table ID="Table1" runat="server" BorderColor="#22b9ec" BorderWidth="1"  BackColor="#22b9ec" Width="100%" >
+<asp:Table ID="Table1" runat="server" BorderColor="#22b9ec" BorderWidth="1"  BackColor="#22b9ec" Width="100%" CellPadding="0" CellSpacing="0" >
     <asp:TableHeaderRow BackColor="#22b9ec">
         <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
             <asp:Label ID="lblHeader" runat="server" Text="Robots" ForeColor="White" />
@@ -18,7 +18,7 @@
     <asp:TableRow ID="rowData" BackColor="#eeeeee">
         <asp:TableCell style="padding:10px;" ColumnSpan="3">
             <asp:DataList ID="dlRobots" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" OnItemDataBound="dlRobots_ItemDataBound" Width="100%">
-                <ItemStyle Height="175" HorizontalAlign="Center" />
+                <ItemStyle Height="150" HorizontalAlign="Center" />
                 <ItemTemplate>
                     <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
                         <ContentTemplate>
@@ -86,17 +86,7 @@
                                 <asp:TableRow>
                                     <asp:TableCell HorizontalAlign="Center" ColumnSpan="2">
                                         <asp:TextBox ID="tbName" runat="server" Text='<%# ((Wink.Robot)((IDataItemContainer)Container).DataItem).name %>' Font-Size="small" TextMode="MultiLine" Wrap="true"
-                                            style="border:0px; text-align:center; overflow:hidden" BackColor="Transparent" />
-                                    </asp:TableCell>
-                                </asp:TableRow>
-                                <asp:TableRow>
-                                    <asp:TableCell HorizontalAlign="Center" ColumnSpan="2">
-                                        <asp:Label ID="Label2" runat="server" Text="Last Triggered:" Font-Size="small" />
-                                    </asp:TableCell>
-                                </asp:TableRow>
-                                <asp:TableRow>
-                                    <asp:TableCell HorizontalAlign="Center" ColumnSpan="2">
-                                        <asp:Label ID="Label3" runat="server" Text='<%# ((Wink.Robot)((IDataItemContainer)Container).DataItem).last_fired.ToString().Contains("1/1/1970") ? "Never" : ((Wink.Robot)((IDataItemContainer)Container).DataItem).last_fired.ToString() %>' Font-Size="small" />
+                                             Enabled="false" ForeColor="Black" style="border:0px; text-align:center; overflow:hidden" BackColor="Transparent" />
                                     </asp:TableCell>
                                 </asp:TableRow>
                             </asp:Table>

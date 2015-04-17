@@ -14,9 +14,9 @@ namespace WinkAtHome.Controls
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Groups-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
             if (!IsPostBack)
             {
-                hfSettingBase.Value = Request.RawUrl.Replace("/", "") + "-Groups-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
                 BindData();
 
                 string columns = SettingMgmt.getSetting(hfSettingBase.Value + "-Columns");

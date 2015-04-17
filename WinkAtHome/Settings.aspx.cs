@@ -24,6 +24,8 @@ namespace WinkAtHome
 
             if (!IsPostBack)
             {
+                lblVersion.Text = "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
                 if (Request.QueryString["warning"] != null)
                 {
                     string message = Request.QueryString["warning"];
@@ -92,14 +94,29 @@ namespace WinkAtHome
 
         protected void btnRawDevData_Click(object sender, EventArgs e)
         {
-            JObject json = Wink.getDeviceJSON();
-            if (json != null)
-                tbEdit.Text = json.ToString();
-            else
-                tbEdit.Text = "There was an error getting Device JSON data";
+            Button btn = (Button)sender;
+            string cmdarg = btn.CommandArgument;
 
-            rowEdit.Visible = true;
+            if (cmdarg == "devices")
+            {
+                JObject json = Wink.getDeviceJSON();
+                if (json != null)
+                    tbEdit.Text = json.ToString();
+                else
+                    tbEdit.Text = "There was an error getting Device JSON data";
 
+                rowEdit.Visible = true;
+            }
+            else if (cmdarg == "robots")
+            {
+                JObject json = Wink.getRobotJSON();
+                if (json != null)
+                    tbEdit.Text = json.ToString();
+                else
+                    tbEdit.Text = "There was an error getting Device JSON data";
+
+                rowEdit.Visible = true;
+            }
         }
 
         protected void btnDefault_Click(object sender, EventArgs e)
@@ -115,6 +132,11 @@ namespace WinkAtHome
                 else if (sender is Button)
                 {
                     Button btn = (Button)sender;
+                    strPage = btn.CommandArgument;
+                }
+                else if (sender is LinkButton)
+                {
+                    LinkButton btn = (LinkButton)sender;
                     strPage = btn.CommandArgument;
                 }
                 else

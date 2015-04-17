@@ -36,6 +36,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <IncludeIisSettings>true</IncludeIisSettings>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AjaxControlToolkit, Version=4.1.60501.0, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e, processorArchitecture=MSIL">
@@ -78,6 +79,7 @@
     <Content Include="Controls\Shortcuts.ascx" />
     <Content Include="Controls\winkStatus.ascx" />
     <Content Include="Default.aspx" />
+    <Content Include="Global.asax" />
     <Content Include="Images\alert.png" />
     <Content Include="Images\Battery\Battery0.png" />
     <Content Include="Images\Battery\Battery100.png" />
@@ -100,23 +102,31 @@
     <Content Include="Images\Robots\robottrue.png" />
     <Content Include="Images\Robots\schedulefalse.png" />
     <Content Include="Images\Robots\scheduletrue.png" />
+    <Content Include="Images\Sensors\eggtrayfalse.png" />
+    <Content Include="Images\Sensors\eggtraytrue.png" />
+    <Content Include="Images\Sensors\hubsfalse.png" />
+    <Content Include="Images\Sensors\hubstrue.png" />
+    <Content Include="Images\Sensors\motion_sensorfalse.png" />
+    <Content Include="Images\Sensors\motion_sensortrue.png" />
     <Content Include="Images\Sensors\spotterfalse.png" />
     <Content Include="Images\Sensors\spottertrue.png" />
     <Content Include="Images\Sensors\smoke_detectorsfalse.png" />
     <Content Include="Images\Sensors\smoke_detectorstest.png" />
     <Content Include="Images\Sensors\smoke_detectorstrue.png" />
-    <Content Include="Images\Sensors\tripper\Trippercabinetfalse.png" />
-    <Content Include="Images\Sensors\tripper\Trippercabinettrue.png" />
-    <Content Include="Images\Sensors\tripper\Tripperdeckfalse.png" />
-    <Content Include="Images\Sensors\tripper\Tripperdecktrue.png" />
-    <Content Include="Images\Sensors\tripper\Tripperdoorfalse.png" />
-    <Content Include="Images\Sensors\tripper\Tripperdoortrue.png" />
-    <Content Include="Images\Sensors\tripper\Tripperwindowfalse.png" />
-    <Content Include="Images\Sensors\tripper\Tripperwindowtrue.png" />
+    <Content Include="Images\Sensors\cabinetopenfalse.png" />
+    <Content Include="Images\Sensors\cabinetopentrue.png" />
+    <Content Include="Images\Sensors\deckopenfalse.png" />
+    <Content Include="Images\Sensors\deckopentrue.png" />
+    <Content Include="Images\Sensors\dooropenfalse.png" />
+    <Content Include="Images\Sensors\dooropentrue.png" />
+    <Content Include="Images\Sensors\windowopenfalse.png" />
+    <Content Include="Images\Sensors\windowopentrue.png" />
     <Content Include="Images\Devices\wink_relaysfalse.png" />
     <Content Include="Images\Devices\wink_relaystrue.png" />
     <Content Include="Images\expand.png" />
     <Content Include="Images\loading.gif" />
+    <Content Include="Images\Sensors\wink_relaysfalse.png" />
+    <Content Include="Images\Sensors\wink_relaystrue.png" />
     <Content Include="Images\Thermostats\thermbackbig.png" />
     <Content Include="Monitor.aspx" />
     <Content Include="Devices.aspx" />
@@ -236,6 +246,9 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
     <Compile Include="Monitor.aspx.cs">
       <DependentUpon>Monitor.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -312,6 +325,9 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <Content Include="WinkAtHome.Master" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Images\Sensors\tripper\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

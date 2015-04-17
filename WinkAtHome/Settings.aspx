@@ -40,6 +40,9 @@
                             <td align="left" width="170px">
                                 <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/WinkatHome.png" Height="75px" />
                             </td>
+                            <td align="left" width="100">
+                                <asp:Label ID="lblVersion" runat="server" Text="" Font-Size="Smaller" ForeColor="White"/>
+                            </td>
                             <td align="center" style="vertical-align:middle">
                                 <asp:LinkButton ID="lbContol" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="btnDefault_Click" CommandArgument="~/Control.aspx" style="text-decoration: none;" />
                             </td>
@@ -113,7 +116,8 @@
                         <asp:TableRow>
                             <asp:TableCell ColumnSpan="3">
                                 <asp:Button ID="btnManualEdit" runat="server" Text="Manually Edit Settings" OnClick="btnManualEdit_Click" />&nbsp;
-                                <asp:Button ID="btnRawDevData" runat="server" Text="Show Raw Device Data" OnClick="btnRawDevData_Click" />&nbsp;
+                                <asp:Button ID="btnDeviceJSON" runat="server" Text="Show Raw Device Data" OnClick="btnRawDevData_Click" CommandArgument="devices" />&nbsp;
+                                <asp:Button ID="btnRobotJSON" runat="server" Text="Show Raw Robot Data" OnClick="btnRawDevData_Click" CommandArgument="robots" />&nbsp;
                                 <asp:Button ID="btnWipe" runat="server" Text="Wipe Settings" OnClick="btnWipe_Click" OnClientClick="if ( ! deleteConfirmation()) return false;" />
                             </asp:TableCell>
                         </asp:TableRow>

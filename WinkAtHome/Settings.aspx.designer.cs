@@ -40,6 +40,15 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.Image Image1;
         
         /// <summary>
+        /// lblVersion control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblVersion;
+        
+        /// <summary>
         /// lbContol control.
         /// </summary>
         /// <remarks>
@@ -148,13 +157,22 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.Button btnManualEdit;
         
         /// <summary>
-        /// btnRawDevData control.
+        /// btnDeviceJSON control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnRawDevData;
+        protected global::System.Web.UI.WebControls.Button btnDeviceJSON;
+        
+        /// <summary>
+        /// btnRobotJSON control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnRobotJSON;
         
         /// <summary>
         /// btnWipe control.
