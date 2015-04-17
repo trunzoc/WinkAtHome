@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Control.aspx" />
+    <Content Include="Controls\Device.ascx" />
     <Content Include="Controls\Devices.ascx" />
     <Content Include="Controls\Groups.ascx" />
     <Content Include="Controls\Menu.ascx" />
@@ -196,6 +197,13 @@
     </Compile>
     <Compile Include="Control.aspx.designer.cs">
       <DependentUpon>Control.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Device.ascx.cs">
+      <DependentUpon>Device.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Device.ascx.designer.cs">
+      <DependentUpon>Device.ascx</DependentUpon>
     </Compile>
     <Compile Include="Controls\Devices.ascx.cs">
       <DependentUpon>Devices.ascx</DependentUpon>

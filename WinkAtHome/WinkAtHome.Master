@@ -7,7 +7,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title><%: Page.Title %> - Wink@Home</title>
-    
     <style type="text/css">
         *
         {
@@ -27,6 +26,9 @@
     <form id="form1" runat="server">
     <div>
         <telerik:RadScriptManager ID="RadScriptManager1" runat="server"/>
+        
+        <telerik:RadAjaxManager ID="RadAjaxManager1" runat="server">
+        </telerik:RadAjaxManager>
         
         <asp:UpdateProgress ID="UpdateProgress1" runat="server">
             <ProgressTemplate>

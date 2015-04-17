@@ -254,7 +254,7 @@
                                         <asp:button id="btnShowInfo" runat="server" style="display:none;" />
 
                                         <ajaxtoolkit:ModalPopupExtender ID="mpeInfo" runat="server" PopupControlID="pnlInfo"
-                                            TargetControlID="btnShowInfo" BackgroundCssClass="modalBackground" Y="100" Drag="True" >
+                                            TargetControlID="btnShowInfo" BackgroundCssClass="modalBackground" Y="100">
                                         </ajaxtoolkit:ModalPopupExtender>
                                         <asp:Panel ID="pnlInfo" runat="server" Height="600" style="display:none">
                                             <asp:Table ID="Table6" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee">
@@ -315,11 +315,9 @@
                                                         <asp:Label ID="Label4" runat="server" Text="Item Position:" Font-Size="Small" />
                                                     </asp:TableCell>
                                                     <asp:TableCell>
-                                                        <asp:TextBox ID="tbPosition" runat="server" Width="40" CausesValidation="True" />
-                                                        <asp:Button ID="btnSetPosition" runat="server" Text="Set" OnClick="btnSetPosition_Click" CausesValidation="True" 
-                                                            CommandArgument='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' ValidationGroup="position" />
-                                                        <asp:RangeValidator ID="rangeValidator1" runat="server" ControlToValidate="tbPosition" Type="Integer" MinimumValue="1" MaximumValue="1000" ValidationGroup="position"
-                                                            ForeColor="Red" ErrorMessage="Please enter a whole number between 1 and 1000" Display="Dynamic" SetFocusOnError="true"  />
+                                                        <asp:TextBox ID="tbPosition" runat="server" />
+                                                        <asp:Button ID="btnSetPosition" runat="server" Text="Set" OnClick="btnSetPosition_Click" CommandArgument='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' />
+                                                        <asp:RangeValidator ID="RangeValidator1" runat="server" ControlToValidate="tbPosition" MinimumValue="1" MaximumValue="1000" Type="Integer" ErrorMessage="Please etner a whole number between 1 and 1000"></asp:RangeValidator>
                                                     </asp:TableCell>
                                                 </asp:TableRow>
                                                 <asp:TableRow>

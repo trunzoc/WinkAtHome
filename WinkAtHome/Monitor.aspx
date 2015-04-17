@@ -5,28 +5,24 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="cphMain" runat="server" BorderWidth="0" CellPadding="0" CellSpacing="0">
     <asp:Table ID="Table1" runat="server" Width="100%" CellPadding="0" CellSpacing="0">
-        <asp:TableRow style="padding-bottom:30px;">
-            <asp:TableCell>
+        <asp:TableRow>
+            <asp:TableCell style="padding-bottom:20px;">
                 <ucD:ucDevices ID="ucSensors" runat="server" SensorsOnly="true" />
-                <br />
             </asp:TableCell>
         </asp:TableRow>
         <asp:TableRow>
-            <asp:TableCell>
+            <asp:TableCell style="padding-bottom:20px;">
                 <ucR:ucRobots ID="ucRobots" runat="server" />
-                <br />
             </asp:TableCell>
         </asp:TableRow>
         <asp:TableRow>
-            <asp:TableCell>
+            <asp:TableCell style="padding-bottom:20px;">
                 <ucG:ucGroups ID="ucGroups" runat="server" />
-                <br />
             </asp:TableCell>
         </asp:TableRow>
         <asp:TableRow>
             <asp:TableCell>
                 <ucD:ucDevices ID="ucDevices" runat="server" ControllableOnly="true" />
-                <br />
             </asp:TableCell>
         </asp:TableRow>
     </asp:Table>

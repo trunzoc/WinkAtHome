@@ -5,7 +5,6 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Telerik.Web.UI;
@@ -18,6 +17,7 @@ namespace WinkAtHome.Controls
         public bool ControllableOnly = false;
         public string typeToShow = "all";
         public bool SensorsOnly = false;
+
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -82,6 +82,25 @@ namespace WinkAtHome.Controls
                         dl.DataBind();
                     }
                 }
+
+                //SORT
+                string displayorder = SettingMgmt.getSetting("Controllable-Display-Order");
+                if (displayorder != null)
+                {
+                    List<string> existingList = displayorder.Split(',').ToList();
+
+                    foreach (Wink.Device device in devices)
+                    {
+                        int pos = existingList.IndexOf(device.id);
+                        if (pos > -1)
+                        {
+                            device.position = pos;
+                        }
+                    }
+
+                    devices = devices.OrderBy(c => c.position).ThenBy(c => c.name).ToList();
+                }
+
             }
             else if (SensorsOnly)
             {
@@ -100,26 +119,6 @@ namespace WinkAtHome.Controls
                 devices = Wink.Devices.Where(p => p.issensor != true || p.menu_type=="hubs").ToList();
             }
 
-            //SORT
-            string displayorder = SettingMgmt.getSetting(hfSettingBase.Value + "-DisplayOrder");
-            if (displayorder != null)
-            {
-                List<string> existingList = displayorder.Split(',').ToList();
-
-                foreach (Wink.Device device in devices)
-                {
-                    int pos = existingList.IndexOf(device.id);
-                    if (pos > -1)
-                    {
-                        device.position = pos;
-                    }
-                }
-
-                devices = devices.OrderBy(c => c.position).ThenBy(c => c.name).ToList();
-            }
-
-            //rgDevices.DataSource = devices;
-            //rgDevices.DataBind();
 
             dlDevices.DataSource = devices;
             dlDevices.DataBind();
@@ -965,16 +964,19 @@ namespace WinkAtHome.Controls
             Int32 pos = 9999;
             if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
             {
-                string displayorder = SettingMgmt.getSetting(hfSettingBase.Value + "-DisplayOrder");
-                List<string> existingList = displayorder.Split(',').ToList();
-
+                List<string> existingList = new List<string>();
+                foreach (DataListItem item in dlDevices.Items)
+                {
+                    HiddenField hfDeviceID = (HiddenField)item.FindControl("hfDeviceID");
+                    existingList.Add(hfDeviceID.Value);
+                }
                 string newDevice = btn.CommandArgument;
 
                 existingList.RemoveAll(s => s == newDevice);
                 existingList.Insert(pos - 1, newDevice);
 
                 string newList = string.Join(",", existingList);
-                SettingMgmt.saveSetting(hfSettingBase.Value + "-DisplayOrder", string.Join(",", newList));
+                SettingMgmt.saveSetting("Controllable-Display-Order", string.Join(",", newList));
             }
 
             ((ModalPopupExtender)btn.NamingContainer.FindControl("mpeInfo")).Show();
