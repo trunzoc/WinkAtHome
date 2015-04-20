@@ -102,12 +102,34 @@ namespace WinkAtHome.Controls
                 if (robot.isschedule)
                     imgIcon.Enabled = false;
 
+
+                //Set Last/Next Trigger Time
                 TextBox tbName = (TextBox)e.Item.FindControl("tbName");
                 string tooltip = "Last Triggered: " + (robot.last_fired.ToString().Contains("1/1/1970") ? "Never" : robot.last_fired.ToString());
                 if (robot.isschedule)
                     tooltip += Environment.NewLine + "Next Scheduled Run: " + (robot.next_run.ToString().Contains("1/1/1970") ? "Never" : robot.next_run.ToString());
 
                 tbName.ToolTip = tooltip;
+
+                //Resize for long names
+                int i = tbName.Text.Length;
+                int rowsize = (i / 23) + 2;
+                tbName.Rows = rowsize;
+
+                //Set Alert icon
+                string alertTimeout = SettingMgmt.getSetting("Robot-Alert-Minutes-Since-Last-Trigger", true);
+                Int32 timeout = 60;
+                Int32.TryParse(alertTimeout, out timeout);
+
+                DateTime lastTrigger = Convert.ToDateTime(robot.last_fired);
+                DateTime dateAlert = DateTime.Now.AddMinutes(timeout * -1);
+
+                if (lastTrigger > dateAlert)
+                {
+                    Image imgAlert = (Image)e.Item.FindControl("imgAlert");
+                    imgAlert.Visible = true;
+                }
+
             }
         }
 

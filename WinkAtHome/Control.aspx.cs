@@ -5,12 +5,10 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-namespace WinkAtHome.Controls
+namespace WinkAtHome
 {
-    public partial class Device : System.Web.UI.UserControl
+    public partial class Control : System.Web.UI.Page
     {
-        public Wink.Device Device = new Wink.Device();
-
         protected void Page_Load(object sender, EventArgs e)
         {
 

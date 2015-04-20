@@ -332,7 +332,7 @@ namespace WinkAtHome.Controls
 
                 if (devicetype == "light_bulbs" || devicetype == "binary_switches")
                 {
-                    if (device.model.ToLower() == "outlet")
+                    if (device.model.ToLower().StartsWith("outl"))
                     {
                         string imgPath = Request.PhysicalApplicationPath + "\\Images\\Devices\\outlets" + state + ".png";
                         if (File.Exists(imgPath))
@@ -471,6 +471,8 @@ namespace WinkAtHome.Controls
             }
 
             ((Image)item.FindControl("imgAlert")).Visible = alert;
+            TableRow rowPosition = (TableRow)item.FindControl("rowPosition");
+            rowPosition.Visible = false;
         }
 
         protected void displayThermostats(DataListItem item)
@@ -977,7 +979,11 @@ namespace WinkAtHome.Controls
 
                 string newList = string.Join(",", existingList);
                 SettingMgmt.saveSetting("Controllable-Display-Order", string.Join(",", newList));
+
+                lblPositionBad.Visible = false;
             }
+            else
+                lblPositionBad.Visible = true;
 
             ((ModalPopupExtender)btn.NamingContainer.FindControl("mpeInfo")).Show();
         }

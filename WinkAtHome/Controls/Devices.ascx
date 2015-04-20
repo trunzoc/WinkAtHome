@@ -249,7 +249,7 @@
                                         <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).name %>' Font-Size="small" />
                                     </asp:TableCell>
                                     <asp:TableCell VerticalAlign="Top" HorizontalAlign="Right" Width="23" style="padding-right:3px;">
-                                        <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show Device data" OnClick="ibInfo_Click" />
+                                        <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip='<%# "Show Device data for " + ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' OnClick="ibInfo_Click" />
 
                                         <asp:button id="btnShowInfo" runat="server" style="display:none;" />
 
@@ -310,14 +310,14 @@
                                                         <asp:Textbox ID="tbJSON" runat="server" Text='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).json %>' TextMode="MultiLine" Height="150" Width="400" ReadOnly="true" />
                                                     </asp:TableCell>
                                                 </asp:TableRow>
-                                                <asp:TableRow>
+                                                <asp:TableRow ID="rowPosition">
                                                     <asp:TableCell>
                                                         <asp:Label ID="Label4" runat="server" Text="Item Position:" Font-Size="Small" />
                                                     </asp:TableCell>
                                                     <asp:TableCell>
                                                         <asp:TextBox ID="tbPosition" runat="server" />
                                                         <asp:Button ID="btnSetPosition" runat="server" Text="Set" OnClick="btnSetPosition_Click" CommandArgument='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' />
-                                                        <asp:RangeValidator ID="RangeValidator1" runat="server" ControlToValidate="tbPosition" MinimumValue="1" MaximumValue="1000" Type="Integer" ErrorMessage="Please etner a whole number between 1 and 1000"></asp:RangeValidator>
+                                                        <asp:Label ID="lblPositionBad" runat="server" Text="Please enter a whole number between 1 and 1000" ForeColor="Red" Visible="false" />
                                                     </asp:TableCell>
                                                 </asp:TableRow>
                                                 <asp:TableRow>

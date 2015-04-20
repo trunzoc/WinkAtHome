@@ -10,7 +10,7 @@ namespace WinkAtHome
 {
     public class SettingMgmt
     {
-        private static string basicSettings = "{\"winkUsername\":\"Username\",\"winkPassword\":\"Password\",\"winkClientID\":\"quirky_wink_android_app\",\"winkClientSecret\":\"e749124ad386a5a35c0ab554a4f2c045\",\"StartPage\":\"Control.aspx\",\"Hide-Empty-Robots\":\"false\",\"Hide-Empty-Groups\":\"false\"}";
+        private static string basicSettings = "{\"winkUsername\":\"Username\",\"winkPassword\":\"Password\",\"winkClientID\":\"quirky_wink_android_app\",\"winkClientSecret\":\"e749124ad386a5a35c0ab554a4f2c045\",\"StartPage\":\"Control.aspx\",\"Hide-Empty-Robots\":\"false\",\"Hide-Empty-Groups\":\"false\",\"Robot-Alert-Minutes-Since-Last-Trigger\":\"60\"}";
         public class Setting
         {
             public string key;

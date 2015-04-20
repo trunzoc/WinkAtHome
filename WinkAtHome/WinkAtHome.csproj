@@ -13,12 +13,13 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WinkAtHome</RootNamespace>
     <AssemblyName>WinkAtHome</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,28 +44,26 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLs\AjaxControlToolkit.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>DLLs\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1-beta2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
-    <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="Telerik.Web.UI, Version=2012.3.1016.40, Culture=neutral, PublicKeyToken=121fae78165ba3d4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLs\Telerik.Web.UI.dll</HintPath>
@@ -72,7 +71,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Control.aspx" />
-    <Content Include="Controls\Device.ascx" />
     <Content Include="Controls\Devices.ascx" />
     <Content Include="Controls\Groups.ascx" />
     <Content Include="Controls\Menu.ascx" />
@@ -80,7 +78,6 @@
     <Content Include="Controls\Shortcuts.ascx" />
     <Content Include="Controls\winkStatus.ascx" />
     <Content Include="Default.aspx" />
-    <Content Include="Global.asax" />
     <Content Include="Images\alert.png" />
     <Content Include="Images\Battery\Battery0.png" />
     <Content Include="Images\Battery\Battery100.png" />
@@ -97,6 +94,8 @@
     <Content Include="Images\Devices\powerstripsoutletsfalse.png" />
     <Content Include="Images\Devices\powerstripsoutletstrue.png" />
     <Content Include="Images\Devices\powerstripstrue.png" />
+    <Content Include="Images\Devices\sprinklersfalse.png" />
+    <Content Include="Images\Devices\sprinklerstrue.png" />
     <Content Include="Images\left.png" />
     <Content Include="Images\right.png" />
     <Content Include="Images\Robots\robotfalse.png" />
@@ -198,13 +197,6 @@
     <Compile Include="Control.aspx.designer.cs">
       <DependentUpon>Control.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Device.ascx.cs">
-      <DependentUpon>Device.ascx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Controls\Device.ascx.designer.cs">
-      <DependentUpon>Device.ascx</DependentUpon>
-    </Compile>
     <Compile Include="Controls\Devices.ascx.cs">
       <DependentUpon>Devices.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -253,9 +245,6 @@
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Global.asax.cs">
-      <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Monitor.aspx.cs">
       <DependentUpon>Monitor.aspx</DependentUpon>
@@ -334,9 +323,7 @@
     </None>
     <Content Include="WinkAtHome.Master" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Images\Sensors\tripper\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
