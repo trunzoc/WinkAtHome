@@ -504,6 +504,13 @@ public class Wink
                             }
                             #endregion
 
+                            //PUBNUB SUBSCRIPTIONS
+                            if (true)
+                            {
+
+                            }
+
+
                             Devices.Add(device);
                         }
                     }
