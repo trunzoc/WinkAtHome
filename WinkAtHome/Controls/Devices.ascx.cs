@@ -172,6 +172,7 @@ namespace WinkAtHome.Controls
                     lbDesiredStates.DataBind();
                 }
 
+                //Last_Readings
                 DataTable dtStatus = new DataTable();
                 dtStatus.Columns.Add("Reading Name");
                 dtStatus.Columns.Add("Last Read");
@@ -194,8 +195,6 @@ namespace WinkAtHome.Controls
                     gv.DataSource = dtStatus;
                     gv.DataBind();
                 }
-
-                string displayorder = SettingMgmt.getSetting(hfSettingBase + "-DisplayOrder");
 
                 //SET BATTERY ICON
                 if (keys.Contains("battery"))
@@ -441,6 +440,29 @@ namespace WinkAtHome.Controls
                 state = reverse.ToString().ToLower();
             }
 
+            //Sesnor_States
+            DataTable dtStatus = new DataTable();
+            dtStatus.Columns.Add("Reading Name");
+            dtStatus.Columns.Add("Last Read");
+            dtStatus.Columns.Add("Last Updated");
+            foreach (Wink.DeviceStatus stat in device.sensor_states)
+            {
+                DataRow row = dtStatus.NewRow();
+                row[0] = stat.name;
+                row[1] = stat.current_status;
+                row[2] = stat.last_updated.ToString();
+                dtStatus.Rows.Add(row);
+            }
+
+            if (dtStatus.Rows.Count > 0)
+            {
+                TableRow rowLastReadings = (TableRow)item.FindControl("rowSensorStates");
+                rowLastReadings.Visible = true;
+
+                GridView gv = (GridView)item.FindControl("gvSensorStates");
+                gv.DataSource = dtStatus;
+                gv.DataBind();
+            }
 
             double dblTest;
             if (device.sensortripped == "true")

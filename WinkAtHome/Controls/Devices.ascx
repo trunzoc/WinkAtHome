@@ -35,6 +35,9 @@
 
                                         <asp:Table ID="tblDefault" runat="server" Visible="false" Height="100%">
                                             <asp:TableRow>
+                                                <asp:TableCell VerticalAlign="Top">
+                                                    <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/update.png" Width="25" Visible='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).update_needed %>' style="position:relative; left:20px;" />
+                                                </asp:TableCell>
                                                 <asp:TableCell VerticalAlign="Bottom">
                                                     <asp:Image ID="imgBattery" runat="server" ImageUrl="~/Images/Battery/Battery0.png" Width="15" Visible="false" style="position:relative; left:15px;" onmouseover="this.style.cursor='Help'" onmouseout="this.style.cursor='default'" />
                                                 </asp:TableCell>
@@ -279,12 +282,26 @@
                                                     </asp:TableCell>
                                                 </asp:TableRow>
 
+                                                <asp:TableRow ID="rowSensorStates" Visible='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).sensor_states.Count > 0 %>'>
+                                                    <asp:TableCell VerticalAlign="Top">
+                                                        <asp:Label ID="Label5" runat="server" Text="Sensor States:" Font-Size="Small" />
+                                                    </asp:TableCell>
+                                                    <asp:TableCell>
+                                                        <asp:Panel ID="Panel2" runat="server" ScrollBars="Vertical" BorderWidth="1">
+                                                            <asp:GridView ID="gvSensorStates" runat="server">
+                                                                <HeaderStyle Font-Size="Small" />
+                                                                <RowStyle Font-Size="Small" />
+                                                            </asp:GridView>
+                                                        </asp:Panel>                                                        
+                                                    </asp:TableCell>
+                                                </asp:TableRow>
+
                                                 <asp:TableRow ID="rowLastReadings" Visible="false">
                                                     <asp:TableCell VerticalAlign="Top">
                                                         <asp:Label ID="Label3" runat="server" Text="Last Readings:" Font-Size="Small" />
                                                     </asp:TableCell>
                                                     <asp:TableCell>
-                                                        <asp:Panel ID="Panel1" runat="server" Height="150" ScrollBars="Vertical" BorderWidth="1">
+                                                        <asp:Panel ID="Panel1" runat="server" ScrollBars="Vertical" BorderWidth="1">
                                                             <asp:GridView ID="gvLastReadings" runat="server">
                                                                 <HeaderStyle Font-Size="Small" />
                                                                 <RowStyle Font-Size="Small" />

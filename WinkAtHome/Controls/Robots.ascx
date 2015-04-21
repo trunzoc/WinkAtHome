@@ -89,7 +89,7 @@
                                 <asp:TableRow>
                                     <asp:TableCell HorizontalAlign="Center" ColumnSpan="2">
                                         <asp:TextBox ID="tbName" runat="server" Text='<%# ((Wink.Robot)((IDataItemContainer)Container).DataItem).name %>' Font-Size="small" TextMode="MultiLine" Wrap="true"
-                                             Enabled="false" Width="150" ForeColor="Black" style="border:0px; text-align:center; overflow:hidden" BackColor="Transparent" />
+                                             Enabled="false" Width="125" ForeColor="Black" style="border:0px; text-align:center; overflow:hidden" BackColor="Transparent" />
                                     </asp:TableCell>
                                 </asp:TableRow>
                             </asp:Table>
