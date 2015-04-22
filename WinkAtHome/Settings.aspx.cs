@@ -12,12 +12,12 @@ namespace WinkAtHome
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (SettingMgmt.getSetting("winkUsername",true).ToLower() == "username" || SettingMgmt.getSetting("winkPassword",true) == "password")
+            if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword") == "password")
             {
                 lblMessage.Text = "You must set your Username and Password before you can continue.";
                 lblMessage.ForeColor = System.Drawing.Color.Red;
             }
-            else if (Session["loggedin"] == null || SettingMgmt.getSetting("winkUsername",true) != Common.Decrypt(Session["loggedin"].ToString()))
+            else if (Session["loggedin"] == null || SettingMgmt.getSetting("winkUsername") != Common.Decrypt(Session["loggedin"].ToString()))
             {
                 Response.Redirect("~/Login.aspx");
             }

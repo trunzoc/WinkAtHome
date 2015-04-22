@@ -117,7 +117,7 @@ namespace WinkAtHome.Controls
                 tbName.Rows = rowsize;
 
                 //Set Alert icon
-                string alertTimeout = SettingMgmt.getSetting("Robot-Alert-Minutes-Since-Last-Trigger", true);
+                string alertTimeout = SettingMgmt.getSetting("Robot-Alert-Minutes-Since-Last-Trigger");
                 Int32 timeout = 60;
                 Int32.TryParse(alertTimeout, out timeout);
 

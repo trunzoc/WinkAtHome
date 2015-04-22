@@ -11,7 +11,7 @@ namespace WinkAtHome
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (SettingMgmt.getSetting("winkUsername",true).ToLower() == "username" || SettingMgmt.getSetting("winkPassword", true).ToLower() == "password")
+            if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password")
             {
                 Response.Redirect("~/Settings.aspx");
             }
@@ -20,7 +20,7 @@ namespace WinkAtHome
                 HttpCookie aCookie = Request.Cookies["login"];
                 if (aCookie != null)
                 {
-                    if (SettingMgmt.getSetting("winkUsername",true) == Common.Decrypt(aCookie.Value))
+                    if (SettingMgmt.getSetting("winkUsername") == Common.Decrypt(aCookie.Value))
                     {
                         Session["loggedin"] = aCookie.Value;
                         Response.Redirect("~/Default.aspx");
@@ -31,9 +31,9 @@ namespace WinkAtHome
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            if (tbUsername.Text.ToLower() == SettingMgmt.getSetting("winkUsername",true).ToLower() && tbPassword.Text == SettingMgmt.getSetting("winkPassword",true))
+            if (tbUsername.Text.ToLower() == SettingMgmt.getSetting("winkUsername").ToLower() && tbPassword.Text == SettingMgmt.getSetting("winkPassword"))
             {
-                Session["loggedin"] = Common.Encrypt(SettingMgmt.getSetting("winkUsername",true));
+                Session["loggedin"] = Common.Encrypt(SettingMgmt.getSetting("winkUsername"));
 
                 if (cbRemember.Checked)
                 {

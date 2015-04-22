@@ -49,6 +49,10 @@
       <HintPath>..\packages\Newtonsoft.Json.7.0.1-beta2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.SQLite, Version=1.0.96.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLs\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.DynamicData" />
@@ -78,6 +82,10 @@
     <Content Include="Controls\Shortcuts.ascx" />
     <Content Include="Controls\winkStatus.ascx" />
     <Content Include="Default.aspx" />
+    <Content Include="DLLs\System.Data.SQLite.dll" />
+    <Content Include="DLLs\System.Data.SQLite.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\alert.png" />
     <Content Include="Images\Battery\Battery0.png" />
     <Content Include="Images\Battery\Battery100.png" />
@@ -128,6 +136,7 @@
     <Content Include="Images\Sensors\wink_relaysfalse.png" />
     <Content Include="Images\Sensors\wink_relaystrue.png" />
     <Content Include="Images\Thermostats\thermbackbig.png" />
+    <Content Include="Images\update.png" />
     <Content Include="Monitor.aspx" />
     <Content Include="Devices.aspx" />
     <Content Include="DLLs\AjaxControlToolkit.dll" />

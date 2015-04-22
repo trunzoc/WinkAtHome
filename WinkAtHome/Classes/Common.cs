@@ -1,16 +1,29 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
-using System.Reflection;
+using System.Data.SQLite;
+using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Reflection;
-using System.Reflection.Emit;
+using System.Web;
 
 namespace WinkAtHome
 {
     public class Common
     {
+        public static string dbPath = HttpContext.Current.Request.PhysicalApplicationPath + "WinkAtHome.sqlite";
+
+        public class twofer : Tuple<string, bool>
+        {
+            public twofer(string value, bool isEncrypted)
+                : base(value, isEncrypted)
+            {
+            }
+        }
+
+
         public static DateTime FromUnixTime(string unixTime)
         {
             Double longTime;
@@ -83,6 +96,107 @@ namespace WinkAtHome
         public static double FromFahrenheitToCelsius(double f)
         {
             return Math.Round((5.0 / 9.0) * (f - 32), 2);
+        }
+
+        public static void prepareDatabase()
+        {
+            //Create DB File If it doesn't already exist
+            if (!System.IO.File.Exists(dbPath))
+            {
+                SQLiteConnection.CreateFile(dbPath);
+            }
+
+            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+            {
+                connection.Open();
+
+                //PREPARE SETTINGS TABLE
+                //CREATE TABLE
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = "CREATE TABLE IF NOT EXISTS Settings(Name VARCHAR PRIMARY KEY NOT NULL ON CONFLICT REPLACE, Value VARCHAR, DefaultValue VARCHAR, IsEncrypted BOOL DEFAULT false);";
+                    command.ExecuteNonQuery();
+                }
+
+                //INSERT DEFAULT SETTINGS
+                Dictionary<string, twofer> basicSettings = new Dictionary<string, twofer>();
+                basicSettings.Add("winkUsername", (new twofer("Username", true)));
+                basicSettings.Add("winkPassword", (new twofer("Password", true)));
+                basicSettings.Add("winkClientID", (new twofer("quirky_wink_android_app", true)));
+                basicSettings.Add("winkClientSecret", (new twofer("e749124ad386a5a35c0ab554a4f2c045", true)));
+                basicSettings.Add("PubNub-PublishKey", (new twofer("PubNub-PublishKey", true)));
+                basicSettings.Add("PubNub-SubscribeKey", (new twofer("PubNub-SubscribeKey", true)));
+                basicSettings.Add("PubNub-SecretKey", (new twofer("PubNub-SecretKey", true)));
+                basicSettings.Add("StartPage", (new twofer("Control.aspx", false)));
+                basicSettings.Add("Hide-Empty-Robots", (new twofer("false", false)));
+                basicSettings.Add("Hide-Empty-Groups", (new twofer("false", false)));
+                basicSettings.Add("Robot-Alert-Minutes-Since-Last-Trigger", (new twofer("60", false)));
+
+                foreach (KeyValuePair<string,twofer> pair in basicSettings)
+                {
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText = "UPDATE Settings SET DefaultValue=@defaultvalue, IsEncrypted=@isEncypted WHERE name = @name;";
+                        command.Parameters.Add(new SQLiteParameter("@name", pair.Key));
+                        command.Parameters.Add(new SQLiteParameter("@defaultvalue", pair.Value.Item1));
+                        command.Parameters.Add(new SQLiteParameter("@isEncypted", pair.Value.Item2));
+                        command.ExecuteNonQuery();
+
+                        command.CommandText = "INSERT OR IGNORE INTO Settings(Name,DefaultValue,IsEncrypted) VALUES (@name,@defaultvalue,@isEncypted)";
+                        command.ExecuteNonQuery();
+                    }
+                }
+
+
+                //PREPARE DEVICES TABLE
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = "CREATE TABLE IF NOT EXISTS Devices(DeviceID VARCHAR PRIMARY KEY NOT NULL ON CONFLICT REPLACE, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, Position SMALLINT DEFAULT 1001);";
+                    command.ExecuteNonQuery();
+                }
+
+                connection.Close();
+                connection.Dispose();
+            }
+
+            
+            //MOVE SETTINGS.TXT TO DB
+            if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt"))
+            {
+                string text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt");
+                string decrypedFile = Common.Decrypt(text);
+
+                JObject json = JObject.Parse(decrypedFile);
+
+                foreach (var jo in json)
+                {
+                    if (jo.Key == "Controllable-Display-Order")
+                    {
+                        List<string> existingList = jo.Value.ToString().Split(',').ToList();
+
+                        foreach (string ID in existingList)
+                        {
+                            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                            {
+                                connection.Open();
+
+                                using (SQLiteCommand command = new SQLiteCommand(connection))
+                                {
+
+                                    command.CommandText = "INSERT INTO Devices (DeviceID, Position) VALUES (@ID,@Position)";
+                                    command.Parameters.Add(new SQLiteParameter("@ID", ID));
+                                    command.Parameters.Add(new SQLiteParameter("@Position", existingList.IndexOf(ID) + 1));
+                                    command.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    }
+                    else
+                        SettingMgmt.saveSetting(jo.Key, jo.Value.ToString());
+                }
+
+                File.Move(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt", AppDomain.CurrentDomain.BaseDirectory + "Settings.txt_Converted");
+            }
         }
     }
 }

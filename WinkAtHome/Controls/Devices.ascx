@@ -259,7 +259,7 @@
                                         <ajaxtoolkit:ModalPopupExtender ID="mpeInfo" runat="server" PopupControlID="pnlInfo"
                                             TargetControlID="btnShowInfo" BackgroundCssClass="modalBackground" Y="100">
                                         </ajaxtoolkit:ModalPopupExtender>
-                                        <asp:Panel ID="pnlInfo" runat="server" Height="600" style="display:none">
+                                        <asp:Panel ID="pnlInfo" runat="server" Height="500" style="display:none">
                                             <asp:Table ID="Table6" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee">
                                                 <asp:TableRow>
                                                     <asp:TableCell ColumnSpan="2">
@@ -325,6 +325,15 @@
                                                     </asp:TableCell>
                                                     <asp:TableCell HorizontalAlign="Left">
                                                         <asp:Textbox ID="tbJSON" runat="server" Text='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).json %>' TextMode="MultiLine" Height="150" Width="400" ReadOnly="true" />
+                                                    </asp:TableCell>
+                                                </asp:TableRow>
+                                                <asp:TableRow ID="rowDisplayName">
+                                                    <asp:TableCell>
+                                                        <asp:Label ID="lblDisplayName" runat="server" Text="Display Name:" Font-Size="Small" />
+                                                    </asp:TableCell>
+                                                    <asp:TableCell>
+                                                        <asp:TextBox ID="tbDisplayName" runat="server" />
+                                                        <asp:Button ID="btnDisplayName" runat="server" Text="Set" OnClick="btnDisplayName_Click" CommandArgument='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' />
                                                     </asp:TableCell>
                                                 </asp:TableRow>
                                                 <asp:TableRow ID="rowPosition">

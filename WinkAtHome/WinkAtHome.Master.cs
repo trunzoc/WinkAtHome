@@ -13,7 +13,7 @@ namespace WinkAtHome
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (SettingMgmt.getSetting("winkUsername", true).ToLower() == "username" || SettingMgmt.getSetting("winkPassword", true) == "password" || Session["loggedin"] == null || (Session["loggedin"] != null && SettingMgmt.getSetting("winkUsername", true) != Common.Decrypt(Session["loggedin"].ToString())))
+            if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword") == "password" || Session["loggedin"] == null || (Session["loggedin"] != null && SettingMgmt.getSetting("winkUsername") != Common.Decrypt(Session["loggedin"].ToString())))
             {
                 Response.Redirect("~/Login.aspx");
             }
@@ -22,7 +22,7 @@ namespace WinkAtHome
             {
                 lblRefreshed.Text = DateTime.Now.ToString();
                 //CHECK SECURITY/SETTINGS VALIDITY
-                if (SettingMgmt.getSetting("winkUsername",true).ToLower() == "username" || SettingMgmt.getSetting("winkPassword",true).ToLower() == "password")
+                if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password")
                     HttpContext.Current.Response.Redirect("~/Settings.aspx");
 
                 //SET PAGE OPTIONS

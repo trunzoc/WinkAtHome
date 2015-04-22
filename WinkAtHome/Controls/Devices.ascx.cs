@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SQLite;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace WinkAtHome.Controls
 {
     public partial class Devices : System.Web.UI.UserControl
     {
+        private static string dbPath = Common.dbPath;
+
         public bool ControllableOnly = false;
         public string typeToShow = "all";
         public bool SensorsOnly = false;
@@ -82,25 +85,6 @@ namespace WinkAtHome.Controls
                         dl.DataBind();
                     }
                 }
-
-                //SORT
-                string displayorder = SettingMgmt.getSetting("Controllable-Display-Order");
-                if (displayorder != null)
-                {
-                    List<string> existingList = displayorder.Split(',').ToList();
-
-                    foreach (Wink.Device device in devices)
-                    {
-                        int pos = existingList.IndexOf(device.id);
-                        if (pos > -1)
-                        {
-                            device.position = pos;
-                        }
-                    }
-
-                    devices = devices.OrderBy(c => c.position).ThenBy(c => c.name).ToList();
-                }
-
             }
             else if (SensorsOnly)
             {
@@ -119,6 +103,7 @@ namespace WinkAtHome.Controls
                 devices = Wink.Devices.Where(p => p.issensor != true || p.menu_type=="hubs").ToList();
             }
 
+            devices = devices.OrderBy(c => c.position).ThenBy(c => c.name).ToList();
 
             dlDevices.DataSource = devices;
             dlDevices.DataBind();
@@ -135,7 +120,7 @@ namespace WinkAtHome.Controls
                 hfDeviceID.Value = device.id;
 
                 TextBox tbPosition = (TextBox)e.Item.FindControl("tbPosition");
-                tbPosition.Text = device.position == 9999? "":(device.position +1).ToString();
+                tbPosition.Text = device.position > 1000? "":(device.position).ToString();
 
 
                 List<Wink.DeviceStatus> status = device.status;
@@ -163,14 +148,14 @@ namespace WinkAtHome.Controls
                     dlProperties.DataBind();
                 }
 
-                if (device.desired_states.Count > 0)
-                {
-                    TableRow row = (TableRow)e.Item.FindControl("rowDesiredStates");
-                    row.Visible = true;
-                    ListBox lbDesiredStates = (ListBox)e.Item.FindControl("lbDesiredStates");
-                    lbDesiredStates.DataSource = device.desired_states;
-                    lbDesiredStates.DataBind();
-                }
+                //if (device.desired_states.Count > 0)
+                //{
+                //    TableRow row = (TableRow)e.Item.FindControl("rowDesiredStates");
+                //    row.Visible = true;
+                //    ListBox lbDesiredStates = (ListBox)e.Item.FindControl("lbDesiredStates");
+                //    lbDesiredStates.DataSource = device.desired_states;
+                //    lbDesiredStates.DataBind();
+                //}
 
                 //Last_Readings
                 DataTable dtStatus = new DataTable();
@@ -186,15 +171,15 @@ namespace WinkAtHome.Controls
                     dtStatus.Rows.Add(row);
                 }
                 
-                if (dtStatus.Rows.Count > 0)
-                {
-                    TableRow rowLastReadings = (TableRow)e.Item.FindControl("rowLastReadings");
-                    rowLastReadings.Visible = true;
+                //if (dtStatus.Rows.Count > 0)
+                //{
+                //    TableRow rowLastReadings = (TableRow)e.Item.FindControl("rowLastReadings");
+                //    rowLastReadings.Visible = true;
 
-                    GridView gv = (GridView)e.Item.FindControl("gvLastReadings");
-                    gv.DataSource = dtStatus;
-                    gv.DataBind();
-                }
+                //    GridView gv = (GridView)e.Item.FindControl("gvLastReadings");
+                //    gv.DataSource = dtStatus;
+                //    gv.DataBind();
+                //}
 
                 //SET BATTERY ICON
                 if (keys.Contains("battery"))
@@ -456,8 +441,8 @@ namespace WinkAtHome.Controls
 
             if (dtStatus.Rows.Count > 0)
             {
-                TableRow rowLastReadings = (TableRow)item.FindControl("rowSensorStates");
-                rowLastReadings.Visible = true;
+                TableRow rowSensorStates = (TableRow)item.FindControl("rowSensorStates");
+                rowSensorStates.Visible = true;
 
                 GridView gv = (GridView)item.FindControl("gvSensorStates");
                 gv.DataSource = dtStatus;
@@ -999,13 +984,54 @@ namespace WinkAtHome.Controls
                 existingList.RemoveAll(s => s == newDevice);
                 existingList.Insert(pos - 1, newDevice);
 
-                string newList = string.Join(",", existingList);
-                SettingMgmt.saveSetting("Controllable-Display-Order", string.Join(",", newList));
+                foreach (string deviceID in existingList)
+                {
+                    using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                    {
+                        connection.Open();
+
+                        using (SQLiteCommand command = new SQLiteCommand(connection))
+                        {
+                            command.CommandText = "UPDATE Devices SET position=@Position WHERE DeviceID = @ID;";
+                            command.Parameters.Add(new SQLiteParameter("@ID", deviceID));
+                            command.Parameters.Add(new SQLiteParameter("@Position", existingList.IndexOf(deviceID) + 1));
+                            command.ExecuteNonQuery();
+
+                            command.CommandText = "INSERT OR IGNORE INTO Devices (DeviceID, position) VALUES (@ID, @Position);";
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
 
                 lblPositionBad.Visible = false;
             }
             else
                 lblPositionBad.Visible = true;
+
+            ((ModalPopupExtender)btn.NamingContainer.FindControl("mpeInfo")).Show();
+        }
+
+        protected void btnDisplayName_Click(object sender, EventArgs e)
+        {
+            Button btn = (Button)sender;
+            TextBox tbDisplayName = (TextBox)btn.NamingContainer.FindControl("tbDisplayName");
+            string deviceID = btn.CommandArgument;
+
+            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+            {
+                connection.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = "UPDATE Devices SET displayname=@displayname WHERE DeviceID = @ID;";
+                    command.Parameters.Add(new SQLiteParameter("@ID", deviceID));
+                    command.Parameters.Add(new SQLiteParameter("@displayname", tbDisplayName.Text));
+                    command.ExecuteNonQuery();
+
+                    command.CommandText = "INSERT OR IGNORE INTO Devices (DeviceID, displayname) VALUES (@ID, @displayname);";
+                    command.ExecuteNonQuery();
+                }
+            }
 
             ((ModalPopupExtender)btn.NamingContainer.FindControl("mpeInfo")).Show();
         }
