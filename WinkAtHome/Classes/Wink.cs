@@ -511,6 +511,22 @@ public class Wink
 
                             Devices.Add(device);
                             
+                            //UPDATE DEVICE DB
+                            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                            {
+                                connection.Open();
+
+                                using (SQLiteCommand command = new SQLiteCommand(connection))
+                                {
+                                    command.CommandText = "UPDATE Devices SET name=@name WHERE DeviceID = @ID;";
+                                    command.Parameters.Add(new SQLiteParameter("@ID", device.id));
+                                    command.Parameters.Add(new SQLiteParameter("@name", device.name));
+                                    command.ExecuteNonQuery();
+
+                                    command.CommandText = "INSERT OR IGNORE INTO Devices (DeviceID, name) VALUES (@ID, @name);";
+                                    command.ExecuteNonQuery();
+                                }
+                            }
                         }
                     }
                 }
@@ -542,34 +558,56 @@ public class Wink
                         }
                     }
                 }
+                if (string.IsNullOrWhiteSpace(device.displayName))
+                    device.displayName=device.name;
+
+                #region PUBNUB SUBSCRIPTIONS
+                if (!(String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-PublishKey")) ||
+                    String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-SubscribeKey")) ||
+                    String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-SecretKey"))))
+                {
+                    if (string.IsNullOrWhiteSpace(device.subscriptionTopic) || DateTime.Now > device.subscriptionExpires)
+                    {
+                        string URL = ConfigurationManager.AppSettings["winkRootURL"] + device.type + "/" + device.id + "/subscriptions";
+                        string sendCommand = "{\"publisher_key\":\"" + SettingMgmt.getSetting("PubNub-PublishKey") + "\",\"subscriber_key\":\"" + SettingMgmt.getSetting("PubNub-SubscribeKey") + "\"}";
+                        JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
+                        string la = URL + sendCommand;
+                        if (subJSON != null)
+                        {
+                            if (subJSON["data"] != null)
+                            {
+                                if (subJSON["data"]["topic"] != null)
+                                    device.subscriptionTopic = subJSON["data"]["topic"].ToString();
+
+                                if (subJSON["data"]["expires_at"] != null)
+                                    device.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
+
+                                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                                {
+
+                                    connection.Open();
+                                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                                    {
+                                        command.CommandText = "UPDATE Devices SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires WHERE DeviceID = @ID;";
+                                        command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", device.subscriptionTopic));
+                                        command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", device.subscriptionExpires));
+                                        command.Parameters.Add(new SQLiteParameter("@ID", device.id));
+                                        command.ExecuteNonQuery();
+
+                                        command.CommandText = "INSERT OR IGNORE INTO Devices(DeviceID,subscriptionTopic,subscriptionExpires) VALUES (@ID,@subscriptionTopic,@subscriptionExpires)";
+                                        command.ExecuteNonQuery();
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                #endregion
             }
             #endregion
 
 
-            //PUBNUB SUBSCRIPTIONS
-            //if (!(SettingMgmt.getSetting("PubNub-PublishKey",true).ToLower() == "pubnub-publishKey" ||
-            //    SettingMgmt.getSetting("PubNub-SubscribeKey",true).ToLower() == "pubnub-subscribeKey" ||
-            //    SettingMgmt.getSetting("PubNub-SecretKey",true).ToLower() == "pubnub-secretKey"))
-            //{
-            //    if (string.IsNullOrWhiteSpace(device.subscriptionTopic) || DateTime.Now > device.subscriptionExpires)
-            //    {
-            //        string URL = ConfigurationManager.AppSettings["winkRootURL"] + device.type + "/" + device.id + "/subscriptions";
-            //        string sendCommand = "{\"publisher_key\":\"" + SettingMgmt.getSetting("PubNub-PublishKey", true) + "\",\"subscriber_key\":\"" + SettingMgmt.getSetting("PubNub-SubscribeKey", true) + "\"}";
-            //        JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
-            //        string la = URL + sendCommand;
-            //        if (subJSON != null)
-            //        {
-            //            if (subJSON["data"] != null)
-            //            {
-            //                if (subJSON["data"]["topic"] != null)
-            //                    device.subscriptionTopic = subJSON["data"]["topic"].ToString();
-
-            //                if (subJSON["data"]["expires_at"] != null)
-            //                    device.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString()); ;
-            //            }
-            //        }
-            //    }
-            //}
 
 
             return _devices;

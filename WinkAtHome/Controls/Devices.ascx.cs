@@ -74,17 +74,19 @@ namespace WinkAtHome.Controls
             {
                 lblHeader.Text = "Devices: Controllable Only";
                 devices = Wink.Devices.Where(p => p.iscontrollable == true).ToList();
-                UserControl ucSensors = (UserControl)Page.Master.FindControl("cphMain").FindControl("ucSensors");
-                if (ucSensors != null)
-                {
-                    DataList dl = (DataList)ucSensors.FindControl("dlDevices");
-                    if (dl != null)
-                    {
-                        List<Wink.Device> sensordevices = Wink.Devices.Where(p => p.issensor == true).ToList();
-                        dl.DataSource = sensordevices;
-                        dl.DataBind();
-                    }
-                }
+
+                //UserControl ucSensors = (UserControl)Page.Master.FindControl("cphMain").FindControl("ucSensors");
+                //if (ucSensors != null)
+                //{
+                //    DataList dl = (DataList)ucSensors.FindControl("dlDevices");
+                //    if (dl != null)
+                //    {
+                //        List<Wink.Device> sensordevices = Wink.Devices.Where(p => p.issensor == true).ToList();
+                //        sensordevices = sensordevices.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
+                //        dl.DataSource = sensordevices;
+                //        dl.DataBind();
+                //    }
+                //}
             }
             else if (SensorsOnly)
             {
@@ -103,7 +105,7 @@ namespace WinkAtHome.Controls
                 devices = Wink.Devices.Where(p => p.issensor != true || p.menu_type=="hubs").ToList();
             }
 
-            devices = devices.OrderBy(c => c.position).ThenBy(c => c.name).ToList();
+            devices = devices.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
 
             dlDevices.DataSource = devices;
             dlDevices.DataBind();
@@ -415,7 +417,6 @@ namespace WinkAtHome.Controls
             List<Wink.DeviceStatus> status = device.status;
             IList<string> keys = status.Select(p => p.name).ToList();
             string state = string.Empty;
-            string degree = "n/a";
 
             if (keys.Contains("connection"))
             {
@@ -478,8 +479,6 @@ namespace WinkAtHome.Controls
             }
 
             ((Image)item.FindControl("imgAlert")).Visible = alert;
-            TableRow rowPosition = (TableRow)item.FindControl("rowPosition");
-            rowPosition.Visible = false;
         }
 
         protected void displayThermostats(DataListItem item)
@@ -969,45 +968,48 @@ namespace WinkAtHome.Controls
             Button btn = (Button)sender;
             TextBox tbPosition = (TextBox)btn.NamingContainer.FindControl("tbPosition");
             Label lblPositionBad = (Label)btn.NamingContainer.FindControl("lblPositionBad");
+            Wink.Device device = Wink.Device.getDeviceByID(btn.CommandArgument);
 
-            Int32 pos = 9999;
-            if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
+            if (device != null)
             {
-                List<string> existingList = new List<string>();
-                foreach (DataListItem item in dlDevices.Items)
+                Int32 pos = 9999;
+                if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
                 {
-                    HiddenField hfDeviceID = (HiddenField)item.FindControl("hfDeviceID");
-                    existingList.Add(hfDeviceID.Value);
-                }
-                string newDevice = btn.CommandArgument;
-
-                existingList.RemoveAll(s => s == newDevice);
-                existingList.Insert(pos - 1, newDevice);
-
-                foreach (string deviceID in existingList)
-                {
-                    using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                    List<string> existingList = new List<string>();
+                    foreach (DataListItem item in dlDevices.Items)
                     {
-                        connection.Open();
+                        HiddenField hfDeviceID = (HiddenField)item.FindControl("hfDeviceID");
+                        existingList.Add(hfDeviceID.Value);
+                    }
+                    string newDevice = device.id;
 
-                        using (SQLiteCommand command = new SQLiteCommand(connection))
+                    existingList.RemoveAll(s => s == newDevice);
+                    existingList.Insert(pos - 1, newDevice);
+
+                    foreach (string deviceID in existingList)
+                    {
+                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
                         {
-                            command.CommandText = "UPDATE Devices SET position=@Position WHERE DeviceID = @ID;";
-                            command.Parameters.Add(new SQLiteParameter("@ID", deviceID));
-                            command.Parameters.Add(new SQLiteParameter("@Position", existingList.IndexOf(deviceID) + 1));
-                            command.ExecuteNonQuery();
+                            connection.Open();
 
-                            command.CommandText = "INSERT OR IGNORE INTO Devices (DeviceID, position) VALUES (@ID, @Position);";
-                            command.ExecuteNonQuery();
+                            using (SQLiteCommand command = new SQLiteCommand(connection))
+                            {
+                                command.CommandText = "UPDATE Devices SET position=@Position WHERE DeviceID = @ID;";
+                                command.Parameters.Add(new SQLiteParameter("@ID", deviceID));
+                                command.Parameters.Add(new SQLiteParameter("@Position", existingList.IndexOf(deviceID) + 1));
+                                command.ExecuteNonQuery();
+
+                                command.CommandText = "INSERT OR IGNORE INTO Devices (DeviceID, position) VALUES (@ID, @Position);";
+                                command.ExecuteNonQuery();
+                            }
                         }
                     }
+
+                    lblPositionBad.Visible = false;
                 }
-
-                lblPositionBad.Visible = false;
+                else
+                    lblPositionBad.Visible = true;
             }
-            else
-                lblPositionBad.Visible = true;
-
             ((ModalPopupExtender)btn.NamingContainer.FindControl("mpeInfo")).Show();
         }
 
@@ -1015,24 +1017,28 @@ namespace WinkAtHome.Controls
         {
             Button btn = (Button)sender;
             TextBox tbDisplayName = (TextBox)btn.NamingContainer.FindControl("tbDisplayName");
-            string deviceID = btn.CommandArgument;
+            Wink.Device device = Wink.Device.getDeviceByID(btn.CommandArgument);
 
-            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+            if (device != null)
             {
-                connection.Open();
+                string deviceID = device.id;
 
-                using (SQLiteCommand command = new SQLiteCommand(connection))
+                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
                 {
-                    command.CommandText = "UPDATE Devices SET displayname=@displayname WHERE DeviceID = @ID;";
-                    command.Parameters.Add(new SQLiteParameter("@ID", deviceID));
-                    command.Parameters.Add(new SQLiteParameter("@displayname", tbDisplayName.Text));
-                    command.ExecuteNonQuery();
+                    connection.Open();
 
-                    command.CommandText = "INSERT OR IGNORE INTO Devices (DeviceID, displayname) VALUES (@ID, @displayname);";
-                    command.ExecuteNonQuery();
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText = "UPDATE Devices SET displayname=@displayname WHERE DeviceID = @ID;";
+                        command.Parameters.Add(new SQLiteParameter("@ID", deviceID));
+                        command.Parameters.Add(new SQLiteParameter("@displayname", tbDisplayName.Text));
+                        command.ExecuteNonQuery();
+
+                        command.CommandText = "INSERT OR IGNORE INTO Devices (DeviceID, displayname) VALUES (@ID, @displayname);";
+                        command.ExecuteNonQuery();
+                    }
                 }
             }
-
             ((ModalPopupExtender)btn.NamingContainer.FindControl("mpeInfo")).Show();
         }
     }

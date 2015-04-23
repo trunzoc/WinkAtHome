@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
@@ -124,9 +125,9 @@ namespace WinkAtHome
                 basicSettings.Add("winkPassword", (new twofer("Password", true)));
                 basicSettings.Add("winkClientID", (new twofer("quirky_wink_android_app", true)));
                 basicSettings.Add("winkClientSecret", (new twofer("e749124ad386a5a35c0ab554a4f2c045", true)));
-                basicSettings.Add("PubNub-PublishKey", (new twofer("PubNub-PublishKey", true)));
-                basicSettings.Add("PubNub-SubscribeKey", (new twofer("PubNub-SubscribeKey", true)));
-                basicSettings.Add("PubNub-SecretKey", (new twofer("PubNub-SecretKey", true)));
+                basicSettings.Add("PubNub-PublishKey", (new twofer(null, true)));
+                basicSettings.Add("PubNub-SubscribeKey", (new twofer(null, true)));
+                basicSettings.Add("PubNub-SecretKey", (new twofer(null, true)));
                 basicSettings.Add("StartPage", (new twofer("Control.aspx", false)));
                 basicSettings.Add("Hide-Empty-Robots", (new twofer("false", false)));
                 basicSettings.Add("Hide-Empty-Groups", (new twofer("false", false)));
@@ -147,12 +148,28 @@ namespace WinkAtHome
                     }
                 }
 
-
                 //PREPARE DEVICES TABLE
                 using (SQLiteCommand command = new SQLiteCommand(connection))
                 {
-                    command.CommandText = "CREATE TABLE IF NOT EXISTS Devices(DeviceID VARCHAR PRIMARY KEY NOT NULL ON CONFLICT REPLACE, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, Position SMALLINT DEFAULT 1001);";
+                    command.CommandText = "CREATE TABLE IF NOT EXISTS Devices(DeviceID VARCHAR PRIMARY KEY NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, Position SMALLINT DEFAULT 1001);";
                     command.ExecuteNonQuery();
+                }
+
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = "PRAGMA table_info(Devices);";
+                    SQLiteDataAdapter da = new SQLiteDataAdapter(command);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    DataRow[] foundRows;
+                    foundRows = dt.Select("name = 'Name'");
+
+                    if (foundRows.Length == 0)
+                    {
+                        command.CommandText = "ALTER TABLE Devices ADD COLUMN Name VARCHAR;";
+                        command.ExecuteNonQuery();
+                    }
                 }
 
                 connection.Close();

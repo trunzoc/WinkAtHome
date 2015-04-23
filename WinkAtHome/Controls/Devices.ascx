@@ -249,7 +249,7 @@
                                 </asp:TableRow>
                                 <asp:TableRow>
                                     <asp:TableCell HorizontalAlign="Center" VerticalAlign="Middle" style="padding-bottom:30px">
-                                        <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).name %>' Font-Size="small" />
+                                        <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).displayName %>' Font-Size="small" />
                                     </asp:TableCell>
                                     <asp:TableCell VerticalAlign="Top" HorizontalAlign="Right" Width="23" style="padding-right:3px;">
                                         <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip='<%# "Show Device data for " + ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' OnClick="ibInfo_Click" />
