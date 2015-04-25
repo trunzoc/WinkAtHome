@@ -94,6 +94,7 @@ public class Wink
         public bool update_needed { get; set; }
 
         public string json;
+        public bool subscriptionCapable = true;
         public string subscriptionTopic;
         public DateTime subscriptionExpires;
         public int position = 1001;
@@ -168,8 +169,10 @@ public class Wink
     {
         try
         {
+            bool firstRun = false;
             if (_devices == null)
             {
+                firstRun = true;
                 JObject json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetAllDevicesURL"]);
 
                 List<Device> Devices = new List<Device>();
@@ -195,6 +198,7 @@ public class Wink
 
                             device.id = data[typeName] != null ? data[typeName].ToString() : "error: typeName";
                             device.name = data["name"] != null ? data["name"].ToString() : "error: name";
+                            device.displayName = device.name;
                             device.type = data[typeName] != null ? typeName.Replace("_id", "s").Replace("switchs", "switches") : "error: type";
                             device.menu_type = device.type;
 
@@ -547,68 +551,95 @@ public class Wink
                         SQLiteDataReader reader = command.ExecuteReader();
                         while (reader.Read())
                         {
-                            device.displayName = reader["DisplayName"].ToString();
                             device.position = Convert.ToInt32(reader["Position"].ToString());
+
+                            string subCapable = reader["subscriptionCapable"].ToString();
+                            device.subscriptionCapable = Convert.ToBoolean(subCapable);
                             device.subscriptionTopic = reader["SubscriptionTopic"].ToString();
 
                             DateTime expires = new DateTime();
                             string date = reader["SubscriptionExpires"].ToString();
                             DateTime.TryParse(date, out expires);
                             device.subscriptionExpires = Convert.ToDateTime(expires);
+
+                            if (!string.IsNullOrWhiteSpace(reader["DisplayName"].ToString()))
+                                device.displayName = reader["DisplayName"].ToString();
                         }
                     }
                 }
-                if (string.IsNullOrWhiteSpace(device.displayName))
-                    device.displayName=device.name;
+            }
+            #endregion
 
-                #region PUBNUB SUBSCRIPTIONS
-                if (!(String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-PublishKey")) ||
-                    String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-SubscribeKey")) ||
-                    String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-SecretKey"))))
+            #region PUBNUB SUBSCRIPTIONS
+            if (!(String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-PublishKey"))
+                || String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-SubscribeKey"))
+                || String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-SecretKey"))))
+            {
+                foreach (Device device in _devices)
                 {
                     if (string.IsNullOrWhiteSpace(device.subscriptionTopic) || DateTime.Now > device.subscriptionExpires)
                     {
-                        string URL = ConfigurationManager.AppSettings["winkRootURL"] + device.type + "/" + device.id + "/subscriptions";
-                        string sendCommand = "{\"publisher_key\":\"" + SettingMgmt.getSetting("PubNub-PublishKey") + "\",\"subscriber_key\":\"" + SettingMgmt.getSetting("PubNub-SubscribeKey") + "\"}";
-                        JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
-                        string la = URL + sendCommand;
-                        if (subJSON != null)
+                        if (device.subscriptionCapable || firstRun)
                         {
-                            if (subJSON["data"] != null)
+                            string URL = ConfigurationManager.AppSettings["winkRootURL"] + device.type + "/" + device.id + "/subscriptions";
+                            string sendCommand = "{\"publisher_key\":\"" + SettingMgmt.getSetting("PubNub-PublishKey") + "\",\"subscriber_key\":\"" + SettingMgmt.getSetting("PubNub-SubscribeKey") + "\"}";
+                            JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
+                            string la = URL + sendCommand;
+                            if (subJSON != null)
                             {
-                                if (subJSON["data"]["topic"] != null)
-                                    device.subscriptionTopic = subJSON["data"]["topic"].ToString();
-
-                                if (subJSON["data"]["expires_at"] != null)
-                                    device.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
-
-                                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                                if (subJSON.ToString().Contains("404") && !firstRun)
                                 {
-
-                                    connection.Open();
-                                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                                    using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
                                     {
-                                        command.CommandText = "UPDATE Devices SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires WHERE DeviceID = @ID;";
-                                        command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", device.subscriptionTopic));
-                                        command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", device.subscriptionExpires));
-                                        command.Parameters.Add(new SQLiteParameter("@ID", device.id));
-                                        command.ExecuteNonQuery();
 
-                                        command.CommandText = "INSERT OR IGNORE INTO Devices(DeviceID,subscriptionTopic,subscriptionExpires) VALUES (@ID,@subscriptionTopic,@subscriptionExpires)";
-                                        command.ExecuteNonQuery();
+                                        connection.Open();
+                                        using (SQLiteCommand command = new SQLiteCommand(connection))
+                                        {
+                                            command.CommandText = "UPDATE Devices SET subscriptionCapable='0' WHERE DeviceID = @ID;";
+                                            command.Parameters.Add(new SQLiteParameter("@ID", device.id));
+                                            command.ExecuteNonQuery();
 
+                                            command.CommandText = "INSERT OR IGNORE INTO Devices(DeviceID,subscriptionCapable) VALUES (@ID,'0')";
+                                            command.ExecuteNonQuery();
+
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (subJSON["data"] != null)
+                                    {
+                                        if (subJSON["data"]["topic"] != null)
+                                            device.subscriptionTopic = subJSON["data"]["topic"].ToString();
+
+                                        if (subJSON["data"]["expires_at"] != null)
+                                            device.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
+
+                                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                                        {
+
+                                            connection.Open();
+                                            using (SQLiteCommand command = new SQLiteCommand(connection))
+                                            {
+                                                command.CommandText = "UPDATE Devices SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE DeviceID = @ID;";
+                                                command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", device.subscriptionTopic));
+                                                command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", device.subscriptionExpires));
+                                                command.Parameters.Add(new SQLiteParameter("@ID", device.id));
+                                                command.ExecuteNonQuery();
+
+                                                command.CommandText = "INSERT OR IGNORE INTO Devices(DeviceID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@ID,@subscriptionTopic,@subscriptionExpires,'1')";
+                                                command.ExecuteNonQuery();
+
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-                #endregion
             }
             #endregion
-
-
-
 
             return _devices;
         }
@@ -689,6 +720,8 @@ public class Wink
         public string name { get; set; }
         [SimpleProperty]
         public string json { get; set; }
+        public string subscriptionTopic;
+        public DateTime subscriptionExpires;
         public List<ShortcutMember> members = new List<ShortcutMember>();
 
         public static Shortcut getShortcutByID(string ShortcutID)
@@ -844,6 +877,8 @@ public class Wink
         public string json { get; set; }
         [SimpleProperty]
         public bool isempty { get; set; }
+        public string subscriptionTopic;
+        public DateTime subscriptionExpires;
         public List<GroupMember> members = new List<GroupMember>();
         public List<GroupStatus> status = new List<GroupStatus>();
 
@@ -1034,6 +1069,8 @@ public class Wink
         public DateTime next_run { get; set; }
         [SimpleProperty]
         public string json { get; set; }
+        public string subscriptionTopic;
+        public DateTime subscriptionExpires;
         public List<string> members = new List<string>();
         public static Robot getRobotByID(string RobotID)
         {
@@ -1191,9 +1228,11 @@ public class Wink
         _groups = null;
         _robots = null;
     }
-    public static void reloadWink()
+    public static void reloadWink(bool clearFirst = true)
     {
-        clearWink();
+        if (clearFirst)
+            clearWink();
+
         winkGetDevices();
         winkGetShortcuts();
         winkGetGroups();
@@ -1306,9 +1345,11 @@ public class Wink
                 }
             }
         }
-        catch
+        catch (Exception e)
         {
-
+            string ex = e.Message;
+            if (ex.Contains("404"))
+                return JObject.Parse("{\"error\":404}");
         }
         return null;
     }
@@ -1339,9 +1380,10 @@ public class Wink
 
         return device;
     }
-    private static Device getLast_Readings(Device device, JObject readings)
+    public static Device getLast_Readings(Device device, JObject readings)
     {
         List<DeviceStatus> states = new List<DeviceStatus>();
+        device.status = new List<DeviceStatus>();
 
         if (readings != null)
         {
@@ -1366,5 +1408,30 @@ public class Wink
         }
 
         return device;
+    }
+    public static string getSubscriptionTopics()
+    {
+        string subTopics = string.Empty;
+        foreach (Device device in Devices)
+        {
+            if (!string.IsNullOrWhiteSpace(device.subscriptionTopic))
+                subTopics += "," + device.subscriptionTopic;
+        }
+        foreach (Robot robot in Robots)
+        {
+            if (!string.IsNullOrWhiteSpace(robot.subscriptionTopic))
+                subTopics += "," + robot.subscriptionTopic;
+        }
+        foreach (Shortcut shortcut in Shortcuts)
+        {
+            if (!string.IsNullOrWhiteSpace(shortcut.subscriptionTopic))
+                subTopics += "," + shortcut.subscriptionTopic;
+        }
+        foreach (Group group in Groups)
+        {
+            if (!string.IsNullOrWhiteSpace(group.subscriptionTopic))
+                subTopics += "," + group.subscriptionTopic;
+        }
+        return subTopics.Substring(1);
     }
 }

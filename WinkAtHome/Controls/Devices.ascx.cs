@@ -15,12 +15,57 @@ namespace WinkAtHome.Controls
 {
     public partial class Devices : System.Web.UI.UserControl
     {
-        private static string dbPath = Common.dbPath;
+        private string dbPath = Common.dbPath;
 
-        public bool ControllableOnly = false;
-        public string typeToShow = "all";
-        public bool SensorsOnly = false;
-
+        [PersistenceMode(PersistenceMode.Attribute)]
+        public string typeToShow
+        {
+            get
+            {
+                object o = ViewState["typeToShow"];
+                if (o != null)
+                {
+                    return (string)o;
+                }
+                return "all";
+            }
+            set
+            {
+                ViewState["typeToShow"] = value;
+            }
+        }
+        public bool ControllableOnly
+        {
+            get
+            {
+                object o = ViewState["ControllableOnly"];
+                if (o != null)
+                {
+                    return (bool)o;
+                }
+                return false;
+            }
+            set
+            {
+                ViewState["ControllableOnly"] = value;
+            }
+        }
+        public bool SensorsOnly
+        {
+            get
+            {
+                object o = ViewState["SensorsOnly"];
+                if (o != null)
+                {
+                    return (bool)o;
+                }
+                return false;
+            }
+            set
+            {
+                ViewState["SensorsOnly"] = value;
+            }
+        }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -74,19 +119,6 @@ namespace WinkAtHome.Controls
             {
                 lblHeader.Text = "Devices: Controllable Only";
                 devices = Wink.Devices.Where(p => p.iscontrollable == true).ToList();
-
-                //UserControl ucSensors = (UserControl)Page.Master.FindControl("cphMain").FindControl("ucSensors");
-                //if (ucSensors != null)
-                //{
-                //    DataList dl = (DataList)ucSensors.FindControl("dlDevices");
-                //    if (dl != null)
-                //    {
-                //        List<Wink.Device> sensordevices = Wink.Devices.Where(p => p.issensor == true).ToList();
-                //        sensordevices = sensordevices.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
-                //        dl.DataSource = sensordevices;
-                //        dl.DataBind();
-                //    }
-                //}
             }
             else if (SensorsOnly)
             {
@@ -150,15 +182,6 @@ namespace WinkAtHome.Controls
                     dlProperties.DataBind();
                 }
 
-                //if (device.desired_states.Count > 0)
-                //{
-                //    TableRow row = (TableRow)e.Item.FindControl("rowDesiredStates");
-                //    row.Visible = true;
-                //    ListBox lbDesiredStates = (ListBox)e.Item.FindControl("lbDesiredStates");
-                //    lbDesiredStates.DataSource = device.desired_states;
-                //    lbDesiredStates.DataBind();
-                //}
-
                 //Last_Readings
                 DataTable dtStatus = new DataTable();
                 dtStatus.Columns.Add("Reading Name");
@@ -182,6 +205,16 @@ namespace WinkAtHome.Controls
                 //    gv.DataSource = dtStatus;
                 //    gv.DataBind();
                 //}
+
+                //if (device.desired_states.Count > 0)
+                //{
+                //    TableRow row = (TableRow)e.Item.FindControl("rowDesiredStates");
+                //    row.Visible = true;
+                //    ListBox lbDesiredStates = (ListBox)e.Item.FindControl("lbDesiredStates");
+                //    lbDesiredStates.DataSource = device.desired_states;
+                //    lbDesiredStates.DataBind();
+                //}
+
 
                 //SET BATTERY ICON
                 if (keys.Contains("battery"))

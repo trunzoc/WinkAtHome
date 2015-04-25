@@ -63,10 +63,10 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Telerik.Web.UI, Version=2012.3.1016.40, Culture=neutral, PublicKeyToken=121fae78165ba3d4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -191,13 +191,14 @@
     <Content Include="Login.aspx" />
     <Content Include="Settings.aspx" />
     <Content Include="Shortcuts.aspx" />
-    <Content Include="UpdateWink.aspx" />
+    <Content Include="PubNubDisplay.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Common.cs" />
+    <Compile Include="Classes\PubNubSocket.cs" />
     <Compile Include="Classes\SettingMgmt.cs" />
     <Compile Include="Control.aspx.cs">
       <DependentUpon>Control.aspx</DependentUpon>
@@ -277,6 +278,13 @@
       <DependentUpon>Groups.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PubNub\ClientNetworkStatus.cs" />
+    <Compile Include="PubNub\LoggingMethod.cs" />
+    <Compile Include="PubNub\MD5.cs" />
+    <Compile Include="PubNub\Pubnub.cs" />
+    <Compile Include="PubNub\PubnubCore.cs" />
+    <Compile Include="PubNub\PubnubWin.cs" />
+    <Compile Include="PubNub\ReconnectState.cs" />
     <Compile Include="Robots.aspx.cs">
       <DependentUpon>Robots.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -305,12 +313,12 @@
     <Compile Include="Shortcuts.aspx.designer.cs">
       <DependentUpon>Shortcuts.aspx</DependentUpon>
     </Compile>
-    <Compile Include="UpdateWink.aspx.cs">
-      <DependentUpon>UpdateWink.aspx</DependentUpon>
+    <Compile Include="PubNubDisplay.aspx.cs">
+      <DependentUpon>PubNubDisplay.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="UpdateWink.aspx.designer.cs">
-      <DependentUpon>UpdateWink.aspx</DependentUpon>
+    <Compile Include="PubNubDisplay.aspx.designer.cs">
+      <DependentUpon>PubNubDisplay.aspx</DependentUpon>
     </Compile>
     <Compile Include="Classes\Wink.cs" />
     <Compile Include="WinkAtHome.Master.cs">

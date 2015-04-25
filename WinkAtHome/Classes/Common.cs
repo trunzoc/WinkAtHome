@@ -170,6 +170,14 @@ namespace WinkAtHome
                         command.CommandText = "ALTER TABLE Devices ADD COLUMN Name VARCHAR;";
                         command.ExecuteNonQuery();
                     }
+
+                    foundRows = dt.Select("name = 'subscriptionCapable'");
+
+                    if (foundRows.Length == 0)
+                    {
+                        command.CommandText = "ALTER TABLE Devices ADD COLUMN subscriptionCapable BOOLEAN NOT NULL DEFAULT 0;";
+                        command.ExecuteNonQuery();
+                    }
                 }
 
                 connection.Close();

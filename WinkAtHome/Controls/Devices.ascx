@@ -21,7 +21,7 @@
             <asp:DataList ID="dlDevices" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" OnItemDataBound="dlDevices_ItemDataBound" Width="100%">
                 <ItemStyle Width="200" Height="100px" HorizontalAlign="Center" VerticalAlign="Top" />
                 <ItemTemplate>
-                    <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
+                    <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true" OnUnload="UpdatePanel_Unload">
                         <ContentTemplate>
 
                             <asp:HiddenField ID="hfMainCommand" runat="server" />
@@ -118,7 +118,7 @@
 
                                                     <asp:Panel ID="pnlThermostats" runat="server" Width="250" Height="350" BorderWidth="1"  style="display:none" BackColor="#eeeeee">
                                                         <br />
-                                                        <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true" >
+                                                        <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true" OnUnload="UpdatePanel_Unload" >
                                                             <Triggers>
                                                                 <asp:PostBackTrigger ControlID="lbCancelThermostat"/>
                                                             </Triggers>

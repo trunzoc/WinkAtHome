@@ -6,11 +6,15 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using Telerik.Web.UI;
 using System.Reflection;
+using System.Collections.Concurrent;
+using PubNubMessaging.Core;
+using Newtonsoft.Json.Linq;
 
 namespace WinkAtHome
 {
     public partial class WinkAtHome : System.Web.UI.MasterPage
     {
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword") == "password" || Session["loggedin"] == null || (Session["loggedin"] != null && SettingMgmt.getSetting("winkUsername") != Common.Decrypt(Session["loggedin"].ToString())))
@@ -23,7 +27,7 @@ namespace WinkAtHome
                 lblRefreshed.Text = DateTime.Now.ToString();
                 //CHECK SECURITY/SETTINGS VALIDITY
                 if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password")
-                    HttpContext.Current.Response.Redirect("~/Settings.aspx");
+                    Response.Redirect("~/Settings.aspx");
 
                 //SET PAGE OPTIONS
                 string timerrefresh = SettingMgmt.getSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
@@ -55,31 +59,16 @@ namespace WinkAtHome
                     }
 
                     cellMenu.BackColor = tblExpand.Visible ? System.Drawing.ColorTranslator.FromHtml("#eeeeee") : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
-
                 }
             }
-        }
-
-        protected void lbControl_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("~/Control.aspx");
         }
 
         protected void tmrRefresh_Tick(object sender, EventArgs e)
         {
             tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
 
-            string modalshowing = "false";
-            if (Session["modalshowing"] != null)
-                modalshowing = Session["modalshowing"].ToString();
-
-            if (modalshowing == "false")
-            {
-                Wink.reloadWink();
-                Response.Redirect(Request.RawUrl);
-            }
+            reload();
         }
-
         protected void tbTimer_TextChanged(object sender, EventArgs e)
         {
             tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
@@ -104,11 +93,6 @@ namespace WinkAtHome
             Session.Abandon();
 
             Response.Redirect("~/Login.aspx");
-        }
-
-        protected void lbMonitor_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("~/Monitor.aspx");
         }
 
         protected void ibExpand_Click(object sender, EventArgs e)
@@ -147,11 +131,24 @@ namespace WinkAtHome
 
             Response.Redirect(Request.RawUrl);
         }
-
-        protected void lbSettings_Click(object sender, EventArgs e)
+        public void reload()
         {
-            Response.Redirect("~/Settings.aspx");
-        }
+            try
+            {
+                string modalshowing = "false";
+                if (Session["modalshowing"] != null)
+                    modalshowing = Session["modalshowing"].ToString();
 
+                if (modalshowing == "false")
+                {
+                    Wink.reloadWink();
+                    Response.Redirect(Request.RawUrl);
+                }
+            }
+            catch (Exception e)
+            {
+                string message = e.Message;
+            }
+        }
     }
 }

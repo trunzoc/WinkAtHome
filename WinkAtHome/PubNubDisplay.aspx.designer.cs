@@ -10,51 +10,51 @@
 namespace WinkAtHome {
     
     
-    public partial class Monitor {
+    public partial class PubNubDisplay {
         
         /// <summary>
-        /// Table1 control.
+        /// form1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Table Table1;
+        protected global::System.Web.UI.HtmlControls.HtmlForm form1;
         
         /// <summary>
-        /// ucSesnors control.
+        /// ScriptManager1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::WinkAtHome.Controls.Devices ucSesnors;
+        protected global::System.Web.UI.ScriptManager ScriptManager1;
         
         /// <summary>
-        /// ucRobots control.
+        /// UpdatePanelRight control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::WinkAtHome.Controls.Robots ucRobots;
+        protected global::System.Web.UI.UpdatePanel UpdatePanelRight;
         
         /// <summary>
-        /// ucGroups control.
+        /// txtMessage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::WinkAtHome.Controls.Groups ucGroups;
+        protected global::System.Web.UI.WebControls.TextBox txtMessage;
         
         /// <summary>
-        /// ucDevices control.
+        /// UpdateTimer control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::WinkAtHome.Controls.Devices ucDevices;
+        protected global::System.Web.UI.Timer UpdateTimer;
     }
 }

@@ -7,7 +7,7 @@
     <asp:Table ID="Table1" runat="server" Width="100%" CellPadding="0" CellSpacing="0">
         <asp:TableRow>
             <asp:TableCell style="padding-bottom:20px;">
-                <ucD:ucDevices ID="ucSensors" runat="server" SensorsOnly="true" />
+                <ucD:ucDevices ID="ucSesnors" runat="server" ControllableOnly="true" />
             </asp:TableCell>
         </asp:TableRow>
         <asp:TableRow>

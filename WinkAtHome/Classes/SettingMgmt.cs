@@ -95,28 +95,25 @@ namespace WinkAtHome
             try
             {
                 Setting setting = Settings.SingleOrDefault(s => s.key == key);
-                if (setting != null)
+                string newValue = (setting != null && setting.isEncrypted) ? Common.Encrypt(value) : value;
+                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
                 {
-                    string newValue = setting.isEncrypted ? Common.Encrypt(value) : value;
-                    using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+
+                    connection.Open();
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
+                        command.CommandText = "UPDATE Settings SET Value=@value WHERE name = @name;";
+                        command.Parameters.Add(new SQLiteParameter("@name", key));
+                        command.Parameters.Add(new SQLiteParameter("@value", newValue));
+                        command.ExecuteNonQuery();
 
-                        connection.Open();
-                        using (SQLiteCommand command = new SQLiteCommand(connection))
-                        {
-                            command.CommandText = "UPDATE Settings SET Value=@value WHERE name = @name;";
-                            command.Parameters.Add(new SQLiteParameter("@name", key));
-                            command.Parameters.Add(new SQLiteParameter("@value", newValue)); 
-                            command.ExecuteNonQuery();
+                        command.CommandText = "INSERT OR IGNORE INTO Settings(Name,Value) VALUES (@name,@value)";
+                        command.ExecuteNonQuery();
 
-                            command.CommandText = "INSERT OR IGNORE INTO Settings(Name,Value) VALUES (@name,@value)";
-                            command.ExecuteNonQuery();
-
-                        }
                     }
-
-                    loadSettings(true);
                 }
+
+                loadSettings(true);
             }
             catch (Exception e)
             {
