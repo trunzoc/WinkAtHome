@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -11,11 +12,20 @@ namespace WinkAtHome
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            string startpage = SettingMgmt.getSetting("StartPage",true);
-            if (startpage == null)
-                startpage = "Control.aspx";
+            try
+            {
+                Common.prepareDatabase();
 
-            Response.Redirect("~/" + startpage);
+                string startpage = SettingMgmt.getSetting("StartPage");
+                if (string.IsNullOrWhiteSpace(startpage))
+                    startpage = "Control.aspx";
+
+                Response.Redirect("~/" + startpage);
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Default.Page_Load", ex.Message, EventLogEntryType.Error);
+            }
         }
     }
 }

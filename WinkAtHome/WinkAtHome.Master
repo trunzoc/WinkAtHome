@@ -30,7 +30,7 @@
         <telerik:RadAjaxManager ID="RadAjaxManager1" runat="server">
         </telerik:RadAjaxManager>
         
-        <asp:UpdateProgress ID="UpdateProgress1" runat="server">
+        <asp:UpdateProgress ID="UpdateProgress1" runat="server" AssociatedUpdatePanelID="UpdatePanel2">
             <ProgressTemplate>
                 <div style="position: fixed; text-align: center; height: 100%; width: 100%; top: 0; right: 0; left: 0; z-index: 9999999; background-color: #000000; opacity: 0.7;">
                     <asp:Image ID="imgUpdateProgress" runat="server" ImageUrl="~/images/loading.gif" AlternateText="Loading ..." ToolTip="Loading ..." style="padding: 10px;" />
@@ -38,7 +38,16 @@
             </ProgressTemplate>
         </asp:UpdateProgress>
 
-        <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+        <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Always" >
+            <Triggers>
+                <asp:AsyncPostBackTrigger ControlID="tmrCheckChanges" />
+            </Triggers>
+            <ContentTemplate>
+                <asp:Timer ID="tmrCheckChanges" runat="server" Interval="5000" OnTick="tmrCheckChanges_Tick"></asp:Timer>
+            </ContentTemplate>
+        </asp:UpdatePanel>
+
+        <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
             <ContentTemplate>
 
                 <asp:Table ID="Table1" runat="server" CellPadding="0" CellSpacing="0" Width="100%">
@@ -50,10 +59,10 @@
                                         <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/WinkatHome.png" Height="75px" />
                                     </td>
                                     <td align="center" style="vertical-align:middle">
-                                        <asp:LinkButton ID="lbControl" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbControl_Click" style="text-decoration: none;" />
+                                        <asp:LinkButton ID="lbControl" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" PostBackUrl="~/Control.aspx" style="text-decoration: none;" />
                                     </td>
                                     <td align="center" style="vertical-align:middle">
-                                        <asp:LinkButton ID="lbMonitor" runat="server" Text="MONITOR" ForeColor="White" Font-Size="X-Large" Font-Bold="true" OnClick="lbMonitor_Click" style="text-decoration: none;" />
+                                        <asp:LinkButton ID="lbMonitor" runat="server" Text="MONITOR" ForeColor="White" Font-Size="X-Large" Font-Bold="true" PostBackUrl="~/Monitor.aspx" style="text-decoration: none;" />
                                     </td>
                                     <td align="right" width="200">
                                         <table>
@@ -65,7 +74,7 @@
                                             <tr>
                                                 <td align="right">
                                                     <asp:Timer ID="tmrRefresh" runat="server" OnTick="tmrRefresh_Tick" Interval="300000" />
-                                                </td>
+                                               </td>
                                             </tr>
                                             <tr>
                                                 <td colspan="2">
@@ -167,19 +176,19 @@
                                 </asp:TableHeaderRow>
                                 <asp:TableHeaderRow>
                                     <asp:TableHeaderCell VerticalAlign="Middle" HorizontalAlign="Center">
-                                        <asp:LinkButton ID="lbSettings" runat="server" Text="SETTINGS" ForeColor="White" Font-Size="X-Large" Font-Bold="true" Height="200"  OnClick="lbSettings_Click" 
+                                        <asp:LinkButton ID="lbSettings" runat="server" Text="SETTINGS" ForeColor="White" Font-Size="X-Large" Font-Bold="true" Height="200"  PostBackUrl="~/Settings.aspx" 
                                             style="-ms-writing-mode: tb-rl; -webkit-writing-mode: vertical-rl;-moz-writing-mode: vertical-rl;-ms-writing-mode: vertical-rl;writing-mode: vertical-rl;text-decoration:none;"/>
                                     </asp:TableHeaderCell>
                                 </asp:TableHeaderRow>
                             </asp:Table>                    
                        </asp:TableCell>
                         <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top" BorderColor="#22b9ec">
-                            <asp:ContentPlaceHolder ID="cphMain" runat="server" />
+                                    <asp:ContentPlaceHolder ID="cphMain" runat="server" />
                         </asp:TableCell>
                     </asp:TableRow>
                 </asp:Table>
             </ContentTemplate>
-        </asp:UpdatePanel> 
+        </asp:UpdatePanel>
     </div>
     </form>
 </body>

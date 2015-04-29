@@ -2,6 +2,7 @@
 <%@ Register Src="~/Controls/Devices.ascx" TagName="ucDevices" TagPrefix="ucD" %>
 <%@ Register Src="~/Controls/Groups.ascx" TagName="ucGroups" TagPrefix="ucG" %>
 <%@ Register Src="~/Controls/Robots.ascx" TagName="ucRobots" TagPrefix="ucR" %>
+<%@ Register Src="~/Controls/PubNubDisplay.ascx" TagName="ucPubNub" TagPrefix="ucP" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="cphMain" runat="server" BorderWidth="0" CellPadding="0" CellSpacing="0">
     <asp:Table ID="Table1" runat="server" Width="100%" CellPadding="0" CellSpacing="0">
@@ -23,6 +24,11 @@
         <asp:TableRow>
             <asp:TableCell>
                 <ucD:ucDevices ID="ucDevices" runat="server" ControllableOnly="true" />
+            </asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow ID="rowPubNub" Visible='<%# PubNub.hasPubNub %>'>
+            <asp:TableCell>
+                <ucP:ucPubNub ID="ucPubNub" runat="server" />
             </asp:TableCell>
         </asp:TableRow>
     </asp:Table>

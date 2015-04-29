@@ -112,13 +112,22 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.Label lblMessage;
         
         /// <summary>
-        /// dlSettings control.
+        /// dlRequiredSettings control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DataList dlSettings;
+        protected global::System.Web.UI.WebControls.DataList dlRequiredSettings;
+        
+        /// <summary>
+        /// dlAdditionalSettings control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DataList dlAdditionalSettings;
         
         /// <summary>
         /// btnSave control.
@@ -137,6 +146,51 @@ namespace WinkAtHome {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnDefault;
+        
+        /// <summary>
+        /// Label3 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label3;
+        
+        /// <summary>
+        /// Label2 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label2;
+        
+        /// <summary>
+        /// tbVersion control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox tbVersion;
+        
+        /// <summary>
+        /// lblDBPath control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblDBPath;
+        
+        /// <summary>
+        /// tbDBPath control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox tbDBPath;
         
         /// <summary>
         /// Label1 control.
@@ -184,13 +238,13 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.Button btnWipe;
         
         /// <summary>
-        /// rowEdit control.
+        /// rowEditText control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TableRow rowEdit;
+        protected global::System.Web.UI.WebControls.TableRow rowEditText;
         
         /// <summary>
         /// tbEdit control.
@@ -200,6 +254,15 @@ namespace WinkAtHome {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox tbEdit;
+        
+        /// <summary>
+        /// rowEditButton control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowEditButton;
         
         /// <summary>
         /// btnSaveEdit control.

@@ -1,6 +1,7 @@
 ﻿using AjaxControlToolkit;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Web;
@@ -17,8 +18,6 @@ namespace WinkAtHome.Controls
             hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Groups-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
             if (!IsPostBack)
             {
-                BindData();
-
                 string columns = SettingMgmt.getSetting(hfSettingBase.Value + "-Columns");
                 if (columns != null)
                     tbColumns.Text = columns;
@@ -29,7 +28,18 @@ namespace WinkAtHome.Controls
                     bool visible = true;
                     bool.TryParse(dataVisible, out visible);
                     rowData.Visible = visible;
+                    cbShow.Checked = visible;
                 }
+
+                string hideEmpty = SettingMgmt.getSetting("Hide-Empty-Groups").ToLower();
+                if (hideEmpty != null)
+                {
+                    bool visible = true;
+                    bool.TryParse(hideEmpty, out visible);
+                    cbHideEmpty.Checked = visible;
+                }
+
+                BindData();
             }
         }
 
@@ -47,6 +57,8 @@ namespace WinkAtHome.Controls
             else
                 groups = Wink.Groups;
 
+            groups = groups.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
+
             dlGroups.DataSource = groups;
             dlGroups.DataBind();
         }
@@ -61,6 +73,13 @@ namespace WinkAtHome.Controls
                 HiddenField hfMainCommand = (HiddenField)e.Item.FindControl("hfMainCommand");
                 HiddenField hfCurrentStatus = (HiddenField)e.Item.FindControl("hfCurrentStatus");
                 HiddenField hfLevelCommand = (HiddenField)e.Item.FindControl("hfLevelCommand");
+
+                TextBox tbPosition = (TextBox)e.Item.FindControl("tbPosition");
+                tbPosition.Text = group.position > 1000 ? "" : (group.position).ToString();
+
+                TextBox tbDisplayName = (TextBox)e.Item.FindControl("tbDisplayName");
+                tbDisplayName.Text = group.displayName;
+
 
                 //BIND INFO BUTTON
                 var props = typeof(Wink.Group).GetProperties();
@@ -86,14 +105,14 @@ namespace WinkAtHome.Controls
 
 
 
-                List<Wink.GroupStatus> status = group.status;
+                List<Wink.Group.GroupStatus> status = group.status;
                 IList<string> keys = status.Select(p => p.name).ToList();
                 bool state = false;
                 string degree = "n/a";
 
                 if (keys.Contains("powered") || keys.Contains("locked"))
                 {
-                    Wink.GroupStatus stat = status.Single(p => p.name == "powered" || p.name == "locked");
+                    Wink.Group.GroupStatus stat = status.Single(p => p.name == "powered" || p.name == "locked");
 
 
                     bool stateisbool = bool.TryParse(stat.current_status, out state);
@@ -106,7 +125,7 @@ namespace WinkAtHome.Controls
 
                 if (keys.Contains("brightness") || keys.Contains("position"))
                 {
-                    Wink.GroupStatus stat = status.Single(p => p.name == "brightness" || p.name == "position");
+                    Wink.Group.GroupStatus stat = status.Single(p => p.name == "brightness" || p.name == "position");
                     degree = Math.Round(Convert.ToDouble(stat.current_status) * 100).ToString();
                     hfLevelCommand.Value = stat.name;
                 }
@@ -150,7 +169,7 @@ namespace WinkAtHome.Controls
                 newlevelcommand = ",\"brightness\":" + newlevel;
 
             command = "{\"desired_state\": {\"" + hfMainCommand.Value + "\":" + newstate + newlevelcommand + "}}";
-            Wink.sendGroupCommand(groupID, command);
+            Wink.Group.sendGroupCommand(groupID, command);
 
             updateStuff(groupID, hfMainCommand.Value, newstate, hfLevelCommand.Value, newlevel);
         }
@@ -158,7 +177,7 @@ namespace WinkAtHome.Controls
         protected void rsBrightness_ValueChanged(object sender, EventArgs e)
         {
             RadSlider rs = (RadSlider)sender;
-            DataListItem li = (DataListItem)rs.Parent;
+            DataListItem li = (DataListItem)rs.NamingContainer;
             ImageButton ib = (ImageButton)li.FindControl("imgIcon"); ;
             string groupID = ib.CommandArgument;
             string command = string.Empty;
@@ -171,7 +190,7 @@ namespace WinkAtHome.Controls
             string newstate = newlevel == 0 ? "false" : "true";
 
             command = "{\"desired_state\": {\"" + hfMainCommand.Value + "\":" + newstate + ",\"" + hfLevelCommand.Value + "\":" + newlevel + "}}";
-            Wink.sendGroupCommand(groupID, command);
+            Wink.Group.sendGroupCommand(groupID, command);
 
             updateStuff(groupID, hfMainCommand.Value, newstate, hfLevelCommand.Value, newlevel.ToString());
         }
@@ -179,23 +198,23 @@ namespace WinkAtHome.Controls
         protected void updateStuff(string groupID, string maincommand, string newstate, string levelcommand, string newlevel = "")
         {
             Wink.Group group = Wink.Group.getGroupByID(groupID);
-            Wink.GroupStatus status = group.status.Single(p => p.name == maincommand);
+            Wink.Group.GroupStatus status = group.status.Single(p => p.name == maincommand);
             status.current_status = newstate == "true" ? "1" : "0";
 
-            Wink.GroupStatus statuslvl = group.status.SingleOrDefault(p => p.name == levelcommand);
+            Wink.Group.GroupStatus statuslvl = group.status.SingleOrDefault(p => p.name == levelcommand);
             if (statuslvl != null)
                 statuslvl.current_status = newlevel;
 
-            foreach (Wink.GroupMember member in group.members)
+            foreach (Wink.Group.GroupMember member in group.members)
             {
                 Wink.Device device = Wink.Device.getDeviceByID(member.id);
                 if (device != null)
                 {
-                    Wink.DeviceStatus devstatp = device.status.SingleOrDefault(p => p.name == maincommand);
+                    Wink.Device.DeviceStatus devstatp = device.status.SingleOrDefault(p => p.name == maincommand);
                     if (devstatp != null)
                         devstatp.current_status = newstate;
 
-                    Wink.DeviceStatus devstatd = device.status.SingleOrDefault(p => p.name == levelcommand);
+                    Wink.Device.DeviceStatus devstatd = device.status.SingleOrDefault(p => p.name == levelcommand);
                     if (devstatd != null)
                         devstatd.current_status = newlevel;
                 }
@@ -204,15 +223,27 @@ namespace WinkAtHome.Controls
             Response.Redirect(Request.RawUrl);
         }
 
-        protected void tbColumns_TextChanged(object sender, EventArgs e)
+        protected void ibSettings_Click(object sender, ImageClickEventArgs e)
         {
-            SettingMgmt.saveSetting(hfSettingBase.Value + "-Columns", tbColumns.Text);
+            Session["modalshowing"] = "true";
+
+            mpeSettings.Show();
         }
 
-        protected void ibExpand_Click(object sender, ImageClickEventArgs e)
+        protected void btnSettingsClose_Click(object sender, EventArgs e)
         {
-            rowData.Visible = !rowData.Visible;
-            SettingMgmt.saveSetting(hfSettingBase.Value + "-Visible", rowData.Visible.ToString());
+            Session["modalshowing"] = "false";
+
+            rowData.Visible = cbShow.Checked;
+            SettingMgmt.saveSetting(hfSettingBase.Value + "-Visible", cbShow.Checked.ToString());
+
+            SettingMgmt.saveSetting(hfSettingBase.Value + "-Columns", tbColumns.Text);
+
+            SettingMgmt.saveSetting("Hide-Empty-Groups", cbHideEmpty.Checked.ToString());
+
+            mpeSettings.Hide();
+
+            BindData();
         }
 
         protected void ibInfo_Click(object sender, EventArgs e)
@@ -227,12 +258,81 @@ namespace WinkAtHome.Controls
 
         protected void btnClose_Click(object sender, EventArgs e)
         {
-            LinkButton ib = (LinkButton)sender;
+            try
+            {
+                LinkButton ib = (LinkButton)sender;
+                TextBox tbPosition = (TextBox)ib.NamingContainer.FindControl("tbPosition");
+                TextBox tbDisplayName = (TextBox)ib.NamingContainer.FindControl("tbDisplayName");
+                Label lblPositionBad = (Label)ib.NamingContainer.FindControl("lblPositionBad");
+                ModalPopupExtender mpeInfo = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeInfo");
 
-            Session["modalshowing"] = "false";
+                Wink.Group item = Wink.Group.getGroupByID(ib.CommandArgument);
 
-            ModalPopupExtender mpeInfo = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeInfo");
-            mpeInfo.Hide();
+                bool savePosSuccess = false;
+                bool saveNameSuccess = false;
+
+                if (item != null)
+                {
+                    //SAVE POSITION
+                    try
+                    {
+                        Int32 pos = 9999;
+                        if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
+                        {
+                            List<string> existingList = new List<string>();
+                            foreach (DataListItem dli in dlGroups.Items)
+                            {
+                                HiddenField hfGroupID = (HiddenField)dli.FindControl("hfGroupID");
+                                existingList.Add(hfGroupID.Value);
+                            }
+                            string newItem = item.id;
+
+                            existingList.RemoveAll(s => s == newItem);
+                            existingList.Insert(pos - 1, newItem);
+
+                            foreach (string ID in existingList)
+                            {
+                                int position = existingList.IndexOf(ID) + 1;
+                                Wink.Group.setGroupPosition(ID, position);
+                            }
+
+                            lblPositionBad.Visible = false;
+                            savePosSuccess = true;
+                        }
+                        else
+                            lblPositionBad.Visible = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        lblPositionBad.Visible = true;
+                    }
+
+                    //SAVE DISPLAY NAME
+                    try
+                    {
+                        Wink.Group.setGroupDisplayName(item.id, tbDisplayName.Text);
+                        saveNameSuccess = true;
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }
+
+                if (saveNameSuccess && savePosSuccess)
+                {
+                    Session["modalshowing"] = "false";
+
+                    mpeInfo.Hide();
+
+                    BindData();
+                }
+                else
+                    mpeInfo.Show();
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Groups.btnClose_Click", ex.Message, EventLogEntryType.Error);
+            }
         }
     }
 }

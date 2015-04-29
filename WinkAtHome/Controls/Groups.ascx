@@ -3,32 +3,80 @@
 <asp:HiddenField ID="hfSettingBase" runat="server" />
 
 <asp:Table ID="Table1" runat="server" BorderColor="#22b9ec" BorderWidth="1"  BackColor="#22b9ec" Width="100%" CellPadding="0" CellSpacing="0">
-    <asp:TableHeaderRow BackColor="#22b9ec">
-        <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
-            <asp:Label ID="lblHeader" runat="server" Text="Groups" ForeColor="White" />
-        </asp:TableHeaderCell>
-        <asp:TableCell HorizontalAlign="right">
-            <asp:Label ID="Label1" runat="server" Text="Columns: " ForeColor="White" />
-            <asp:TextBox ID="tbColumns" runat="server" Text="5" OnTextChanged="tbColumns_TextChanged" Width="20px" AutoPostBack="true" />
+    <asp:TableRow>
+        <asp:TableCell>
+            <asp:Table ID="Table7" runat="server" Width="100%">
+                <asp:TableHeaderRow BackColor="#22b9ec">
+                    <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
+                        <asp:Label ID="lblHeader" runat="server" Text="Groups" ForeColor="White" />
+                    </asp:TableHeaderCell>
+                    <asp:TableCell Width="40">
+                        <asp:ImageButton ID="ibSettings" runat="server" ImageUrl="~/Images/wrench.png" Height="30" ToolTip="Panel Settings" OnClick="ibSettings_Click" />
+                        <asp:button id="btnShowSettings" runat="server" style="display:none;" />
+                        <ajaxtoolkit:ModalPopupExtender ID="mpeSettings" runat="server" PopupControlID="pnlSettings" 
+                            TargetControlID="btnShowSettings" BackgroundCssClass="modalBackground" Y="100">
+                        </ajaxtoolkit:ModalPopupExtender>
+                        <asp:Panel ID="pnlSettings" runat="server" BorderWidth="1"  style="display:none">
+                            <table cellpadding="5" cellspacing="5" style="background-color:#eeeeee;">
+                                <tr>
+                                    <td colspan="2" style="background-color:#22b9ec;">
+                                        <asp:Label ID="Label5" runat="server" Text="Panel Settings " ForeColor="White" Font-Bold="true"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <asp:Label ID="Label2" runat="server" Text="Show Panel: "  Font-Size="Small" />
+                                    </td>
+                                    <td>
+                                        <asp:CheckBox ID="cbShow" runat="server" Checked="true" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <asp:Label ID="Label1" runat="server" Text="Hide Empty Groups: "  Font-Size="Small" />
+                                    </td>
+                                    <td>
+                                        <asp:CheckBox ID="cbHideEmpty" runat="server" Checked="true" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <asp:Label ID="Label6" runat="server" Font-Size="Small"  Text="Objects Per Line: "  />
+                                    </td>
+                                    <td>
+                                        <asp:TextBox ID="tbColumns" runat="server" Text="5" Width="20px" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <asp:Button ID="btnSettingsClose" runat="server" Text="Close" OnClick="btnSettingsClose_Click"  />
+                                    </td>
+                                </tr>
+                            </table>
+                        </asp:Panel>
+                    </asp:TableCell>
+                </asp:TableHeaderRow>
+            </asp:Table>
         </asp:TableCell>
-        <asp:TableCell Width="1" style="padding-left:10px; padding-right:10px;">
-            <asp:ImageButton ID="ibExpand" runat="server" ImageUrl="~/Images/expand.png" Height="20" OnClick="ibExpand_Click" ToolTip="Show/Hide This Panel"/>
-        </asp:TableCell>
-    </asp:TableHeaderRow>
+    </asp:TableRow>
     <asp:TableRow ID="rowData" BackColor="#eeeeee">
-        <asp:TableCell style="padding:10px;" ColumnSpan="3">
-            <asp:DataList ID="dlGroups" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" OnItemDataBound="dlGroups_ItemDataBound" Width="100%">
-                <ItemStyle Width="200" Height="100px" HorizontalAlign="Center" />
-                <ItemTemplate>
-                    <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
-                        <ContentTemplate>
+        <asp:TableCell style="padding:10px;">
+            <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
+                <ContentTemplate>
+                    <asp:DataList ID="dlGroups" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" OnItemDataBound="dlGroups_ItemDataBound" Width="100%">
+                        <ItemStyle Width="200" Height="100px" HorizontalAlign="Center" />
+                        <ItemTemplate>
 
                             <asp:HiddenField ID="hfMainCommand" runat="server" />
                             <asp:HiddenField ID="hfCurrentStatus" runat="server" />
                             <asp:HiddenField ID="hfLevelCommand" runat="server" />
+                            <asp:HiddenField ID="hfGroupID" runat="server" Value='<%# ((Wink.Group)((IDataItemContainer)Container).DataItem).id %>' />
 
                             <asp:Table ID="Table3" runat="server">
                                 <asp:TableRow>
+                                    <asp:TableCell VerticalAlign="Top">
+                                        <asp:Label ID="Label1" runat="server" ForeColor="#b5c8cf" Font-Size="Small" Text='<%# ((IDataItemContainer)Container).DisplayIndex + 1 %>' />
+                                    </asp:TableCell>
                                     <asp:TableCell ColumnSpan="2" Height="110" VerticalAlign="Top" HorizontalAlign="Center">
                                         <asp:Table ID="tblDefault" runat="server" Height="100%"> 
                                             <asp:TableRow>
@@ -47,8 +95,8 @@
                                     </asp:TableCell>
                                 </asp:TableRow>
                                 <asp:TableRow>
-                                    <asp:TableCell HorizontalAlign="Center" VerticalAlign="Middle" style="padding-bottom:30px">
-                                        <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Group)((IDataItemContainer)Container).DataItem).name %>' Font-Size="small" />
+                                    <asp:TableCell HorizontalAlign="Center" VerticalAlign="Middle" style="padding-bottom:30px" ColumnSpan="2">
+                                        <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Group)((IDataItemContainer)Container).DataItem).displayName %>' Font-Size="small" />
                                     </asp:TableCell>
                                     <asp:TableCell VerticalAlign="Top" HorizontalAlign="Right" Width="23" style="padding-right:3px;">
                                         <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show Group data" OnClick="ibInfo_Click" />
@@ -86,7 +134,24 @@
                                                         <asp:Label ID="lbl1" runat="server" Text="JSON:" Font-Size="Small" />
                                                     </asp:TableCell>
                                                     <asp:TableCell HorizontalAlign="Left">
-                                                        <asp:Textbox ID="tbJSON" runat="server" Text='<%# ((Wink.Group)((IDataItemContainer)Container).DataItem).json %>' TextMode="MultiLine" Height="150" Width="400" ReadOnly="true" />
+                                                        <asp:Textbox ID="tbJSON" runat="server" Text='<%# ((Wink.Group)((IDataItemContainer)Container).DataItem).json %>' TextMode="MultiLine" Height="80" Width="400" ReadOnly="true" />
+                                                    </asp:TableCell>
+                                                </asp:TableRow>
+                                                <asp:TableRow ID="rowDisplayName">
+                                                    <asp:TableCell>
+                                                        <asp:Label ID="lblDisplayName" runat="server" Text="Display Name:" Font-Size="Small"/>
+                                                    </asp:TableCell>
+                                                    <asp:TableCell>
+                                                        <asp:TextBox ID="tbDisplayName" runat="server" Width="300" />
+                                                    </asp:TableCell>
+                                                </asp:TableRow>
+                                                <asp:TableRow ID="rowPosition">
+                                                    <asp:TableCell>
+                                                        <asp:Label ID="Label4" runat="server" Text="Item Position:" Font-Size="Small" />
+                                                    </asp:TableCell>
+                                                    <asp:TableCell>
+                                                        <asp:TextBox ID="tbPosition" runat="server" Width="50"  />
+                                                        <asp:Label ID="lblPositionBad" runat="server" Text="Please enter a whole number between 1 and 1000" ForeColor="Red" Visible="false" />
                                                     </asp:TableCell>
                                                 </asp:TableRow>
                                                 <asp:TableRow>
@@ -100,10 +165,10 @@
                                 </asp:TableRow>
                             </asp:Table>
 
-                        </ContentTemplate>
-                    </asp:UpdatePanel>
-                </ItemTemplate>
-            </asp:DataList>
+                        </ItemTemplate>
+                    </asp:DataList>
+                </ContentTemplate>
+            </asp:UpdatePanel>
         </asp:TableCell>
     </asp:TableRow>
 </asp:Table>

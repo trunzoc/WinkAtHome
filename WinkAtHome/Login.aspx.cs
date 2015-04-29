@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -11,39 +12,55 @@ namespace WinkAtHome
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (SettingMgmt.getSetting("winkUsername",true).ToLower() == "username" || SettingMgmt.getSetting("winkPassword", true).ToLower() == "password")
+            try
             {
-                Response.Redirect("~/Settings.aspx");
-            }
-            else if (Request.Cookies["login"] != null)
-            {
-                HttpCookie aCookie = Request.Cookies["login"];
-                if (aCookie != null)
+                Common.prepareDatabase();
+
+                if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password")
                 {
-                    if (SettingMgmt.getSetting("winkUsername",true) == Common.Decrypt(aCookie.Value))
+                    Response.Redirect("~/Settings.aspx");
+                }
+                else if (Request.Cookies["login"] != null)
+                {
+                    HttpCookie aCookie = Request.Cookies["login"];
+                    if (aCookie != null)
                     {
-                        Session["loggedin"] = aCookie.Value;
-                        Response.Redirect("~/Default.aspx");
+                        if (SettingMgmt.getSetting("winkUsername") == Common.Decrypt(aCookie.Value))
+                        {
+                            Session["loggedin"] = aCookie.Value;
+                            Response.Redirect("~/Default.aspx");
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Login.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            if (tbUsername.Text.ToLower() == SettingMgmt.getSetting("winkUsername",true).ToLower() && tbPassword.Text == SettingMgmt.getSetting("winkPassword",true))
+            try
             {
-                Session["loggedin"] = Common.Encrypt(SettingMgmt.getSetting("winkUsername",true));
-
-                if (cbRemember.Checked)
+                if (tbUsername.Text.ToLower() == SettingMgmt.getSetting("winkUsername").ToLower() && tbPassword.Text == SettingMgmt.getSetting("winkPassword"))
                 {
-                    HttpCookie aCookie = new HttpCookie("login");
-                    aCookie.Value = Session["loggedin"].ToString();
-                    aCookie.Expires = DateTime.MaxValue;
-                    Response.Cookies.Add(aCookie);
-                }
+                    Session["loggedin"] = Common.Encrypt(SettingMgmt.getSetting("winkUsername"));
 
-                Response.Redirect("~/Default.aspx");
+                    if (cbRemember.Checked)
+                    {
+                        HttpCookie aCookie = new HttpCookie("login");
+                        aCookie.Value = Session["loggedin"].ToString();
+                        aCookie.Expires = DateTime.MaxValue;
+                        Response.Cookies.Add(aCookie);
+                    }
+
+                    Response.Redirect("~/Default.aspx");
+                }
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Login.btnLogin_Click", ex.Message, EventLogEntryType.Error);
             }
         }
     }

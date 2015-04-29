@@ -10,7 +10,7 @@
 namespace WinkAtHome.Controls {
     
     
-    public partial class Robots {
+    public partial class PubNubDisplay {
         
         /// <summary>
         /// hfSettingBase control.
@@ -112,42 +112,6 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.CheckBox cbShow;
         
         /// <summary>
-        /// Label1 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label1;
-        
-        /// <summary>
-        /// cbHideEmpty control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox cbHideEmpty;
-        
-        /// <summary>
-        /// Label6 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label6;
-        
-        /// <summary>
-        /// tbColumns control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox tbColumns;
-        
-        /// <summary>
         /// btnSettingsClose control.
         /// </summary>
         /// <remarks>
@@ -166,21 +130,21 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.TableRow rowData;
         
         /// <summary>
-        /// UpdatePanel1 control.
+        /// UpdatePanelPubNub control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel UpdatePanel1;
+        protected global::System.Web.UI.UpdatePanel UpdatePanelPubNub;
         
         /// <summary>
-        /// dlRobots control.
+        /// txtMessage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DataList dlRobots;
+        protected global::System.Web.UI.WebControls.TextBox txtMessage;
     }
 }
