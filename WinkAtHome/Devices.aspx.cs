@@ -8,7 +8,7 @@ using Telerik.Web.UI;
 
 namespace WinkAtHome
 {
-    public partial class Devices : System.Web.UI.Page
+    public partial class DevicePage : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {

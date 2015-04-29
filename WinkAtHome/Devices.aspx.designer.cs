@@ -10,7 +10,7 @@
 namespace WinkAtHome {
     
     
-    public partial class Devices {
+    public partial class DevicePage {
         
         /// <summary>
         /// ucDevices control.

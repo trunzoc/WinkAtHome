@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Settings.aspx.cs" Inherits="WinkAtHome.Settings" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Settings.aspx.cs" Inherits="WinkAtHome.Settings" MaintainScrollPositionOnPostback="true" %>
 <%@ Register Src="~/Controls/winkStatus.ascx" TagName="ucWinkStatus" TagPrefix="ucWS" %>
 
 <!DOCTYPE html>
@@ -63,20 +63,58 @@
                 <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top">
                     <asp:Table ID="Table1" runat="server">
                         <asp:TableHeaderRow>
-                            <asp:TableHeaderCell ColumnSpan="3" BackColor="#22b9ec" HorizontalAlign="Left" style="padding:10px;">
+                            <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Left" style="padding:10px;">
                                 <asp:Label ID="lblHeader" runat="server" Text="Settings" ForeColor="White" />
                             </asp:TableHeaderCell>
                         </asp:TableHeaderRow>
                         <asp:TableRow ID="rowWarning">
-                            <asp:TableCell ColumnSpan="3">
+                            <asp:TableCell>
                                 <asp:Label ID="lblMessage" runat="server" Text="" Font-Bold="true" />
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow>
-                            <asp:TableCell ColumnSpan="3">
-                                <asp:DataList ID="dlSettings" runat="server">
+                            <asp:TableCell>
+                                <asp:DataList ID="dlRequiredSettings" runat="server" Width="100%">
                                     <HeaderTemplate>
-                                        <table>
+                                        <table width="100%">
+                                        <tr>
+                                            <td colspan="2" align="center">
+                                                <asp:Label ID="lblRequiredSettings" runat="server" Text="Required Settings" />
+                                            </td>
+                                        </tr>
+                                    </HeaderTemplate>
+                                    <ItemTemplate>
+                                        <tr>
+                                            <td>
+                                                <asp:Label ID="lblKey" runat="server" Text='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).key %>' />
+                                            </td>
+                                            <td width="255">
+                                                <asp:TextBox ID="tbValue" runat="server" Text='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).value %>' Width="250" />
+                                                <asp:HiddenField ID="hfValue" runat="server" Value='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).value %>' />
+                                            </td>
+                                        </tr>
+                                    </ItemTemplate>
+                                    <FooterTemplate>
+                                        </table>
+                                    </FooterTemplate>
+                                </asp:DataList>
+                            </asp:TableCell>
+                        </asp:TableRow>
+                        <asp:TableRow>
+                            <asp:TableCell>
+                                <hr />
+                            </asp:TableCell>
+                        </asp:TableRow>
+                        <asp:TableRow>
+                            <asp:TableCell>
+                                <asp:DataList ID="dlAdditionalSettings" runat="server" width="100%">
+                                    <HeaderTemplate>
+                                        <table width="100%">
+                                        <tr>
+                                            <td colspan="2" align="center">
+                                                <asp:Label ID="lblAdditionalSettings" runat="server" Text="Additional Settings" />
+                                            </td>
+                                        </tr>
                                     </HeaderTemplate>
                                     <ItemTemplate>
                                         <tr>
@@ -96,35 +134,76 @@
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow>
-                            <asp:TableCell HorizontalAlign="Left">
-                                <asp:Button ID="btnSave" runat="server" Text="Save" OnClick="btnSave_Click" OnClientClick="if ( ! saveConfirmation()) return false;" />
-                            </asp:TableCell>
-                            <asp:TableCell HorizontalAlign="Right">
-                                <asp:Button ID="btnDefault" runat="server" Text="Exit Settings" OnClick="btnDefault_Click" CommandArgument="~/Default.aspx" OnClientClick="if ( ! cancelConfirmation()) return false;" />
+                            <asp:TableCell>
+                                <table width="100%">
+                                    <tr>
+                                        <td align="left">
+                                            <asp:Button ID="btnSave" runat="server" Text="Save Settings" OnClick="btnSave_Click" OnClientClick="if ( ! saveConfirmation()) return false;" />
+                                        </td>
+                                        <td align="right">
+                                            <asp:Button ID="btnDefault" runat="server" Text="Exit Settings" OnClick="btnDefault_Click" CommandArgument="~/Default.aspx" OnClientClick="if ( ! cancelConfirmation()) return false;" />
+                                        </td>
+                                    </tr>
+                                </table>
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow>
-                            <asp:TableCell ColumnSpan="3">
-                                &nbsp;
+                            <asp:TableCell>
+                                <table width="100%">
+                                    <tr>
+                                        <td colspan="2">
+                                            <hr />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" align="center">
+                                            <asp:Label ID="Label3" runat="server" Text="Informational Only" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" width="150">
+                                            <asp:Label ID="Label2" runat="server" Text="App Version" />
+                                        </td>
+                                        <td align="left">
+                                            <asp:TextBox ID="tbVersion" runat="server" ReadOnly="true" Width="100%" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left">
+                                            <asp:Label ID="lblDBPath" runat="server" Text="Database Path" />
+                                        </td>
+                                        <td align="left">
+                                            <asp:TextBox ID="tbDBPath" runat="server" ReadOnly="true" Width="100%" />
+                                        </td>
+                                    </tr>
+                                </table>
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow>
-                            <asp:TableCell ColumnSpan="3">
+                            <asp:TableCell>
+                                <hr />
+                            </asp:TableCell>
+                        </asp:TableRow>
+                        <asp:TableRow>
+                            <asp:TableCell HorizontalAlign="Center">
                                 <asp:Label ID="Label1" runat="server" Text="Danger Ahead!" ForeColor="Red" Font-Bold="true" />
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow>
-                            <asp:TableCell ColumnSpan="3">
+                            <asp:TableCell HorizontalAlign="Justify">
                                 <asp:Button ID="btnManualEdit" runat="server" Text="Manually Edit Settings" OnClick="btnManualEdit_Click" />&nbsp;
-                                <asp:Button ID="btnDeviceJSON" runat="server" Text="Show Raw Device Data" OnClick="btnRawDevData_Click" CommandArgument="devices" />&nbsp;
-                                <asp:Button ID="btnRobotJSON" runat="server" Text="Show Raw Robot Data" OnClick="btnRawDevData_Click" CommandArgument="robots" />&nbsp;
+                                <asp:Button ID="btnDeviceJSON" runat="server" Text="Show Device JSON" OnClick="btnRawDevData_Click" CommandArgument="devices" />&nbsp;
+                                <asp:Button ID="btnRobotJSON" runat="server" Text="Show Robot JSON" OnClick="btnRawDevData_Click" CommandArgument="robots" />&nbsp;
                                 <asp:Button ID="btnWipe" runat="server" Text="Wipe Settings" OnClick="btnWipe_Click" OnClientClick="if ( ! deleteConfirmation()) return false;" />
                             </asp:TableCell>
                         </asp:TableRow>
-                        <asp:TableRow ID="rowEdit" Visible="false">
-                            <asp:TableCell ColumnSpan="3">
+                        <asp:TableRow ID="rowEditText" Visible="false">
+                            <asp:TableCell>
                                 <asp:TextBox ID="tbEdit" runat="server" TextMode="MultiLine" Height="250px" Width="100%" />
-                                <br />
+                            </asp:TableCell>
+                        </asp:TableRow>
+                        <asp:TableRow ID="rowEditButton" Visible="false">
+                            <asp:TableCell>
                                 <asp:Button ID="btnSaveEdit" runat="server" Text="Save Edit" OnClick="btnSaveEdit_Click" OnClientClick="if ( ! saveConfirmation()) return false;" />
                             </asp:TableCell>
                         </asp:TableRow>

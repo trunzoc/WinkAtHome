@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Devices" Language="C#" MasterPageFile="~/WinkAtHome.Master" AutoEventWireup="true" CodeBehind="Devices.aspx.cs" Inherits="WinkAtHome.Devices" %>
+﻿<%@ Page Title="Devices" Language="C#" MasterPageFile="~/WinkAtHome.Master" AutoEventWireup="true" CodeBehind="Devices.aspx.cs" Inherits="WinkAtHome.DevicePage" %>
 <%@ Register Src="~/Controls/Devices.ascx" TagName="ucDevices" TagPrefix="ucD" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="cphMain" runat="server">

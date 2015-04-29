@@ -29,6 +29,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -78,6 +79,7 @@
     <Content Include="Controls\Devices.ascx" />
     <Content Include="Controls\Groups.ascx" />
     <Content Include="Controls\Menu.ascx" />
+    <Content Include="Controls\PubNubDisplay.ascx" />
     <Content Include="Controls\Robots.ascx" />
     <Content Include="Controls\Shortcuts.ascx" />
     <Content Include="Controls\winkStatus.ascx" />
@@ -104,7 +106,10 @@
     <Content Include="Images\Devices\powerstripstrue.png" />
     <Content Include="Images\Devices\sprinklersfalse.png" />
     <Content Include="Images\Devices\sprinklerstrue.png" />
+    <Content Include="Images\dots.png" />
     <Content Include="Images\left.png" />
+    <Content Include="Images\minus.png" />
+    <Content Include="Images\plus.png" />
     <Content Include="Images\right.png" />
     <Content Include="Images\Robots\robotfalse.png" />
     <Content Include="Images\Robots\robottrue.png" />
@@ -191,14 +196,13 @@
     <Content Include="Login.aspx" />
     <Content Include="Settings.aspx" />
     <Content Include="Shortcuts.aspx" />
-    <Content Include="PubNubDisplay.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Common.cs" />
-    <Compile Include="Classes\PubNubSocket.cs" />
+    <Compile Include="Classes\PubNub.cs" />
     <Compile Include="Classes\SettingMgmt.cs" />
     <Compile Include="Control.aspx.cs">
       <DependentUpon>Control.aspx</DependentUpon>
@@ -227,6 +231,13 @@
     </Compile>
     <Compile Include="Controls\Menu.ascx.designer.cs">
       <DependentUpon>Menu.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PubNubDisplay.ascx.cs">
+      <DependentUpon>PubNubDisplay.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\PubNubDisplay.ascx.designer.cs">
+      <DependentUpon>PubNubDisplay.ascx</DependentUpon>
     </Compile>
     <Compile Include="Controls\Robots.ascx.cs">
       <DependentUpon>Robots.ascx</DependentUpon>
@@ -312,13 +323,6 @@
     </Compile>
     <Compile Include="Shortcuts.aspx.designer.cs">
       <DependentUpon>Shortcuts.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="PubNubDisplay.aspx.cs">
-      <DependentUpon>PubNubDisplay.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="PubNubDisplay.aspx.designer.cs">
-      <DependentUpon>PubNubDisplay.aspx</DependentUpon>
     </Compile>
     <Compile Include="Classes\Wink.cs" />
     <Compile Include="WinkAtHome.Master.cs">

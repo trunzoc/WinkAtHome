@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -96,6 +97,7 @@ namespace WinkAtHome.Controls
                     bool visible = true;
                     bool.TryParse(dataVisible, out visible);
                     rowData.Visible = visible;
+                    cbShow.Checked = visible;
                 }
 
                 BindData();
@@ -150,14 +152,13 @@ namespace WinkAtHome.Controls
                 Wink.Device device = ((Wink.Device)e.Item.DataItem);
                 string devicetype = device.type;
 
-                HiddenField hfDeviceID = (HiddenField)e.Item.FindControl("hfDeviceID");
-                hfDeviceID.Value = device.id;
-
                 TextBox tbPosition = (TextBox)e.Item.FindControl("tbPosition");
                 tbPosition.Text = device.position > 1000? "":(device.position).ToString();
 
+                TextBox tbDisplayName = (TextBox)e.Item.FindControl("tbDisplayName");
+                tbDisplayName.Text = device.displayName;
 
-                List<Wink.DeviceStatus> status = device.status;
+                List<Wink.Device.DeviceStatus> status = device.status;
                 IList<string> keys = status.Select(p => p.name).ToList();
 
                 //BIND INFO BUTTON
@@ -187,7 +188,7 @@ namespace WinkAtHome.Controls
                 dtStatus.Columns.Add("Reading Name");
                 dtStatus.Columns.Add("Last Read");
                 dtStatus.Columns.Add("Last Updated");
-                foreach (Wink.DeviceStatus stat in status)
+                foreach (Wink.Device.DeviceStatus stat in status)
                 {
                     DataRow row = dtStatus.NewRow();
                     row[0] = stat.name;
@@ -195,21 +196,22 @@ namespace WinkAtHome.Controls
                     row[2] = stat.last_updated.ToString();
                     dtStatus.Rows.Add(row);
                 }
-                
-                //if (dtStatus.Rows.Count > 0)
-                //{
-                //    TableRow rowLastReadings = (TableRow)e.Item.FindControl("rowLastReadings");
-                //    rowLastReadings.Visible = true;
 
-                //    GridView gv = (GridView)e.Item.FindControl("gvLastReadings");
-                //    gv.DataSource = dtStatus;
-                //    gv.DataBind();
-                //}
+                if (dtStatus.Rows.Count > 0)
+                {
+                    TableRow rowLastReadings = (TableRow)e.Item.FindControl("rowLastReadings");
+                    rowLastReadings.Visible = true;
+
+                    GridView gv = (GridView)e.Item.FindControl("gvLastReadings");
+                    gv.DataSource = dtStatus;
+                    gv.DataBind();
+                }
 
                 //if (device.desired_states.Count > 0)
                 //{
                 //    TableRow row = (TableRow)e.Item.FindControl("rowDesiredStates");
                 //    row.Visible = true;
+                    
                 //    ListBox lbDesiredStates = (ListBox)e.Item.FindControl("lbDesiredStates");
                 //    lbDesiredStates.DataSource = device.desired_states;
                 //    lbDesiredStates.DataBind();
@@ -224,7 +226,7 @@ namespace WinkAtHome.Controls
                     {
                         imgBattery.Visible = true;
 
-                        Wink.DeviceStatus stat = status.Single(p => p.name == "battery");
+                        Wink.Device.DeviceStatus stat = status.Single(p => p.name == "battery");
                         double batLevel = 0;
                         Double.TryParse(stat.current_status, out batLevel);
 
@@ -283,7 +285,7 @@ namespace WinkAtHome.Controls
             Wink.Device device = ((Wink.Device)item.DataItem);
             string devicetype = device.type;
 
-            List<Wink.DeviceStatus> status = device.status;
+            List<Wink.Device.DeviceStatus> status = device.status;
             IList<string> keys = status.Select(p => p.name).ToList();
             string state = string.Empty;
             bool hasConnection = false;
@@ -292,7 +294,7 @@ namespace WinkAtHome.Controls
 
             if (keys.Contains("connection"))
             {
-                Wink.DeviceStatus stat = status.Single(p => p.name == "connection");
+                Wink.Device.DeviceStatus stat = status.Single(p => p.name == "connection");
                 if (stat == null || (stat != null && string.IsNullOrWhiteSpace(stat.current_status)))
                 {
                     hasConnection = false;
@@ -315,7 +317,7 @@ namespace WinkAtHome.Controls
             {
                 if (keys.Contains("powered") || keys.Contains("locked"))
                 {
-                    Wink.DeviceStatus stat = status.Single(p => p.name == "powered" || p.name == "locked");
+                    Wink.Device.DeviceStatus stat = status.Single(p => p.name == "powered" || p.name == "locked");
                     state = stat.current_status.ToLower();
                     hfMainCommand.Value = stat.name;
                     hfCurrentStatus.Value = state;
@@ -324,7 +326,7 @@ namespace WinkAtHome.Controls
                 }
                 else if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
                 {
-                    Wink.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
+                    Wink.Device.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
                     Double converted = Convert.ToDouble(stat.current_status) * 100;
                     state = converted > 0 ? "true" : "false";
                     hfMainCommand.Value = stat.name;
@@ -342,7 +344,7 @@ namespace WinkAtHome.Controls
 
                 if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
                 {
-                    Wink.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
+                    Wink.Device.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
                     hfLevelCommand.Value = stat.name;
                     double testdouble = 0;
                     Double.TryParse(stat.current_status, out testdouble);
@@ -447,13 +449,13 @@ namespace WinkAtHome.Controls
             Wink.Device device = ((Wink.Device)item.DataItem);
             string devicetype = device.sensor_type;
 
-            List<Wink.DeviceStatus> status = device.status;
+            List<Wink.Device.DeviceStatus> status = device.status;
             IList<string> keys = status.Select(p => p.name).ToList();
             string state = string.Empty;
 
             if (keys.Contains("connection"))
             {
-                Wink.DeviceStatus stat = status.Single(p => p.name == "connection");
+                Wink.Device.DeviceStatus stat = status.Single(p => p.name == "connection");
                 bool reverse = !Convert.ToBoolean(stat.current_status);
                 alert = reverse;
                 state = reverse.ToString().ToLower();
@@ -464,7 +466,7 @@ namespace WinkAtHome.Controls
             dtStatus.Columns.Add("Reading Name");
             dtStatus.Columns.Add("Last Read");
             dtStatus.Columns.Add("Last Updated");
-            foreach (Wink.DeviceStatus stat in device.sensor_states)
+            foreach (Wink.Device.DeviceStatus stat in device.sensor_states)
             {
                 DataRow row = dtStatus.NewRow();
                 row[0] = stat.name;
@@ -528,7 +530,7 @@ namespace WinkAtHome.Controls
             
             Wink.Device device = ((Wink.Device)item.DataItem);
 
-            List<Wink.DeviceStatus> status = device.status;
+            List<Wink.Device.DeviceStatus> status = device.status;
             IList<string> keys = status.Select(p => p.name).ToList();
 
             if (keys.Contains("deadband"))
@@ -690,15 +692,15 @@ namespace WinkAtHome.Controls
             }
 
             command = "{\"desired_state\": {\"" + hfMainCommand.Value + "\":" + newstate + newlevel + "}}";
-            Wink.sendDeviceCommand(deviceID, command);
+            Wink.Device.sendDeviceCommand(deviceID, command);
 
             Wink.Device device = Wink.Device.getDeviceByID(deviceID);
-            Wink.DeviceStatus status = device.status.Single(p => p.name == hfMainCommand.Value);
+            Wink.Device.DeviceStatus status = device.status.Single(p => p.name == hfMainCommand.Value);
             status.current_status = newstate;
 
             if (!string.IsNullOrWhiteSpace(newlevel))
             {
-                Wink.DeviceStatus statuslvl = device.status.Single(p => p.name == hfLevelCommand.Value);
+                Wink.Device.DeviceStatus statuslvl = device.status.Single(p => p.name == hfLevelCommand.Value);
                 statuslvl.current_status = "1";
             }
 
@@ -729,14 +731,14 @@ namespace WinkAtHome.Controls
                 }
 
                 command = "{\"desired_state\": {\"" + hfMainCommand.Value + "\":" + newstate + ",\"" + hfLevelCommand.Value + "\":" + newlevel + "}}";
-                Wink.sendDeviceCommand(deviceID, command);
+                Wink.Device.sendDeviceCommand(deviceID, command);
 
 
                 Wink.Device device = Wink.Device.getDeviceByID(deviceID);
-                Wink.DeviceStatus status = device.status.Single(p => p.name == hfMainCommand.Value);
+                Wink.Device.DeviceStatus status = device.status.Single(p => p.name == hfMainCommand.Value);
                 status.current_status = newstate;
 
-                Wink.DeviceStatus statuslvl = device.status.Single(p => p.name == hfLevelCommand.Value);
+                Wink.Device.DeviceStatus statuslvl = device.status.Single(p => p.name == hfLevelCommand.Value);
                 statuslvl.current_status = newlevel.ToString();
 
                 BindData();
@@ -783,10 +785,10 @@ namespace WinkAtHome.Controls
 
             HiddenField hfDeviceID = (HiddenField)ib.NamingContainer.FindControl("hfDeviceID");
             string command = "{\"desired_state\": {\"mode\":null,\"powered\":" + newpower + ",\"modes_allowed\":null,\"min_set_point\":null,\"max_set_point\":null}}";
-            Wink.sendDeviceCommand(hfDeviceID.Value, command);
+            Wink.Device.sendDeviceCommand(hfDeviceID.Value, command);
 
             Wink.Device device = Wink.Device.getDeviceByID(hfDeviceID.Value);
-            Wink.DeviceStatus status = device.status.Single(p => p.name == "powered");
+            Wink.Device.DeviceStatus status = device.status.Single(p => p.name == "powered");
             status.current_status = newpower;
 
         }
@@ -859,12 +861,12 @@ namespace WinkAtHome.Controls
             HiddenField hfDeviceID = (HiddenField)ib.NamingContainer.FindControl("hfDeviceID");
             string sendmode = mode == "auto" ? mode : mode + "_only";
             string command = "{\"desired_state\": {\"mode\":\""+ sendmode + "\",\"powered\":true,\"modes_allowed\":null,\"min_set_point\":null,\"max_set_point\":null}}";
-            Wink.sendDeviceCommand(hfDeviceID.Value, command);
+            Wink.Device.sendDeviceCommand(hfDeviceID.Value, command);
 
             lblNotes.Text = "The command to turn the mode to " + mode + " has been sent";
 
             Wink.Device device = Wink.Device.getDeviceByID(hfDeviceID.Value);
-            Wink.DeviceStatus status = device.status.Single(p => p.name == "mode");
+            Wink.Device.DeviceStatus status = device.status.Single(p => p.name == "mode");
             status.current_status = mode;
         }
 
@@ -940,28 +942,16 @@ namespace WinkAtHome.Controls
 
                 HiddenField hfDeviceID = (HiddenField)ib.NamingContainer.FindControl("hfDeviceID");
                 string command = "{\"desired_state\": {\"mode\":null,\"powered\":true,\"modes_allowed\":null,\"min_set_point\":" + tempLow + ",\"max_set_point\":" + tempHigh + "}}";
-                Wink.sendDeviceCommand(hfDeviceID.Value, command);
+                Wink.Device.sendDeviceCommand(hfDeviceID.Value, command);
 
                 lblNotes.Text = "The command to change the temperature has been sent";
 
                 Wink.Device device = Wink.Device.getDeviceByID(hfDeviceID.Value);
-                Wink.DeviceStatus statuslow = device.status.Single(p => p.name == "min_set_point");
+                Wink.Device.DeviceStatus statuslow = device.status.Single(p => p.name == "min_set_point");
                 statuslow.current_status = tempLow.ToString();
-                Wink.DeviceStatus statushigh = device.status.Single(p => p.name == "max_set_point");
+                Wink.Device.DeviceStatus statushigh = device.status.Single(p => p.name == "max_set_point");
                 statushigh.current_status = tempHigh.ToString();
             }
-        }
-
-        protected void tbColumns_TextChanged(object sender, EventArgs e)
-        {
-            SettingMgmt.saveSetting(hfSettingBase.Value + "-Columns", tbColumns.Text);
-            BindData();
-        }
-
-        protected void ibExpand_Click(object sender, ImageClickEventArgs e)
-        {
-            rowData.Visible = !rowData.Visible;
-            SettingMgmt.saveSetting(hfSettingBase.Value + "-Visible", rowData.Visible.ToString());
         }
 
         protected void ibThermostat_Click(object sender, EventArgs e)
@@ -986,93 +976,135 @@ namespace WinkAtHome.Controls
 
         protected void btnClose_Click(object sender, EventArgs e)
         {
-            LinkButton ib = (LinkButton)sender;
+            try
+            {
+                LinkButton ib = (LinkButton)sender;
+                TextBox tbPosition = (TextBox)ib.NamingContainer.FindControl("tbPosition");
+                TextBox tbDisplayName = (TextBox)ib.NamingContainer.FindControl("tbDisplayName");
+                Label lblPositionBad = (Label)ib.NamingContainer.FindControl("lblPositionBad");
+                ModalPopupExtender mpeInfo = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeInfo");
 
+                Wink.Device item = Wink.Device.getDeviceByID(ib.CommandArgument);
+
+                bool savePosSuccess = false;
+                bool saveNameSuccess = false;
+
+                if (item != null)
+                {
+                    //SAVE POSITION
+                    try
+                    {
+                        Int32 pos = 9999;
+                        if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
+                        {
+                            List<string> existingList = new List<string>();
+                            foreach (DataListItem dli in dlDevices.Items)
+                            {
+                                HiddenField hfDeviceID = (HiddenField)dli.FindControl("hfDeviceID");
+                                existingList.Add(hfDeviceID.Value);
+                            }
+                            string newItem = item.id;
+
+                            existingList.RemoveAll(s => s == newItem);
+                            existingList.Insert(pos - 1, newItem);
+
+                            foreach (string ID in existingList)
+                            {
+                                int position = existingList.IndexOf(ID) + 1;
+                                Wink.Device.setDevicePosition(ID, position);
+                            }
+
+                            lblPositionBad.Visible = false;
+                            savePosSuccess = true;
+                        }
+                        else
+                            lblPositionBad.Visible = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        lblPositionBad.Visible = true;
+                    }
+
+                    //SAVE DISPLAY NAME
+                    try
+                    {
+                        Wink.Device.setDeviceDisplayName(item.id, tbDisplayName.Text);
+                        saveNameSuccess = true;
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }
+
+                if (saveNameSuccess && savePosSuccess)
+                {
+                    Session["modalshowing"] = "false";
+
+                    mpeInfo.Hide();
+
+                    BindData();
+                }
+                else
+                    mpeInfo.Show();
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Devices.btnClose_Click", ex.Message, EventLogEntryType.Error);
+            }
+        }
+
+        protected void ibSettings_Click(object sender, ImageClickEventArgs e)
+        {
+            Session["modalshowing"] = "true";
+
+            mpeSettings.Show();
+        }
+
+        protected void btnSettingsClose_Click(object sender, EventArgs e)
+        {
             Session["modalshowing"] = "false";
 
-            ModalPopupExtender mpeInfo = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeInfo");
-            mpeInfo.Hide();
+            rowData.Visible = cbShow.Checked;
+            SettingMgmt.saveSetting(hfSettingBase.Value + "-Visible", cbShow.Checked.ToString());
+
+            SettingMgmt.saveSetting(hfSettingBase.Value + "-Columns", tbColumns.Text);
+
+            mpeSettings.Hide();
 
             BindData();
         }
 
-        protected void btnSetPosition_Click(object sender, EventArgs e)
+        protected void ibHubDevices_Click(object sender, ImageClickEventArgs e)
         {
-            Button btn = (Button)sender;
-            TextBox tbPosition = (TextBox)btn.NamingContainer.FindControl("tbPosition");
-            Label lblPositionBad = (Label)btn.NamingContainer.FindControl("lblPositionBad");
-            Wink.Device device = Wink.Device.getDeviceByID(btn.CommandArgument);
-
-            if (device != null)
+            try
             {
-                Int32 pos = 9999;
-                if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
-                {
-                    List<string> existingList = new List<string>();
-                    foreach (DataListItem item in dlDevices.Items)
-                    {
-                        HiddenField hfDeviceID = (HiddenField)item.FindControl("hfDeviceID");
-                        existingList.Add(hfDeviceID.Value);
-                    }
-                    string newDevice = device.id;
+                ImageButton ib = (ImageButton)sender;
+                GridView gvHubDevices = (GridView)ib.NamingContainer.FindControl("gvHubDevices");
 
-                    existingList.RemoveAll(s => s == newDevice);
-                    existingList.Insert(pos - 1, newDevice);
+                List<Wink.Device> devices = Wink.Device.getDevicesByHubID(ib.CommandArgument);
+                devices = devices.OrderBy(c => c.type).ThenBy(c => c.displayName).ToList();
 
-                    foreach (string deviceID in existingList)
-                    {
-                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
-                        {
-                            connection.Open();
+                gvHubDevices.DataSource = devices;
+                gvHubDevices.DataBind();
 
-                            using (SQLiteCommand command = new SQLiteCommand(connection))
-                            {
-                                command.CommandText = "UPDATE Devices SET position=@Position WHERE DeviceID = @ID;";
-                                command.Parameters.Add(new SQLiteParameter("@ID", deviceID));
-                                command.Parameters.Add(new SQLiteParameter("@Position", existingList.IndexOf(deviceID) + 1));
-                                command.ExecuteNonQuery();
-
-                                command.CommandText = "INSERT OR IGNORE INTO Devices (DeviceID, position) VALUES (@ID, @Position);";
-                                command.ExecuteNonQuery();
-                            }
-                        }
-                    }
-
-                    lblPositionBad.Visible = false;
-                }
-                else
-                    lblPositionBad.Visible = true;
+                ModalPopupExtender mpeHubDevices = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeHubDevices");
+                mpeHubDevices.Show();
+                Session["modalshowing"] = "true";
             }
-            ((ModalPopupExtender)btn.NamingContainer.FindControl("mpeInfo")).Show();
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Devices.ibHubDevices_Click", ex.Message, EventLogEntryType.Error);
+            }
         }
 
-        protected void btnDisplayName_Click(object sender, EventArgs e)
+        protected void lbCloseHubDevices_Click(object sender, EventArgs e)
         {
-            Button btn = (Button)sender;
-            TextBox tbDisplayName = (TextBox)btn.NamingContainer.FindControl("tbDisplayName");
-            Wink.Device device = Wink.Device.getDeviceByID(btn.CommandArgument);
+            LinkButton ib = (LinkButton)sender;
 
-            if (device != null)
-            {
-                string deviceID = device.id;
-
-                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
-                {
-                    connection.Open();
-
-                    using (SQLiteCommand command = new SQLiteCommand(connection))
-                    {
-                        command.CommandText = "UPDATE Devices SET displayname=@displayname WHERE DeviceID = @ID;";
-                        command.Parameters.Add(new SQLiteParameter("@ID", deviceID));
-                        command.Parameters.Add(new SQLiteParameter("@displayname", tbDisplayName.Text));
-                        command.ExecuteNonQuery();
-
-                        command.CommandText = "INSERT OR IGNORE INTO Devices (DeviceID, displayname) VALUES (@ID, @displayname);";
-                        command.ExecuteNonQuery();
-                    }
-                }
-            }
-            ((ModalPopupExtender)btn.NamingContainer.FindControl("mpeInfo")).Show();
+            ModalPopupExtender mpeHubDevices = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeHubDevices");
+            mpeHubDevices.Hide();
+            Session["modalshowing"] = "false";
         }
+
     }
 }

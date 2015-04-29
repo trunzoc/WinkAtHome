@@ -1,4 +1,4 @@
-﻿<%@ Page Title="CONTROL" Language="C#" MasterPageFile="~/WinkAtHome.Master" AutoEventWireup="true" CodeBehind="Control.aspx.cs" Inherits="WinkAtHome.Control" %>
+﻿<%@ Page Title="CONTROL" Language="C#" MasterPageFile="~/WinkAtHome.Master" AutoEventWireup="true" CodeBehind="Control.aspx.cs" Inherits="WinkAtHome.Control" MaintainScrollPositionOnPostback="true" %>
 <%@ Register Src="~/Controls/Devices.ascx" TagName="ucDevices" TagPrefix="ucD" %>
 <%@ Register Src="~/Controls/Shortcuts.ascx" TagName="ucShortcuts" TagPrefix="ucS" %>
 <%@ Register Src="~/Controls/Groups.ascx" TagName="ucGroups" TagPrefix="ucG" %>

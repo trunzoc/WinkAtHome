@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Collections.Concurrent;
 using PubNubMessaging.Core;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 namespace WinkAtHome
 {
@@ -17,119 +18,167 @@ namespace WinkAtHome
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword") == "password" || Session["loggedin"] == null || (Session["loggedin"] != null && SettingMgmt.getSetting("winkUsername") != Common.Decrypt(Session["loggedin"].ToString())))
+            try
             {
-                Response.Redirect("~/Login.aspx");
+                Common.prepareDatabase();
+
+                if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword") == "password" || Session["loggedin"] == null || (Session["loggedin"] != null && SettingMgmt.getSetting("winkUsername") != Common.Decrypt(Session["loggedin"].ToString())))
+                {
+                    Response.Redirect("~/Login.aspx");
+                }
+
+                if (!IsPostBack)
+                {
+                    lblRefreshed.Text = DateTime.Now.ToString();
+                    //CHECK SECURITY/SETTINGS VALIDITY
+                    if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password")
+                        Response.Redirect("~/Settings.aspx");
+
+                    //SET PAGE OPTIONS
+                    string timerrefresh = SettingMgmt.getSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
+                    if (timerrefresh != null)
+                    {
+                        tbTimer.Text = timerrefresh;
+                        tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
+                    }
+
+                    string timerenabled = SettingMgmt.getSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
+                    if (timerenabled != null)
+                    {
+                        rblenabled.SelectedValue = timerenabled;
+                        tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
+                    }
+
+                    string menustate = SettingMgmt.getSetting("Menu-Default-State");
+                    if (menustate != null)
+                    {
+                        if (menustate == "hide")
+                        {
+                            tblCollapsed.Visible = true;
+                            tblExpand.Visible = false;
+                        }
+                        else
+                        {
+                            tblCollapsed.Visible = false;
+                            tblExpand.Visible = true;
+                        }
+
+                        cellMenu.BackColor = tblExpand.Visible ? System.Drawing.ColorTranslator.FromHtml("#eeeeee") : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
+
+                        PubNub pubnubSocket = new PubNub();
+                        pubnubSocket.Open();
+                    }
+                }
             }
-            
-            if (!IsPostBack)
+            catch (Exception ex)
             {
-                lblRefreshed.Text = DateTime.Now.ToString();
-                //CHECK SECURITY/SETTINGS VALIDITY
-                if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password")
-                    Response.Redirect("~/Settings.aspx");
-
-                //SET PAGE OPTIONS
-                string timerrefresh = SettingMgmt.getSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
-                if (timerrefresh != null)
-                {
-                    tbTimer.Text = timerrefresh;
-                    tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
-                }
-
-                string timerenabled = SettingMgmt.getSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
-                if (timerenabled != null)
-                {
-                    rblenabled.SelectedValue = timerenabled;
-                    tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
-                }
-
-                string menustate = SettingMgmt.getSetting("Menu-Default-State");
-                if (menustate != null)
-                {
-                    if (menustate == "hide")
-                    {
-                        tblCollapsed.Visible = true;
-                        tblExpand.Visible = false;
-                    }
-                    else
-                    {
-                        tblCollapsed.Visible = false;
-                        tblExpand.Visible = true;
-                    }
-
-                    cellMenu.BackColor = tblExpand.Visible ? System.Drawing.ColorTranslator.FromHtml("#eeeeee") : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
-                }
+                EventLog.WriteEntry("WinkAtHome.Master.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
 
         protected void tmrRefresh_Tick(object sender, EventArgs e)
         {
-            tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
+            try
+            {
+                tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
 
-            reload();
+                reload();
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Master.tmrRefresh_Tick", ex.Message, EventLogEntryType.Error);
+            }
+
         }
         protected void tbTimer_TextChanged(object sender, EventArgs e)
         {
-            tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
-            SettingMgmt.saveSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), tbTimer.Text);
+            try
+            {
+                tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
+                SettingMgmt.saveSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), tbTimer.Text);
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Master.tbTimer_TextChanged", ex.Message, EventLogEntryType.Error);
+            }
         }
 
         protected void rblenabled_SelectedIndexChanged(object sender, EventArgs e)
         {
-            tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
-            SettingMgmt.saveSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), rblenabled.SelectedValue);
+            try
+            {
+                tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
+                SettingMgmt.saveSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), rblenabled.SelectedValue);
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Master.rblenabled_SelectedIndexChanged", ex.Message, EventLogEntryType.Error);
+            }
         }
 
         protected void lbLogout_Click(object sender, EventArgs e)
         {
-            if (Request.Cookies["login"] != null)
+            try
             {
-                HttpCookie aCookie = new HttpCookie("login");
-                aCookie.Expires = DateTime.Now.AddDays(-1d);
-                Response.Cookies.Add(aCookie);
+                if (Request.Cookies["login"] != null)
+                {
+                    HttpCookie aCookie = new HttpCookie("login");
+                    aCookie.Expires = DateTime.Now.AddDays(-1d);
+                    Response.Cookies.Add(aCookie);
+                }
+
+                Session.Abandon();
+
+                Response.Redirect("~/Login.aspx");
             }
-
-            Session.Abandon();
-
-            Response.Redirect("~/Login.aspx");
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Master.lbLogout_Click", ex.Message, EventLogEntryType.Error);
+            }
         }
 
         protected void ibExpand_Click(object sender, EventArgs e)
         {
-            string cmdArg = string.Empty;
-            if (sender is ImageButton)
+            try
             {
-                ImageButton btn = (ImageButton)sender;
-                cmdArg = btn.CommandArgument;
-            }
-            else if (sender is Button)
-            {
-                Button btn = (Button)sender;
-                cmdArg = btn.CommandArgument;
-            }
-            else if (sender is LinkButton)
-            {
-                LinkButton btn = (LinkButton)sender;
-                cmdArg = btn.CommandArgument;
-            }
+                string cmdArg = string.Empty;
+                if (sender is ImageButton)
+                {
+                    ImageButton btn = (ImageButton)sender;
+                    cmdArg = btn.CommandArgument;
+                }
+                else if (sender is Button)
+                {
+                    Button btn = (Button)sender;
+                    cmdArg = btn.CommandArgument;
+                }
+                else if (sender is LinkButton)
+                {
+                    LinkButton btn = (LinkButton)sender;
+                    cmdArg = btn.CommandArgument;
+                }
 
-            if (cmdArg == "hide")
-            {
-                tblCollapsed.Visible = true;
-                tblExpand.Visible = false;
-                SettingMgmt.saveSetting("Menu-Default-State", "hide");
-            }
-            else
-            {
-                tblCollapsed.Visible = false;
-                tblExpand.Visible = true;
-                SettingMgmt.saveSetting("Menu-Default-State", "show");
-            }
+                if (cmdArg == "hide")
+                {
+                    tblCollapsed.Visible = true;
+                    tblExpand.Visible = false;
+                    SettingMgmt.saveSetting("Menu-Default-State", "hide");
+                }
+                else
+                {
+                    tblCollapsed.Visible = false;
+                    tblExpand.Visible = true;
+                    SettingMgmt.saveSetting("Menu-Default-State", "show");
+                }
 
-            cellMenu.BackColor = tblExpand.Visible ? System.Drawing.ColorTranslator.FromHtml("#eeeeee") : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
+                cellMenu.BackColor = tblExpand.Visible ? System.Drawing.ColorTranslator.FromHtml("#eeeeee") : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
 
-            Response.Redirect(Request.RawUrl);
+                Response.Redirect(Request.RawUrl);
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Master.ibExpand_Click", ex.Message, EventLogEntryType.Error);
+            }
         }
         public void reload()
         {
@@ -145,10 +194,59 @@ namespace WinkAtHome
                     Response.Redirect(Request.RawUrl);
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                string message = e.Message;
+                EventLog.WriteEntry("WinkAtHome.Master.reload", ex.Message, EventLogEntryType.Error);
             }
+        }
+
+        protected void tmrCheckChanges_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                string modalshowing = "false";
+                if (Session["modalshowing"] != null)
+                    modalshowing = Session["modalshowing"].ToString();
+
+                if (modalshowing == "false")
+                {
+                    if (Wink.hasDeviceChanges)
+                    {
+                        Wink.hasDeviceChanges = false;
+
+                        //UPDATE DEVICES
+                        UserControl ucDevices = (UserControl)cphMain.FindControl("ucDevices");
+                        if (ucDevices != null)
+                        {
+                            var control = ucDevices as Controls.Devices;
+                            control.BindData();
+                        }
+
+                        //UPDATE SENSORS
+                        UserControl ucSensors = (UserControl)cphMain.FindControl("ucSensors");
+                        if (ucSensors != null)
+                        {
+                            var control = ucSensors as Controls.Devices;
+                            control.BindData();
+                        }
+                        UpdatePanel2.Update();
+
+                        //UPDATE PUBNUB PANEL
+                        UserControl ucPubNub = (UserControl)cphMain.FindControl("ucPubNub");
+                        if (ucPubNub != null)
+                        {
+                            var control = ucPubNub as Controls.PubNubDisplay;
+                            control.UpdateResultView();
+                        }
+                        UpdatePanel2.Update();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Master.tmrCheckChanges_Tick", ex.Message, EventLogEntryType.Error);
+            }
+
         }
     }
 }

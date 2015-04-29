@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security;
@@ -18,6 +19,7 @@ namespace WinkAtHome
             public string key;
             public string value;
             public bool isEncrypted = false;
+            public bool isRequired = false;
         }
         public static List<Setting> Settings
         {
@@ -34,12 +36,19 @@ namespace WinkAtHome
 
         public static string getSetting(string KeyName)
         {
-            Setting setting = Settings.SingleOrDefault(s => s.key.ToLower().Equals(KeyName.ToLower()));
-            if (setting != null)
-                return setting.value;
-            else
+            try
+            {
+                Setting setting = Settings.SingleOrDefault(s => s.key.ToLower().Equals(KeyName.ToLower()));
+                if (setting != null)
+                    return setting.value;
+                else
+                    return null;
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.SettingsMgmt.getSetting", ex.Message, EventLogEntryType.Error);
                 return null;
-
+            }
         }
 
         public static List<Setting> loadSettings(bool forceReset = false)
@@ -62,6 +71,7 @@ namespace WinkAtHome
                             Setting setting = new Setting();
                             setting.key = reader["name"].ToString();
                             string isEncrypted = reader["IsEncrypted"].ToString();
+                            string isRequired = reader["isRequired"].ToString();
 
                             if (reader.IsDBNull(reader.GetOrdinal("value")) || string.IsNullOrWhiteSpace(reader["value"].ToString()))
                                 setting.value = reader["defaultvalue"].ToString();
@@ -75,6 +85,9 @@ namespace WinkAtHome
 
                             if (Convert.ToBoolean(isEncrypted))
                                 setting.isEncrypted = true;
+                            
+                            if (Convert.ToBoolean(isRequired))
+                                setting.isRequired = true;
 
                             settings.Add(setting);
                         }
@@ -84,9 +97,10 @@ namespace WinkAtHome
                 }
                 return _settings;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw e;
+                EventLog.WriteEntry("WinkAtHome.SettingsMgmt.loadSettings", ex.Message, EventLogEntryType.Error);
+                throw ex;
             }
         }
 
@@ -110,14 +124,17 @@ namespace WinkAtHome
                         command.CommandText = "INSERT OR IGNORE INTO Settings(Name,Value) VALUES (@name,@value)";
                         command.ExecuteNonQuery();
 
+                        command.CommandText = "DELETE FROM Settings WHERE IFNULL(Value, '') = '' and IFNULL(DefaultValue, '') = '' and IsEncrypted = 'false'";
+                        command.ExecuteNonQuery();
                     }
                 }
 
                 loadSettings(true);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw e;
+                EventLog.WriteEntry("WinkAtHome.SettingsMgmt.saveSetting", ex.Message, EventLogEntryType.Error);
+                throw ex;
             }
         }
         
@@ -131,30 +148,39 @@ namespace WinkAtHome
                     saveSetting(jo.Key, jo.Value.ToString());
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw e;
+                EventLog.WriteEntry("WinkAtHome.SettingsMgmt.saveSetting", ex.Message, EventLogEntryType.Error);
+                throw ex;
             }
         }
 
         public static void wipeSettings()
         {
-            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+            try
             {
-                connection.Open();
-
-                using (SQLiteCommand command = new SQLiteCommand(connection))
+                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
                 {
-                    command.CommandText = "delete from Settings where defaultvalue is null";
-                    command.ExecuteNonQuery();
+                    connection.Open();
 
-                    command.CommandText = "update Settings set value = null";
-                    command.ExecuteNonQuery();
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText = "delete from Settings where defaultvalue is null";
+                        command.ExecuteNonQuery();
 
+                        command.CommandText = "update Settings set value = null";
+                        command.ExecuteNonQuery();
+
+                    }
                 }
+
+                loadSettings(true);
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.SettingsMgmt.wipeSettings", ex.Message, EventLogEntryType.Error);
             }
 
-            loadSettings(true);
         }
     }
 }

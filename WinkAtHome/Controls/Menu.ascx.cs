@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Web;
@@ -67,48 +68,55 @@ namespace WinkAtHome.Controls
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                EventLog.WriteEntry("WinkAtHome.Menu.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
 
         protected void RadMenu1_ItemClick(object sender, RadMenuEventArgs e)
         {
-            RadMenuItem item = e.Item;
-            if (!string.IsNullOrWhiteSpace(item.Value) && item.Value != "devicetype")
+            try
             {
-                string pagename = string.Empty;
-                string querystring = string.Empty;
-
-                var parent = item.Parent;
-
-                if (parent is RadMenuItem)
+                RadMenuItem item = e.Item;
+                if (!string.IsNullOrWhiteSpace(item.Value) && item.Value != "devicetype")
                 {
-                    pagename = ((RadMenuItem)parent).Value.ToLower();
-                    if (pagename == "devicetype")
+                    string pagename = string.Empty;
+                    string querystring = string.Empty;
+
+                    var parent = item.Parent;
+
+                    if (parent is RadMenuItem)
                     {
-                        parent = parent.Parent;
                         pagename = ((RadMenuItem)parent).Value.ToLower();
+                        if (pagename == "devicetype")
+                        {
+                            parent = parent.Parent;
+                            pagename = ((RadMenuItem)parent).Value.ToLower();
+                        }
+                        if (pagename == "devices")
+                        {
+                            querystring = "?devicetype=" + item.Value;
+                        }
                     }
-                    if (pagename == "devices")
+                    else if (item.Value == "sensors")
                     {
+                        pagename = "devices";
                         querystring = "?devicetype=" + item.Value;
                     }
-                }
-                else if (item.Value == "sensors")
-                {
-                    pagename = "devices";
-                    querystring = "?devicetype=" + item.Value;
-                }
-                else
-                {
-                    pagename = item.Value;
-                }
+                    else
+                    {
+                        pagename = item.Value;
+                    }
 
 
-                string URL = "~/" + pagename + ".aspx" + querystring;
-                Response.Redirect(URL);
+                    string URL = "~/" + pagename + ".aspx" + querystring;
+                    Response.Redirect(URL);
+                }
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("WinkAtHome.Menu.RadMenu1_ItemClick", ex.Message, EventLogEntryType.Error);
             }
         }
     }
