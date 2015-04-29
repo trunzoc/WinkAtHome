@@ -5,7 +5,7 @@ Before first use, if you want to make settings more secure, go into web.config a
 
 INSTRUCTIONS:
 
-To install IIS
+To install IIS<br>
 1) Click the Start button , click Control Panel, click Programs, and then click Turn Windows features on or off. 
 2) In the list of Windows features, select Internet Information Services, and then click OK.
 
