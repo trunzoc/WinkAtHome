@@ -38,7 +38,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Common.FromUnixTime", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.FromUnixTime", ex.Message, EventLogEntryType.Error);
                 return new DateTime();
             }
         }
@@ -69,7 +69,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Common.Encrypt", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.Encrypt", ex.Message, EventLogEntryType.Error);
                 return null;
             }
 
@@ -102,7 +102,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Common.Decrypt", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.Decrypt", ex.Message, EventLogEntryType.Error);
                 return null;
             }
         }
@@ -115,7 +115,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Common.Open", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.Open", ex.Message, EventLogEntryType.Error);
                 return -1;
             }
 
@@ -129,7 +129,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Common.FromFahrenheitToCelsius", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.FromFahrenheitToCelsius", ex.Message, EventLogEntryType.Error);
                 return -1;
             }
 
@@ -300,7 +300,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Common.prepareDatabase", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.prepareDatabase", ex.Message, EventLogEntryType.Error);
             }
 
         }

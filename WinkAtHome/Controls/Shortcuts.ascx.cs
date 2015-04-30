@@ -38,7 +38,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Shortcuts.Page_Load", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Shortcuts.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -54,7 +54,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Shortcuts.BindData", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Shortcuts.BindData", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -97,7 +97,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Shortcuts.dlShortcuts_ItemDataBound", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Shortcuts.dlShortcuts_ItemDataBound", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -114,7 +114,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Shortcuts.imgIcon_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Shortcuts.imgIcon_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -125,7 +125,7 @@ namespace WinkAtHome.Controls
             mpeSettings.Show();
         }
 
-        protected void btnSettingsClose_Click(object sender, EventArgs e)
+        protected void ibSettingsClose_Click(object sender, EventArgs e)
         {
             Session["modalshowing"] = "false";
 
@@ -152,7 +152,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Shortcuts.ibInfo_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Shortcuts.ibInfo_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -177,7 +177,11 @@ namespace WinkAtHome.Controls
                     try
                     {
                         Int32 pos = 9999;
-                        if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
+                        if (string.IsNullOrWhiteSpace(tbPosition.Text))
+                        {
+                            savePosSuccess = true;
+                        }
+                        else if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
                         {
                             List<string> existingList = new List<string>();
                             foreach (DataListItem dli in dlShortcuts.Items)
@@ -231,7 +235,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Shortcuts.btnClose_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Shortcuts.btnClose_Click", ex.Message, EventLogEntryType.Error);
             }
         }
     }

@@ -58,7 +58,7 @@ public class Wink
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("WinkAtHome.Wink.validateWinkCredentials", ex.Message, EventLogEntryType.Error);
+            throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.validateWinkCredentials", ex.Message, EventLogEntryType.Error);
             return false;
         }
     }
@@ -113,7 +113,7 @@ public class Wink
 
     #endregion
 
-    #region token
+#region token
     private static string WinkToken
     {
         get
@@ -144,6 +144,8 @@ public class Wink
                 JObject jsonResponse = winkCallAPI(oAuthURL, "POST", sendstring, false);
 
                 _winkToken = jsonResponse["access_token"].ToString();
+
+                User user = winkUser;
             }
 
             return _winkToken;
@@ -154,9 +156,60 @@ public class Wink
             return null;
         }
     }
-    #endregion
+#endregion
 
-    #region Device
+#region user
+    public class User
+    {
+        [SimpleProperty]
+        public string userID { get; set; }
+        [SimpleProperty]
+        public string first_name { get; set; }
+        [SimpleProperty]
+        public string last_name { get; set; }
+        [SimpleProperty]
+        public string email { get; set; }
+    }
+    public static User winkUser
+    {
+        get
+        {
+            return winkGetUser();
+        }
+        set
+        {
+            _winkUser = value;
+        }
+    }
+    private static User _winkUser;
+
+    private static User winkGetUser(bool forceRefresh = false)
+    {
+        try
+        {
+            if (_winkUser == null || forceRefresh)
+            {
+                string URL = ConfigurationManager.AppSettings["winkRootURL"] + "users/me";
+
+                JObject jsonResponse = winkCallAPI(URL);
+
+                _winkUser = new User();
+                _winkUser.userID = jsonResponse["data"]["user_id"].ToString();
+                _winkUser.first_name = jsonResponse["data"]["first_name"].ToString();
+                _winkUser.last_name = jsonResponse["data"]["last_name"].ToString();
+                _winkUser.email = jsonResponse["data"]["email"].ToString();
+            }
+
+            return _winkUser;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+#endregion
+
+#region Device
     public class Device
     {
         [SimpleProperty]
@@ -296,7 +349,7 @@ public class Wink
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Wink.setDeviceDisplayName", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setDeviceDisplayName", ex.Message, EventLogEntryType.Error);
                 return null;
             }
         }
@@ -324,7 +377,7 @@ public class Wink
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Wink.setDevicePosition", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setDevicePosition", ex.Message, EventLogEntryType.Error);
                 return -1;
             }
         }
@@ -981,7 +1034,7 @@ public class Wink
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Wink.setShortcutDisplayName", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setShortcutDisplayName", ex.Message, EventLogEntryType.Error);
                 return null;
             }
         }
@@ -1009,7 +1062,7 @@ public class Wink
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Wink.setShortcutPosition", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setShortcutPosition", ex.Message, EventLogEntryType.Error);
                 return -1;
             }
         }
@@ -1349,7 +1402,7 @@ public class Wink
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Wink.setGroupDisplayName", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setGroupDisplayName", ex.Message, EventLogEntryType.Error);
                 return null;
             }
         }
@@ -1377,7 +1430,7 @@ public class Wink
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Wink.setGroupPosition", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setGroupPosition", ex.Message, EventLogEntryType.Error);
                 return -1;
             }
         }
@@ -1714,7 +1767,7 @@ public class Wink
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Wink.setRobotDisplayName", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setRobotDisplayName", ex.Message, EventLogEntryType.Error);
                 return null;
             }
         }
@@ -1742,7 +1795,7 @@ public class Wink
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Wink.setRobotPosition", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setRobotPosition", ex.Message, EventLogEntryType.Error);
                 return -1;
             }
         }
@@ -2061,6 +2114,9 @@ public class Wink
 
                             //Rachio Iro
                     //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"sprinkler_id\": \"1483\",\"name\": \"Sprinkler\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1429295028,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"ecbd8151da8524635b2dfd777c4f55f33a042285|sprinkler-1483|user-186645\"}},\"user_ids\": [\"186645\"],\"desired_state\": {\"master_valve\": false,\"rain_sensor\": false,\"schedule_enabled\": false,\"run_zone_indices\": [],\"run_zone_durations\": []},\"manufacturer_device_model\": \"rachio_iro\",\"manufacturer_device_id\": \"b26d4e70-f4df-481a-9149-c9bac4c3a09e\",\"device_manufacturer\": \"rachio\",\"model_name\": \"Iro\",\"upc_id\": \"152\",\"linked_service_id\": \"100792\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1429477160.725,\"master_valve\": false,\"master_valve_updated_at\": 1429477160.725,\"rain_sensor\": false,\"rain_sensor_updated_at\": 1429477160.725,\"schedule_enabled\": false,\"schedule_enabled_updated_at\": 1429477160.725,\"run_zone_indices\": [],\"run_zone_indices_updated_at\": 1429361044.5683227,\"run_zone_durations\": [],\"run_zone_durations_updated_at\": 1429361044.5683227,\"desired_master_valve\": false,\"desired_master_valve_updated_at\": 1429361044.6298194,\"desired_rain_sensor\": false,\"desired_rain_sensor_updated_at\": 1429361042.534966,\"desired_schedule_enabled\": false,\"desired_schedule_enabled_updated_at\": 1429361044.6298397,\"desired_run_zone_indices\": [],\"desired_run_zone_indices_updated_at\": 1429361042.5349822,\"desired_run_zone_durations\": [],\"desired_run_zone_durations_updated_at\": 1429361042.5349896},\"lat_lng\": [41.38983,-81.42602],\"location\": \"\",\"zones\": [{\"name\": \"Top Driveway\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6298468,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6298535,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6298602,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6298668,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.629873,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6298814},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 0,\"zone_id\": \"12501\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Driveway Bottom\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6298881,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6298945,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299007,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299071,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299136,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6299202},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 1,\"zone_id\": \"12502\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Tree Lawn\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6299269,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6299338,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299408,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299474,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299543,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.629961},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 2,\"zone_id\": \"12503\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Right\",\"desired_state\": {\"enabled\": false,\"enabled_updated_at\": 1429361044.6299675,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6299734,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299799,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299863,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299949,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6300077},\"last_reading\": {\"enabled\": false,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 3,\"zone_id\": \"12504\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Mailbox\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6300216,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6300349,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6300464,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.630054,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6300609,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6300678},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 4,\"zone_id\": \"12505\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Center\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6300743,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6300812,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6300881,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6300948,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301012,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301079},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 5,\"zone_id\": \"12506\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Left\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6301141,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6301203,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6301262,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6301327,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301389,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301456},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 6,\"zone_id\": \"12507\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Zone 8\",\"desired_state\": {\"enabled\": false,\"enabled_updated_at\": 1429361044.630152,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6301584,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6301646,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6301739,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301811,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301878},\"last_reading\": {\"enabled\": false,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 7,\"zone_id\": \"12508\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"}]},");
+
+                            //Ascend
+                            responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"garage_door_id\": \"16896\", \"name\": \"Ascend Garage Door\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1430344326, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"9fe350e72a807190df334cd839a00992f59446b2|garage_door-16896|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": { \"position\": 0.0, \"laser\": false, \"calibration_enabled\": false }, \"manufacturer_device_model\": \"quirky_ge_ascend\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"quirky_ge\", \"model_name\": \"Ascend\", \"upc_id\": \"182\", \"linked_service_id\": null, \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1430362778.3658881, \"position\": 0.0, \"position_updated_at\": 1430362778.3658676, \"position_opened\": \"N/A\", \"position_opened_updated_at\": 1430351386.88027, \"battery\": null, \"battery_updated_at\": null, \"fault\": false, \"fault_updated_at\": 1430362778.3658946, \"control_enabled\": null, \"control_enabled_updated_at\": null, \"laser\": false, \"laser_updated_at\": 1430362778.3658564, \"buzzer\": null, \"buzzer_updated_at\": null, \"led\": null, \"led_updated_at\": null, \"moving\": null, \"moving_updated_at\": null, \"calibrated\": true, \"calibrated_updated_at\": 1430362778.3658812, \"calibration_enabled\": false, \"calibration_enabled_updated_at\": 1430362778.3658745, \"last_error\": null, \"last_error_updated_at\": 1430362778.3659008, \"desired_position\": 0.0, \"desired_position_updated_at\": 1430362531.397609, \"desired_laser\": false, \"desired_laser_updated_at\": 1430345748.1740961, \"desired_calibration_enabled\": false, \"desired_calibration_enabled_updated_at\": 1430345759.9318135 }, \"lat_lng\": [ 41.675863, -81.287492 ], \"location\": \"44060\", \"mac_address\": null, \"serial\": \"20000c2a69088729\", \"order\": null},");
                         }
                     }
                 #endif                

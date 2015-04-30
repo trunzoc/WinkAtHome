@@ -26,11 +26,11 @@
                 <ucD:ucDevices ID="ucDevices" runat="server" ControllableOnly="true" />
             </asp:TableCell>
         </asp:TableRow>
-        <asp:TableRow ID="rowPubNub" Visible='<%# PubNub.hasPubNub %>'>
+<%--        <asp:TableRow ID="rowPubNub" Visible='<%# PubNub.hasPubNub %>'>
             <asp:TableCell>
                 <ucP:ucPubNub ID="ucPubNub" runat="server" />
             </asp:TableCell>
-        </asp:TableRow>
+        </asp:TableRow>--%>
     </asp:Table>
 </asp:Content>
 

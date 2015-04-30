@@ -13,6 +13,15 @@ namespace WinkAtHome.Controls {
     public partial class Devices {
         
         /// <summary>
+        /// UpdateProgress1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdateProgress UpdateProgress1;
+        
+        /// <summary>
         /// hfDeviceType control.
         /// </summary>
         /// <remarks>
@@ -94,6 +103,15 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.Panel pnlSettings;
         
         /// <summary>
+        /// Table9 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Table Table9;
+        
+        /// <summary>
         /// Label5 control.
         /// </summary>
         /// <remarks>
@@ -139,13 +157,13 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.TextBox tbColumns;
         
         /// <summary>
-        /// btnSettingsClose control.
+        /// ibSettingsClose control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSettingsClose;
+        protected global::System.Web.UI.WebControls.LinkButton ibSettingsClose;
         
         /// <summary>
         /// rowData control.
@@ -157,13 +175,13 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.TableRow rowData;
         
         /// <summary>
-        /// UpdatePanel1 control.
+        /// upData control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel UpdatePanel1;
+        protected global::System.Web.UI.UpdatePanel upData;
         
         /// <summary>
         /// dlDevices control.

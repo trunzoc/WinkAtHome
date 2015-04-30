@@ -44,12 +44,19 @@ namespace WinkAtHome.Controls
                         cbHideEmpty.Checked = visible;
                     }
 
+                    string alerttimeout = SettingMgmt.getSetting("Robot-Alert-Minutes-Since-Last-Trigger");
+                    if (alerttimeout != null)
+                    {
+                        tbAlertTimeout.Text = alerttimeout;
+                    }
+                    
+
                     BindData();
                 }
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Robots.Page_Load", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Robots.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -76,7 +83,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Robots.BindData", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Robots.BindData", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -154,7 +161,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Robots.dlRobots_ItemDataBound", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Robots.dlRobots_ItemDataBound", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -173,7 +180,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Robots.imgIcon_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Robots.imgIcon_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -190,7 +197,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Robots.ibInfo_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Robots.ibInfo_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -215,7 +222,11 @@ namespace WinkAtHome.Controls
                     try
                     {
                         Int32 pos = 9999;
-                        if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
+                        if (string.IsNullOrWhiteSpace(tbPosition.Text))
+                        {
+                            savePosSuccess = true;
+                        }
+                        else if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
                         {
                             List<string> existingList = new List<string>();
                             foreach (DataListItem dli in dlRobots.Items)
@@ -269,7 +280,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Robots.btnClose_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Robots.btnClose_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -280,7 +291,7 @@ namespace WinkAtHome.Controls
             mpeSettings.Show();
         }
 
-        protected void btnSettingsClose_Click(object sender, EventArgs e)
+        protected void ibSettingsClose_Click(object sender, EventArgs e)
         {
             Session["modalshowing"] = "false";
 
@@ -290,6 +301,8 @@ namespace WinkAtHome.Controls
             SettingMgmt.saveSetting(hfSettingBase.Value + "-Columns", tbColumns.Text);
 
             SettingMgmt.saveSetting("Hide-Empty-Robots", cbHideEmpty.Checked.ToString());
+
+            SettingMgmt.saveSetting("Robot-Alert-Minutes-Since-Last-Trigger", tbAlertTimeout.Text);
 
             mpeSettings.Hide();
 

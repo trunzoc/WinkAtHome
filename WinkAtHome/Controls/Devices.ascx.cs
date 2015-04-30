@@ -221,37 +221,39 @@ namespace WinkAtHome.Controls
                 //SET BATTERY ICON
                 if (keys.Contains("battery"))
                 {
-                    Image imgBattery = (Image)e.Item.FindControl("imgBattery");
-                    if (imgBattery != null)
+                    Wink.Device.DeviceStatus stat = status.Single(p => p.name == "battery");
+
+                    if (!string.IsNullOrWhiteSpace(stat.current_status))
                     {
-                        imgBattery.Visible = true;
-
-                        Wink.Device.DeviceStatus stat = status.Single(p => p.name == "battery");
-                        double batLevel = 0;
-                        Double.TryParse(stat.current_status, out batLevel);
-
-                        batLevel = batLevel * 100;
-
-                        string imgLevel = "0";
-                        if (batLevel <= 10)
-                            imgLevel = "0";
-                        else if (batLevel <= 30)
-                            imgLevel = "25";
-                        else if (batLevel <= 60)
-                            imgLevel = "50";
-                        else if (batLevel <= 90)
-                            imgLevel = "75";
-                        else
-                            imgLevel = "100";
-
-                        imgBattery.ToolTip = "Battery Level: " + batLevel + "%\r\nLast Updated: " + stat.last_updated;
-
-
-                        string imgPath = Request.PhysicalApplicationPath + "\\Images\\Battery\\Battery" + imgLevel + ".png";
-                        if (File.Exists(imgPath))
+                        Image imgBattery = (Image)e.Item.FindControl("imgBattery");
+                        if (imgBattery != null)
                         {
-                            string url = "~/Images/Battery/Battery" + imgLevel + ".png";
-                            imgBattery.ImageUrl = url;
+                            double batLevel = 0;
+                            Double.TryParse(stat.current_status, out batLevel);
+
+                            batLevel = batLevel * 100;
+
+                            string imgLevel = "0";
+                            if (batLevel <= 10)
+                                imgLevel = "0";
+                            else if (batLevel <= 30)
+                                imgLevel = "25";
+                            else if (batLevel <= 60)
+                                imgLevel = "50";
+                            else if (batLevel <= 90)
+                                imgLevel = "75";
+                            else
+                                imgLevel = "100";
+
+                            imgBattery.ToolTip = "Battery Level: " + batLevel + "%\r\nLast Updated: " + stat.last_updated;
+
+                            imgBattery.Visible = true;
+                            string imgPath = Request.PhysicalApplicationPath + "\\Images\\Battery\\Battery" + imgLevel + ".png";
+                            if (File.Exists(imgPath))
+                            {
+                                string url = "~/Images/Battery/Battery" + imgLevel + ".png";
+                                imgBattery.ImageUrl = url;
+                            }
                         }
                     }
                 }
@@ -995,7 +997,11 @@ namespace WinkAtHome.Controls
                     try
                     {
                         Int32 pos = 9999;
-                        if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
+                        if (string.IsNullOrWhiteSpace(tbPosition.Text))
+                        {
+                            savePosSuccess = true;
+                        }
+                        else if (Int32.TryParse(tbPosition.Text, out pos) && pos > 0 && pos < 1001)
                         {
                             List<string> existingList = new List<string>();
                             foreach (DataListItem dli in dlDevices.Items)
@@ -1049,7 +1055,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Devices.btnClose_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Devices.btnClose_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -1060,7 +1066,7 @@ namespace WinkAtHome.Controls
             mpeSettings.Show();
         }
 
-        protected void btnSettingsClose_Click(object sender, EventArgs e)
+        protected void ibSettingsClose_Click(object sender, EventArgs e)
         {
             Session["modalshowing"] = "false";
 
@@ -1093,7 +1099,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Devices.ibHubDevices_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Devices.ibHubDevices_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -1105,6 +1111,5 @@ namespace WinkAtHome.Controls
             mpeHubDevices.Hide();
             Session["modalshowing"] = "false";
         }
-
     }
 }

@@ -26,7 +26,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.winkStatus.Page_Load", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.winkStatus.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -57,7 +57,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.winkStatus.rptStatus_ItemDataBound", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.winkStatus.rptStatus_ItemDataBound", ex.Message, EventLogEntryType.Error);
             }
         }
     }

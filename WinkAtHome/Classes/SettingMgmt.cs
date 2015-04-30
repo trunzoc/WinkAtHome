@@ -46,7 +46,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.SettingsMgmt.getSetting", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.getSetting", ex.Message, EventLogEntryType.Error);
                 return null;
             }
         }
@@ -99,7 +99,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.SettingsMgmt.loadSettings", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.loadSettings", ex.Message, EventLogEntryType.Error);
                 throw ex;
             }
         }
@@ -133,7 +133,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.SettingsMgmt.saveSetting", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.saveSetting", ex.Message, EventLogEntryType.Error);
                 throw ex;
             }
         }
@@ -150,7 +150,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.SettingsMgmt.saveSetting", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.saveSetting", ex.Message, EventLogEntryType.Error);
                 throw ex;
             }
         }
@@ -178,7 +178,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.SettingsMgmt.wipeSettings", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.wipeSettings", ex.Message, EventLogEntryType.Error);
             }
 
         }

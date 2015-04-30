@@ -85,22 +85,31 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.Panel pnlSettings;
         
         /// <summary>
-        /// Label5 control.
+        /// Table9 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label5;
+        protected global::System.Web.UI.WebControls.Table Table9;
         
         /// <summary>
-        /// Label2 control.
+        /// Label3 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label2;
+        protected global::System.Web.UI.WebControls.Label Label3;
+        
+        /// <summary>
+        /// Label7 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label7;
         
         /// <summary>
         /// cbShow control.
@@ -130,13 +139,13 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.CheckBox cbHideEmpty;
         
         /// <summary>
-        /// Label6 control.
+        /// Label8 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label6;
+        protected global::System.Web.UI.WebControls.Label Label8;
         
         /// <summary>
         /// tbColumns control.
@@ -148,13 +157,13 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.TextBox tbColumns;
         
         /// <summary>
-        /// btnSettingsClose control.
+        /// ibSettingsClose control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSettingsClose;
+        protected global::System.Web.UI.WebControls.LinkButton ibSettingsClose;
         
         /// <summary>
         /// rowData control.

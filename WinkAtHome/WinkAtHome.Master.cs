@@ -72,7 +72,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Master.Page_Load", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Master.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -86,7 +86,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Master.tmrRefresh_Tick", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Master.tmrRefresh_Tick", ex.Message, EventLogEntryType.Error);
             }
 
         }
@@ -99,7 +99,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Master.tbTimer_TextChanged", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Master.tbTimer_TextChanged", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -112,7 +112,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Master.rblenabled_SelectedIndexChanged", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Master.rblenabled_SelectedIndexChanged", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -133,7 +133,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Master.lbLogout_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Master.lbLogout_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -177,7 +177,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Master.ibExpand_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Master.ibExpand_Click", ex.Message, EventLogEntryType.Error);
             }
         }
         public void reload()
@@ -196,7 +196,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Master.reload", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Master.reload", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -220,6 +220,9 @@ namespace WinkAtHome
                         {
                             var control = ucDevices as Controls.Devices;
                             control.BindData();
+
+                            UpdatePanel upData = (UpdatePanel)control.FindControl("upData");
+                            upData.Update();
                         }
 
                         //UPDATE SENSORS
@@ -228,8 +231,10 @@ namespace WinkAtHome
                         {
                             var control = ucSensors as Controls.Devices;
                             control.BindData();
+                            
+                            UpdatePanel upData = (UpdatePanel)control.FindControl("upData");
+                            upData.Update();
                         }
-                        UpdatePanel2.Update();
 
                         //UPDATE PUBNUB PANEL
                         UserControl ucPubNub = (UserControl)cphMain.FindControl("ucPubNub");
@@ -238,15 +243,15 @@ namespace WinkAtHome
                             var control = ucPubNub as Controls.PubNubDisplay;
                             control.UpdateResultView();
                         }
-                        UpdatePanel2.Update();
+
+                        UpdatePanel1.Update();
                     }
                 }
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Master.tmrCheckChanges_Tick", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Master.tmrCheckChanges_Tick", ex.Message, EventLogEntryType.Error);
             }
-
         }
     }
 }

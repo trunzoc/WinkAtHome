@@ -45,7 +45,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.PubNubDisplay.Page_Load", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.PubNubDisplay.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -74,7 +74,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.PubNubDisplay.UpdateResultView", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.PubNubDisplay.UpdateResultView", ex.Message, EventLogEntryType.Error);
             }
         }
 

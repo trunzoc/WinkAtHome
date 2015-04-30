@@ -85,6 +85,15 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.Panel pnlSettings;
         
         /// <summary>
+        /// Table9 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Table Table9;
+        
+        /// <summary>
         /// Label5 control.
         /// </summary>
         /// <remarks>
@@ -130,13 +139,13 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.TextBox tbColumns;
         
         /// <summary>
-        /// btnSettingsClose control.
+        /// ibSettingsClose control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSettingsClose;
+        protected global::System.Web.UI.WebControls.LinkButton ibSettingsClose;
         
         /// <summary>
         /// rowData control.

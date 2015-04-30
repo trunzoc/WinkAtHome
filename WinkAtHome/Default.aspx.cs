@@ -24,7 +24,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Default.Page_Load", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Default.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
     }

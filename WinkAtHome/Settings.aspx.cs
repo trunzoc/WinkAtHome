@@ -45,7 +45,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Settings.Page_Load", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Settings.Page_Load", ex.Message, EventLogEntryType.Error);
             }
 
         }
@@ -62,7 +62,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Settings.BindData", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Settings.BindData", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -102,7 +102,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Settings.btnSave_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Settings.btnSave_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -124,7 +124,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Settings.btnWipe_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Settings.btnWipe_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -144,7 +144,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Settings.btnManualEdit_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Settings.btnManualEdit_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -160,7 +160,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Settings.btnSaveEdit_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Settings.btnSaveEdit_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -195,7 +195,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Settings.btnRawDevData_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Settings.btnRawDevData_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -229,7 +229,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Settings.btnDefault_Click", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Settings.btnDefault_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -268,7 +268,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("WinkAtHome.Settings.validatePassword", ex.Message, EventLogEntryType.Error);
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Settings.validatePassword", ex.Message, EventLogEntryType.Error);
                 return false;
             }
         }

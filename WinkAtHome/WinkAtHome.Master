@@ -29,25 +29,17 @@
         
         <telerik:RadAjaxManager ID="RadAjaxManager1" runat="server">
         </telerik:RadAjaxManager>
-        
-        <asp:UpdateProgress ID="UpdateProgress1" runat="server" AssociatedUpdatePanelID="UpdatePanel2">
-            <ProgressTemplate>
-                <div style="position: fixed; text-align: center; height: 100%; width: 100%; top: 0; right: 0; left: 0; z-index: 9999999; background-color: #000000; opacity: 0.7;">
-                    <asp:Image ID="imgUpdateProgress" runat="server" ImageUrl="~/images/loading.gif" AlternateText="Loading ..." ToolTip="Loading ..." style="padding: 10px;" />
-                </div>
-            </ProgressTemplate>
-        </asp:UpdateProgress>
 
-        <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Always" >
+        <asp:UpdatePanel ID="upPubNubTimer" runat="server" UpdateMode="Always" >
             <Triggers>
                 <asp:AsyncPostBackTrigger ControlID="tmrCheckChanges" />
             </Triggers>
             <ContentTemplate>
-                <asp:Timer ID="tmrCheckChanges" runat="server" Interval="5000" OnTick="tmrCheckChanges_Tick"></asp:Timer>
+                <asp:Timer ID="tmrCheckChanges" runat="server" Interval="5000" OnTick="tmrCheckChanges_Tick" />
             </ContentTemplate>
         </asp:UpdatePanel>
 
-        <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
+        <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
             <ContentTemplate>
 
                 <asp:Table ID="Table1" runat="server" CellPadding="0" CellSpacing="0" Width="100%">

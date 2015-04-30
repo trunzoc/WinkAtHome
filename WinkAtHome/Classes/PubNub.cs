@@ -91,7 +91,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("WinkAtHome.PubNub.Open", ex.Message, EventLogEntryType.Error);
+            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.Open", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -103,7 +103,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("WinkAtHome.PubNub.Close", ex.Message, EventLogEntryType.Error);
+            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.Close", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -115,7 +115,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("WinkAtHome.PubNub.AddToPubnubResultContainer", ex.Message, EventLogEntryType.Error);
+            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.AddToPubnubResultContainer", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -136,7 +136,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("WinkAtHome.PubNub.DisplayUserCallbackMessage", ex.Message, EventLogEntryType.Error);
+            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.DisplayUserCallbackMessage", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -150,7 +150,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("WinkAtHome.PubNub.DisplayConnectCallbackMessage", ex.Message, EventLogEntryType.Error);
+            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.DisplayConnectCallbackMessage", ex.Message, EventLogEntryType.Error);
         }
     }
     protected void DisplayDisconnectCallbackMessage(string result)
@@ -163,7 +163,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("WinkAtHome.PubNub.DisplayDisconnectCallbackMessage", ex.Message, EventLogEntryType.Error);
+            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.DisplayDisconnectCallbackMessage", ex.Message, EventLogEntryType.Error);
         }
     }
     protected void DisplayErrorMessage(string result)
@@ -287,7 +287,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("WinkAtHome.PubNub.DisplayErrorMessage", ex.Message, EventLogEntryType.Error);
+            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.DisplayErrorMessage", ex.Message, EventLogEntryType.Error);
         }
     }
 }
