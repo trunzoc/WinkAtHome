@@ -220,7 +220,7 @@ namespace WinkAtHome.Controls
                 }
             }
 
-            Response.Redirect(Request.RawUrl);
+            Response.Redirect(Request.RawUrl, false);
         }
 
         protected void ibSettings_Click(object sender, ImageClickEventArgs e)

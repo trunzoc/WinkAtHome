@@ -16,19 +16,35 @@ namespace WinkAtHome
             {
                 Common.prepareDatabase();
 
-                if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password")
+                if (!IsPostBack && Session["loggedin"] == null)
                 {
-                    Response.Redirect("~/Settings.aspx");
-                }
-                else if (Request.Cookies["login"] != null)
-                {
-                    HttpCookie aCookie = Request.Cookies["login"];
-                    if (aCookie != null)
+                    if (Request.Cookies["login"] != null)
                     {
-                        if (SettingMgmt.getSetting("winkUsername") == Common.Decrypt(aCookie.Value))
+                        HttpCookie aCookie = Request.Cookies["login"];
+                        if (aCookie != null)
                         {
-                            Session["loggedin"] = aCookie.Value;
-                            Response.Redirect("~/Default.aspx");
+                            string strloggedin = aCookie.Value;
+
+                            string strDec = Common.Decrypt(strloggedin);
+
+                            try
+                            {
+                                string strUser = strDec.Substring(0, strDec.IndexOf("|||"));
+                                string strPass = strDec.Substring(strDec.IndexOf("|||") +3);
+
+                                string username = Common.Decrypt(strUser);
+                                string password = Common.Decrypt(strPass);
+
+                                if (Wink.validateWinkCredentials(username, password))
+                                {
+                                    Session["loggedin"] = strloggedin;
+                                    Session["username"] = strUser;
+                                    Session["password"] = strPass;
+
+                                    Response.Redirect("~/Default.aspx", false);
+                                }
+                            }
+                            catch { }
                         }
                     }
                 }
@@ -43,9 +59,16 @@ namespace WinkAtHome
         {
             try
             {
-                if (tbUsername.Text.ToLower() == SettingMgmt.getSetting("winkUsername").ToLower() && tbPassword.Text == SettingMgmt.getSetting("winkPassword"))
+                Wink.clearWink();
+                SettingMgmt.Settings = null;
+
+                bool validated = Wink.validateWinkCredentials(tbUsername.Text, tbPassword.Text);
+
+                if (validated)
                 {
-                    Session["loggedin"] = Common.Encrypt(SettingMgmt.getSetting("winkUsername"));
+                    Session["loggedin"] = Common.Encrypt(Common.Encrypt(tbUsername.Text) + "|||" + Common.Encrypt(tbPassword.Text));
+                    Session["username"] = Common.Encrypt(tbUsername.Text);
+                    Session["password"] = Common.Encrypt(tbPassword.Text);
 
                     if (cbRemember.Checked)
                     {
@@ -55,7 +78,8 @@ namespace WinkAtHome
                         Response.Cookies.Add(aCookie);
                     }
 
-                    Response.Redirect("~/Default.aspx");
+
+                    Response.Redirect("~/Default.aspx", false);
                 }
             }
             catch (Exception ex)

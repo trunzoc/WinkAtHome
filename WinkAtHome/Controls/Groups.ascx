@@ -166,6 +166,9 @@
                             </asp:Table>
 
                         </ItemTemplate>
+                        <FooterTemplate>
+                            <asp:Label ID="lblEmpty" Text="No Groups To Display" runat="server" Visible='<%#bool.Parse((dlGroups.Items.Count==0).ToString())%>' />
+                        </FooterTemplate>
                     </asp:DataList>
                 </ContentTemplate>
             </asp:UpdatePanel>

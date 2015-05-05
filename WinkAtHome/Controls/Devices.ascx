@@ -433,6 +433,9 @@
                             </asp:Table>
 
                         </ItemTemplate>
+                        <FooterTemplate>
+                            <asp:Label ID="lblEmpty" Text="No Devices To Display" runat="server" Visible='<%#bool.Parse((dlDevices.Items.Count==0).ToString())%>' />
+                        </FooterTemplate>
                     </asp:DataList>
                 </ContentTemplate>
             </asp:UpdatePanel>

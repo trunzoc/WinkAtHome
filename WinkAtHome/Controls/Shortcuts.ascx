@@ -142,6 +142,9 @@
                                 </asp:TableRow>
                             </asp:Table>
                         </ItemTemplate>
+                        <FooterTemplate>
+                            <asp:Label ID="lblEmpty" Text="No Shortcuts To Display" runat="server" Visible='<%#bool.Parse((dlShortcuts.Items.Count==0).ToString())%>' />
+                        </FooterTemplate>
                     </asp:DataList>
 
                 </ContentTemplate>

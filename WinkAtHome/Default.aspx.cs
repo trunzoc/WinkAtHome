@@ -16,11 +16,16 @@ namespace WinkAtHome
             {
                 Common.prepareDatabase();
 
-                string startpage = SettingMgmt.getSetting("StartPage");
-                if (string.IsNullOrWhiteSpace(startpage))
-                    startpage = "Control.aspx";
+                if (Session["loggedin"] == null)
+                    Response.Redirect("~/login.aspx", false);
+                else
+                {
+                    string startpage = SettingMgmt.getSetting("StartPage");
+                    if (string.IsNullOrWhiteSpace(startpage))
+                        startpage = "Control.aspx";
 
-                Response.Redirect("~/" + startpage);
+                    Response.Redirect("~/" + startpage, false);
+                }
             }
             catch (Exception ex)
             {

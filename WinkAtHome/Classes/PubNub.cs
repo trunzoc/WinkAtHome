@@ -71,22 +71,25 @@ public class PubNub
             {
                 channel = Wink.getSubscriptionTopics();
 
-                if (pubnub == null)
+                if (channel != null)
                 {
-                    pubnub = new Pubnub(publishKey, subscriberKey, secretKey, cipherKey, ssl);
-                    pubnub.Origin = origin;
+                    if (pubnub == null)
+                    {
+                        pubnub = new Pubnub(publishKey, subscriberKey, secretKey, cipherKey, ssl);
+                        pubnub.Origin = origin;
+                    }
+                    pubnub.SessionUUID = uuid;
+                    pubnub.AuthenticationKey = authKey;
+                    pubnub.SubscribeTimeout = subscribeTimeoutInSeconds;
+                    pubnub.NonSubscribeTimeout = operationTimeoutInSeconds;
+                    pubnub.NetworkCheckMaxRetries = networkMaxRetries;
+                    pubnub.NetworkCheckRetryInterval = networkRetryIntervalInSeconds;
+                    pubnub.LocalClientHeartbeatInterval = localClientheartbeatIntervalInSeconds;
+                    pubnub.EnableResumeOnReconnect = resumeOnReconnect;
+                    pubnub.PresenceHeartbeat = presenceHeartbeat;
+                    pubnub.PresenceHeartbeatInterval = presenceHeartbeatInterval;
+                    pubnub.Subscribe<string>(channel, DisplayUserCallbackMessage, DisplayConnectCallbackMessage, DisplayErrorMessage);
                 }
-                pubnub.SessionUUID = uuid;
-                pubnub.AuthenticationKey = authKey;
-                pubnub.SubscribeTimeout = subscribeTimeoutInSeconds;
-                pubnub.NonSubscribeTimeout = operationTimeoutInSeconds;
-                pubnub.NetworkCheckMaxRetries = networkMaxRetries;
-                pubnub.NetworkCheckRetryInterval = networkRetryIntervalInSeconds;
-                pubnub.LocalClientHeartbeatInterval = localClientheartbeatIntervalInSeconds;
-                pubnub.EnableResumeOnReconnect = resumeOnReconnect;
-                pubnub.PresenceHeartbeat = presenceHeartbeat;
-                pubnub.PresenceHeartbeatInterval = presenceHeartbeatInterval;
-                pubnub.Subscribe<string>(channel, DisplayUserCallbackMessage, DisplayConnectCallbackMessage, DisplayErrorMessage);
             }
         }
         catch (Exception ex)

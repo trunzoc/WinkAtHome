@@ -169,6 +169,9 @@
                             </asp:Table>
 
                         </ItemTemplate>
+                        <FooterTemplate>
+                            <asp:Label ID="lblEmpty" Text="No Robots To Display" runat="server" Visible='<%#bool.Parse((dlRobots.Items.Count==0).ToString())%>' />
+                        </FooterTemplate>
                     </asp:DataList>
                 </ContentTemplate>
             </asp:UpdatePanel>

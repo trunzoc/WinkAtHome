@@ -7,6 +7,7 @@ using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
@@ -16,14 +17,78 @@ namespace WinkAtHome
     public class Common
     {
         public static string dbPath = HttpContext.Current.Request.PhysicalApplicationPath + "WinkAtHome.sqlite";
+        public static string currentVersion = "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        public static string newVersion = string.Empty;
+        public static string updateFilePath = null;
+        public static string updateNotes = string.Empty;
 
-        public class stringbool : Tuple<string, bool>
+        public static bool checkForUpdate()
         {
-            public stringbool(string value, bool isEncrypted) : base(value, isEncrypted)
-            {
-            }
-        }
+            bool newer = false;
 
+            try
+            {
+                string url = ConfigurationManager.AppSettings["githubReleaseInfo"];
+                JObject jsonResponse = new JObject();
+
+                using (var xhr = new WebClient())
+                {
+                    xhr.Headers[HttpRequestHeader.ContentType] = "application/json";
+                    xhr.Headers[HttpRequestHeader.Accept] = "application/vnd.github.v3+json";
+                    xhr.Headers[HttpRequestHeader.UserAgent] = "WinkAtHome";
+                    xhr.Credentials = CredentialCache.DefaultCredentials;
+
+                    byte[] result = null;
+
+                    result = xhr.DownloadData(url);
+
+                    if (result != null)
+                    {
+                        string strTag = string.Empty;
+
+                        string responseString = Encoding.Default.GetString(result);
+                        jsonResponse = JObject.Parse(responseString);
+
+                        strTag = jsonResponse["tag_name"].ToString();
+                        newVersion = strTag;
+
+                        if (!string.IsNullOrWhiteSpace(strTag))
+                        {
+                            var vThis = new Version(currentVersion.Replace("v",""));
+                            var vGit = new Version(strTag.Replace("v", ""));
+
+                            var vCompare = vGit.CompareTo(vThis);
+                            if (vCompare > 0)
+                                newer = true;
+                        }
+
+                        foreach (var asset in jsonResponse["assets"])
+                        {
+                            string name = asset["name"].ToString();
+                            if (name.ToLower() == "winkathome.zip")
+                            {
+                                string updatePath = asset["browser_download_url"].ToString();
+                                updateFilePath = updatePath;
+
+                            }
+                        }
+
+                        updateNotes = "";
+                        var releaseName = jsonResponse["name"];
+                        if (releaseName != null)
+                            updateNotes += releaseName.ToString() + "\r\n\r\n";
+                        var releaseBody = jsonResponse["body"];
+                        if (releaseBody != null)
+                            updateNotes += releaseBody.ToString();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return newer;
+        }
 
         public static DateTime FromUnixTime(string unixTime)
         {
@@ -69,12 +134,11 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.Encrypt", ex.Message, EventLogEntryType.Error);
                 return null;
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.Encrypt", ex.Message, EventLogEntryType.Error);
             }
 
         }
-
         public static string Decrypt(string cipherString)
         {
             try
@@ -102,8 +166,8 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.Decrypt", ex.Message, EventLogEntryType.Error);
                 return null;
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.Decrypt", ex.Message, EventLogEntryType.Error);
             }
         }
         
@@ -120,7 +184,6 @@ namespace WinkAtHome
             }
 
         }
-
         public static double FromFahrenheitToCelsius(double f)
         {
             try
@@ -150,54 +213,48 @@ namespace WinkAtHome
                     connection.Open();
 
                     //PREPARE SETTINGS TABLE
-                    //CREATE TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "CREATE TABLE IF NOT EXISTS Settings(Name VARCHAR PRIMARY KEY NOT NULL ON CONFLICT REPLACE, Value VARCHAR, DefaultValue VARCHAR, IsEncrypted BOOL DEFAULT false, IsRequired BOOL DEFAULT false);";
-                        command.ExecuteNonQuery();
+                        bool newtable = false;
 
-                        command.CommandText = "PRAGMA table_info(Settings);";
+                        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='Settings';";
                         SQLiteDataAdapter da = new SQLiteDataAdapter(command);
-                        DataTable dt = new DataTable();
-                        da.Fill(dt);
+                        DataTable dtTable = new DataTable();
+                        da.Fill(dtTable);
 
-                        DataRow[] foundRows;
-                        foundRows = dt.Select("name = 'IsRequired'");
-
-                        if (foundRows.Length == 0)
+                        if (dtTable.Rows.Count > 0)
                         {
-                            command.CommandText = "ALTER TABLE Settings ADD COLUMN IsRequired BOOL DEFAULT false;";
-                            command.ExecuteNonQuery();
+                            command.CommandText = "PRAGMA table_info(Settings);";
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            DataRow[] foundRows;
+                            foundRows = dt.Select("name = 'UserID'");
+
+                            if (foundRows.Length == 0)
+                            {
+                                command.CommandText = "ALTER TABLE Settings RENAME TO SettingsOld;";
+                                command.ExecuteNonQuery();
+
+                                foundRows = dt.Select("name = 'IsRequired'");
+                                if (foundRows.Length == 0)
+                                {
+                                    command.CommandText = "ALTER TABLE SettingsOld ADD COLUMN IsRequired BOOL DEFAULT false;";
+                                    command.ExecuteNonQuery();
+                                }
+
+                                newtable = true;
+                            }
                         }
 
-                    }
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS Settings(UserID VARCHAR NOT NULL, Name VARCHAR NOT NULL ON CONFLICT REPLACE, Value VARCHAR, DefaultValue VARCHAR, IsEncrypted BOOL DEFAULT false, IsRequired BOOL DEFAULT false, PRIMARY KEY (UserID, Name));";
+                        command.ExecuteNonQuery();
 
-                    //INSERT DEFAULT SETTINGS
-                    Dictionary<string, stringbool> basicSettings = new Dictionary<string, stringbool>();
-                    basicSettings.Add("winkUsername", (new stringbool("Username", true)));
-                    basicSettings.Add("winkPassword", (new stringbool("Password", true)));
-                    basicSettings.Add("winkClientID", (new stringbool("quirky_wink_android_app", true)));
-                    basicSettings.Add("winkClientSecret", (new stringbool("e749124ad386a5a35c0ab554a4f2c045", true)));
-                    basicSettings.Add("PubNub-PublishKey", (new stringbool(null, true)));
-                    basicSettings.Add("PubNub-SubscribeKey", (new stringbool(null, true)));
-                    basicSettings.Add("PubNub-SecretKey", (new stringbool(null, true)));
-                    basicSettings.Add("StartPage", (new stringbool("Control.aspx", false)));
-                    basicSettings.Add("Hide-Empty-Robots", (new stringbool("false", false)));
-                    basicSettings.Add("Hide-Empty-Groups", (new stringbool("false", false)));
-                    basicSettings.Add("Robot-Alert-Minutes-Since-Last-Trigger", (new stringbool("60", false)));
-
-                    foreach (KeyValuePair<string, stringbool> pair in basicSettings)
-                    {
-                        using (SQLiteCommand command = new SQLiteCommand(connection))
+                        if (newtable)
                         {
-                            command.CommandText = "UPDATE Settings SET DefaultValue=@defaultvalue, IsEncrypted=@isEncypted, IsRequired=@isRequired WHERE name = @name;";
-                            command.Parameters.Add(new SQLiteParameter("@name", pair.Key));
-                            command.Parameters.Add(new SQLiteParameter("@defaultvalue", pair.Value.Item1));
-                            command.Parameters.Add(new SQLiteParameter("@isEncypted", pair.Value.Item2));
-                            command.Parameters.Add(new SQLiteParameter("@isRequired", true));
+                            command.CommandText = "INSERT INTO Settings (UserID, name, value, defaultvalue, isencrypted, isrequired) SELECT 'single',name, value, defaultvalue, isencrypted, isrequired FROM SettingsOld;";
                             command.ExecuteNonQuery();
 
-                            command.CommandText = "INSERT OR IGNORE INTO Settings(Name,DefaultValue,IsEncrypted) VALUES (@name,@defaultvalue,@isEncypted)";
+                            command.CommandText = "DROP TABLE SettingsOld;";
                             command.ExecuteNonQuery();
                         }
                     }
@@ -205,97 +262,189 @@ namespace WinkAtHome
                     //PREPARE DEVICES TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "CREATE TABLE IF NOT EXISTS Devices(DeviceID VARCHAR PRIMARY KEY NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001);";
-                        command.ExecuteNonQuery();
-                    }
+                        bool newtable = false;
 
-                    using (SQLiteCommand command = new SQLiteCommand(connection))
-                    {
-                        command.CommandText = "PRAGMA table_info(Devices);";
+                        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='Devices';";
                         SQLiteDataAdapter da = new SQLiteDataAdapter(command);
-                        DataTable dt = new DataTable();
-                        da.Fill(dt);
+                        DataTable dtTable = new DataTable();
+                        da.Fill(dtTable);
 
-                        DataRow[] foundRows;
-                        foundRows = dt.Select("name = 'Name'");
-
-                        if (foundRows.Length == 0)
+                        if (dtTable.Rows.Count > 0)
                         {
-                            command.CommandText = "ALTER TABLE Devices ADD COLUMN Name VARCHAR;";
-                            command.ExecuteNonQuery();
+                            command.CommandText = "PRAGMA table_info(Devices);";
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            DataRow[] foundRows;
+
+                            foundRows = dt.Select("name = 'UserID'");
+                            if (foundRows.Length == 0)
+                            {
+                                command.CommandText = "ALTER TABLE Devices RENAME TO DevicesOld;";
+                                command.ExecuteNonQuery();
+
+                                foundRows = dt.Select("name = 'Name'");
+                                if (foundRows.Length == 0)
+                                {
+                                    command.CommandText = "ALTER TABLE DevicesOld ADD COLUMN Name VARCHAR;";
+                                    command.ExecuteNonQuery();
+                                }
+
+                                foundRows = dt.Select("name = 'subscriptionCapable'");
+                                if (foundRows.Length == 0)
+                                {
+                                    command.CommandText = "ALTER TABLE DevicesOld ADD COLUMN subscriptionCapable BOOLEAN NOT NULL DEFAULT 0;";
+                                    command.ExecuteNonQuery();
+                                }
+
+                                newtable = true;
+                            }
                         }
 
-                        foundRows = dt.Select("name = 'subscriptionCapable'");
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS Devices(UserID VARCHAR NOT NULL, DeviceID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, DeviceID));";
+                        command.ExecuteNonQuery();
 
-                        if (foundRows.Length == 0)
+                        if (newtable)
                         {
-                            command.CommandText = "ALTER TABLE Devices ADD COLUMN subscriptionCapable BOOLEAN NOT NULL DEFAULT 0;";
+                            command.CommandText = "INSERT INTO Devices (UserID,DeviceID,DisplayName,SubscriptionTopic,SubscriptionExpires,Position,Name,subscriptionCapable) SELECT 'single', DeviceID,DisplayName,SubscriptionTopic,SubscriptionExpires,Position,Name,subscriptionCapable FROM DevicesOld;";
+                            command.ExecuteNonQuery();
+
+                            command.CommandText = "DROP TABLE DevicesOld;";
                             command.ExecuteNonQuery();
                         }
                     }
+
+
 
                     //PREPARE ROBOT TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "CREATE TABLE IF NOT EXISTS Robots(RobotID VARCHAR PRIMARY KEY NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001);";
+                        bool newtable = false;
+
+                        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='Robots';";
+                        SQLiteDataAdapter da = new SQLiteDataAdapter(command);
+                        DataTable dtTable = new DataTable();
+                        da.Fill(dtTable);
+
+                        if (dtTable.Rows.Count > 0)
+                        {
+                            command.CommandText = "PRAGMA table_info(Robots);";
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            DataRow[] foundRows;
+
+                            foundRows = dt.Select("name = 'UserID'");
+                            if (foundRows.Length == 0)
+                            {
+                                command.CommandText = "ALTER TABLE Robots RENAME TO RobotsOld;";
+                                command.ExecuteNonQuery();
+
+
+                                newtable = true;
+                            }
+                        }
+
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS Robots(UserID VARCHAR NOT NULL, RobotID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, RobotID));";
                         command.ExecuteNonQuery();
+
+                        if (newtable)
+                        {
+                            command.CommandText = "INSERT INTO Robots (UserID,name,RobotID,Name,DisplayName,SubscriptionTopic,SubscriptionExpires,subscriptionCapable,Position) SELECT 'single',name,RobotID,Name,DisplayName,SubscriptionTopic,SubscriptionExpires,subscriptionCapable,Position FROM RobotsOld;";
+                            command.ExecuteNonQuery();
+
+                            command.CommandText = "DROP TABLE RobotsOld;";
+                            command.ExecuteNonQuery();
+                        }
                     }
 
                     //PREPARE GROUP TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "CREATE TABLE IF NOT EXISTS Groups(GroupID VARCHAR PRIMARY KEY NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001);";
+                        bool newtable = false;
+
+                        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='Groups';";
+                        SQLiteDataAdapter da = new SQLiteDataAdapter(command);
+                        DataTable dtTable = new DataTable();
+                        da.Fill(dtTable);
+
+                        if (dtTable.Rows.Count > 0)
+                        {
+                            command.CommandText = "PRAGMA table_info(Groups);";
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            DataRow[] foundRows;
+
+                            foundRows = dt.Select("name = 'UserID'");
+                            if (foundRows.Length == 0)
+                            {
+                                command.CommandText = "ALTER TABLE Groups RENAME TO GroupsOld;";
+                                command.ExecuteNonQuery();
+
+                                newtable = true;
+
+                            }
+                        }
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS Groups(UserID VARCHAR NOT NULL, GroupID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, GroupID));";
                         command.ExecuteNonQuery();
+
+                        if (newtable)
+                        {
+                            command.CommandText = "INSERT INTO Groups (UserID,GroupID,Name,DisplayName,SubscriptionTopic,SubscriptionExpires,subscriptionCapable,Position) SELECT 'single',GroupID,Name,DisplayName,SubscriptionTopic,SubscriptionExpires,subscriptionCapable,Position FROM GroupsOld;";
+                            command.ExecuteNonQuery();
+
+                            command.CommandText = "DROP TABLE GroupsOld;";
+                            command.ExecuteNonQuery();
+                        }
                     }
 
                     //PREPARE SHORTCUT TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "CREATE TABLE IF NOT EXISTS Shortcuts(ShortcutID VARCHAR PRIMARY KEY NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001);";
+                        bool newtable = false;
+
+                        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='Shortcuts';";
+                        SQLiteDataAdapter da = new SQLiteDataAdapter(command);
+                        DataTable dtTable = new DataTable();
+                        da.Fill(dtTable);
+
+                        if (dtTable.Rows.Count > 0)
+                        {
+                            command.CommandText = "PRAGMA table_info(Shortcuts);";
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            DataRow[] foundRows;
+
+                            foundRows = dt.Select("name = 'UserID'");
+                            if (foundRows.Length == 0)
+                            {
+                                command.CommandText = "ALTER TABLE Shortcuts RENAME TO ShortcutsOld;";
+                                command.ExecuteNonQuery();
+
+                                newtable = true;
+                            }
+                        }
+
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS Shortcuts(UserID VARCHAR NOT NULL, ShortcutID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, ShortcutID));";
+                        command.ExecuteNonQuery();
+
+                        if (newtable)
+                        {
+                            command.CommandText = "INSERT INTO Shortcuts (UserID,ShortcutID,Name,DisplayName,SubscriptionTopic,SubscriptionExpires,subscriptionCapable,Position) SELECT 'single',ShortcutID,Name,DisplayName,SubscriptionTopic,SubscriptionExpires,subscriptionCapable,Position FROM ShortcutsOld;";
+                            command.ExecuteNonQuery();
+
+                            command.CommandText = "DROP TABLE ShortcutsOld;";
+                            command.ExecuteNonQuery();
+                        }
+                    }
+
+                    //PREPARE USER TABLE
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS Users(UserID VARCHAR PRIMARY KEY NOT NULL, Email VARCHAR NOT NULL ON CONFLICT REPLACE);";
                         command.ExecuteNonQuery();
                     }
 
                     connection.Close();
                     connection.Dispose();
-                }
-
-
-                //MOVE SETTINGS.TXT TO DB
-                if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt"))
-                {
-                    string text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt");
-                    string decrypedFile = Common.Decrypt(text);
-
-                    JObject json = JObject.Parse(decrypedFile);
-
-                    foreach (var jo in json)
-                    {
-                        if (jo.Key == "Controllable-Display-Order")
-                        {
-                            List<string> existingList = jo.Value.ToString().Split(',').ToList();
-
-                            foreach (string ID in existingList)
-                            {
-                                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
-                                {
-                                    connection.Open();
-
-                                    using (SQLiteCommand command = new SQLiteCommand(connection))
-                                    {
-
-                                        command.CommandText = "INSERT INTO Devices (DeviceID, Position) VALUES (@ID,@Position)";
-                                        command.Parameters.Add(new SQLiteParameter("@ID", ID));
-                                        command.Parameters.Add(new SQLiteParameter("@Position", existingList.IndexOf(ID) + 1));
-                                        command.ExecuteNonQuery();
-                                    }
-                                }
-                            }
-                        }
-                        else
-                            SettingMgmt.saveSetting(jo.Key, jo.Value.ToString());
-                    }
-
-                    File.Move(AppDomain.CurrentDomain.BaseDirectory + "Settings.txt", AppDomain.CurrentDomain.BaseDirectory + "Settings.txt_Converted");
                 }
             }
             catch (Exception ex)

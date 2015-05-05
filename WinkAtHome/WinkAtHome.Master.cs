@@ -10,6 +10,10 @@ using System.Collections.Concurrent;
 using PubNubMessaging.Core;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
+using System.Net;
+using System.ComponentModel;
+using System.IO;
+using System.IO.Compression;
 
 namespace WinkAtHome
 {
@@ -22,17 +26,29 @@ namespace WinkAtHome
             {
                 Common.prepareDatabase();
 
-                if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword") == "password" || Session["loggedin"] == null || (Session["loggedin"] != null && SettingMgmt.getSetting("winkUsername") != Common.Decrypt(Session["loggedin"].ToString())))
+                if (Session["loggedin"] == null)
                 {
                     Response.Redirect("~/Login.aspx");
                 }
 
                 if (!IsPostBack)
                 {
+
+                    bool hasUpdate = Common.checkForUpdate();
+                    if (hasUpdate)
+                    {
+                        ibVersion.Text = "UPDATE AVAILABLE!";
+                        ibVersion.Enabled=true;
+                        lblCurrentVersion.Text = Common.currentVersion;
+                        lblNewVersion.Text = Common.newVersion;
+                        tbReleaseNotes.Text = Common.updateNotes;
+                        hlDownloadUpdate.NavigateUrl = Common.updateFilePath;
+                        mpeUpdate.Show();
+                    }
+                    else
+                        ibVersion.Text = Common.currentVersion;
+
                     lblRefreshed.Text = DateTime.Now.ToString();
-                    //CHECK SECURITY/SETTINGS VALIDITY
-                    if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword").ToLower() == "password")
-                        Response.Redirect("~/Settings.aspx");
 
                     //SET PAGE OPTIONS
                     string timerrefresh = SettingMgmt.getSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
@@ -65,8 +81,11 @@ namespace WinkAtHome
 
                         cellMenu.BackColor = tblExpand.Visible ? System.Drawing.ColorTranslator.FromHtml("#eeeeee") : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
 
-                        PubNub pubnubSocket = new PubNub();
-                        pubnubSocket.Open();
+                        if (PubNub.hasPubNub)
+                        {
+                            PubNub pubnubSocket = new PubNub();
+                            pubnubSocket.Open();
+                        }
                     }
                 }
             }
@@ -128,6 +147,9 @@ namespace WinkAtHome
                 }
 
                 Session.Abandon();
+
+                Wink.clearWink();
+                SettingMgmt.Settings = null;
 
                 Response.Redirect("~/Login.aspx");
             }
@@ -253,5 +275,20 @@ namespace WinkAtHome
                 throw ex; //EventLog.WriteEntry("WinkAtHome.Master.tmrCheckChanges_Tick", ex.Message, EventLogEntryType.Error);
             }
         }
+
+        protected void ibUpdateClose_Click(object sender, EventArgs e)
+        {
+            Session["modalshowing"] = "false";
+
+            mpeUpdate.Hide();
+        }
+
+        protected void ibVersion_Click(object sender, EventArgs e)
+        {
+            Session["modalshowing"] = "true";
+
+            mpeUpdate.Show();
+        }
+
     }
 }

@@ -50,6 +50,9 @@
                                     <td align="left" width="170px">
                                         <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/WinkatHome.png" Height="75px" />
                                     </td>
+                                    <td align="left" width="100">
+                                        <asp:LinkButton ID="ibVersion" runat="server" Font-Size="Smaller" Text="" ForeColor="White" style="text-decoration: none;" Enabled="false" OnClick="ibVersion_Click" />
+                                    </td>
                                     <td align="center" style="vertical-align:middle">
                                         <asp:LinkButton ID="lbControl" runat="server" Text="CONTROL" ForeColor="White" Font-Size="X-Large" Font-Bold="true" PostBackUrl="~/Control.aspx" style="text-decoration: none;" />
                                     </td>
@@ -179,6 +182,54 @@
                         </asp:TableCell>
                     </asp:TableRow>
                 </asp:Table>
+
+                <asp:Button ID="btnUpdates" runat="server" Text="Button" style="display:none;" />
+                <ajaxtoolkit:ModalPopupExtender ID="mpeUpdate" runat="server" PopupControlID="pnlUpdate" 
+                    TargetControlID="btnUpdates" BackgroundCssClass="modalBackground" Y="100">
+                </ajaxtoolkit:ModalPopupExtender>
+                <asp:Panel ID="pnlUpdate" runat="server" style="display:none">
+                    <asp:Table ID="Table9" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee">
+                        <asp:TableRow>
+                            <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
+                                <asp:Label ID="Label6" runat="server" Text="Update Available" ForeColor="White" Font-Bold="true"/>
+                            </asp:TableHeaderCell>
+                        </asp:TableRow>
+                        <asp:TableRow>
+                            <asp:TableCell>
+                                <asp:Label ID="Label7" runat="server" Text="Current Version: "  Font-Size="Small" />
+                            </asp:TableCell>
+                            <asp:TableCell>
+                                <asp:Label ID="lblCurrentVersion" runat="server" Text=""  Font-Size="Small" />
+                            </asp:TableCell>
+                        </asp:TableRow>
+                        <asp:TableRow>
+                            <asp:TableCell>
+                                <asp:Label ID="Label10" runat="server" Text="New Version: "  Font-Size="Small" />
+                            </asp:TableCell>
+                            <asp:TableCell>
+                                <asp:Label ID="lblNewVersion" runat="server" Text=""  Font-Size="Small" />
+                            </asp:TableCell>
+                        </asp:TableRow>
+                        <asp:TableRow>
+                            <asp:TableCell ColumnSpan="2">
+                                <asp:TextBox ID="tbReleaseNotes" runat="server" TextMode="MultiLine" Enabled="false" Width="400" Height="150" />
+                            </asp:TableCell>
+                        </asp:TableRow>
+                        <asp:TableRow>
+                            <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
+                                <asp:HyperLink ID="hlDownloadUpdate" runat="server" style="text-decoration: none;">
+                                    <asp:Label ID="Label19" runat="server" Text="Download Update" ForeColor="White" style="text-decoration: none;" />
+                                </asp:HyperLink>
+                            </asp:TableHeaderCell>
+                        </asp:TableRow>
+                        <asp:TableRow>
+                            <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
+                                <asp:LinkButton ID="ibUpdateClose" runat="server" Text="Cancel" ForeColor="White" style="text-decoration: none;" OnClick="ibUpdateClose_Click" />
+                            </asp:TableHeaderCell>
+                        </asp:TableRow>
+                    </asp:Table>                            
+                </asp:Panel>
+
             </ContentTemplate>
         </asp:UpdatePanel>
     </div>

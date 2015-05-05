@@ -17,20 +17,15 @@ namespace WinkAtHome
             {
                 Common.prepareDatabase();
 
-                if (SettingMgmt.getSetting("winkUsername").ToLower() == "username" || SettingMgmt.getSetting("winkPassword") == "password")
+                if (Session["loggedin"] == null)
                 {
-                    lblMessage.Text = "You must set your Username and Password before you can continue.";
-                    lblMessage.ForeColor = System.Drawing.Color.Red;
-                }
-                else if (Session["loggedin"] == null || SettingMgmt.getSetting("winkUsername") != Common.Decrypt(Session["loggedin"].ToString()))
-                {
-                    Response.Redirect("~/Login.aspx");
+                    Response.Redirect("~/Login.aspx", false);
                 }
 
                 if (!IsPostBack)
                 {
-                    lblVersion.Text = "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-                    tbVersion.Text = "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                    lblVersion.Text = Common.currentVersion;
+                    tbVersion.Text = Common.currentVersion;
                     tbDBPath.Text = Common.dbPath;
 
                     if (Request.QueryString["warning"] != null)
@@ -70,31 +65,28 @@ namespace WinkAtHome
         {
             try
             {
-                if (validatePassword())
+                foreach (DataListItem item in dlRequiredSettings.Items)
                 {
-                    foreach (DataListItem item in dlRequiredSettings.Items)
+                    if (item.ItemType == ListItemType.Item || item.ItemType == ListItemType.AlternatingItem)
                     {
-                        if (item.ItemType == ListItemType.Item || item.ItemType == ListItemType.AlternatingItem)
-                        {
-                            Label lbl = (Label)item.FindControl("lblKey");
-                            TextBox tb = (TextBox)item.FindControl("tbValue");
-                            HiddenField hf = (HiddenField)item.FindControl("hfValue");
+                        Label lbl = (Label)item.FindControl("lblKey");
+                        TextBox tb = (TextBox)item.FindControl("tbValue");
+                        HiddenField hf = (HiddenField)item.FindControl("hfValue");
 
-                            if (tb.Text != hf.Value)
-                                SettingMgmt.saveSetting(lbl.Text, tb.Text);
-                        }
+                        if (tb.Text != hf.Value)
+                            SettingMgmt.saveSetting(lbl.Text, tb.Text);
                     }
-                    foreach (DataListItem item in dlAdditionalSettings.Items)
+                }
+                foreach (DataListItem item in dlAdditionalSettings.Items)
+                {
+                    if (item.ItemType == ListItemType.Item || item.ItemType == ListItemType.AlternatingItem)
                     {
-                        if (item.ItemType == ListItemType.Item || item.ItemType == ListItemType.AlternatingItem)
-                        {
-                            Label lbl = (Label)item.FindControl("lblKey");
-                            TextBox tb = (TextBox)item.FindControl("tbValue");
-                            HiddenField hf = (HiddenField)item.FindControl("hfValue");
+                        Label lbl = (Label)item.FindControl("lblKey");
+                        TextBox tb = (TextBox)item.FindControl("tbValue");
+                        HiddenField hf = (HiddenField)item.FindControl("hfValue");
 
-                            if (tb.Text != hf.Value)
-                                SettingMgmt.saveSetting(lbl.Text, tb.Text);
-                        }
+                        if (tb.Text != hf.Value)
+                            SettingMgmt.saveSetting(lbl.Text, tb.Text);
                     }
                 }
 
@@ -154,7 +146,6 @@ namespace WinkAtHome
             {
                 string strSettings = tbEdit.Text.Replace("\n", "").Replace("\r", "");
                 SettingMgmt.saveManualEdit(strSettings);
-                Response.Redirect(Request.RawUrl);
 
                 BindData();
             }
@@ -203,73 +194,30 @@ namespace WinkAtHome
         {
             try
             {
-                if (validatePassword())
+                string strPage = string.Empty;
+                if (sender is ImageButton)
                 {
-                    string strPage = string.Empty;
-                    if (sender is ImageButton)
-                    {
-                        ImageButton btn = (ImageButton)sender;
-                        strPage = btn.CommandArgument;
-                    }
-                    else if (sender is Button)
-                    {
-                        Button btn = (Button)sender;
-                        strPage = btn.CommandArgument;
-                    }
-                    else if (sender is LinkButton)
-                    {
-                        LinkButton btn = (LinkButton)sender;
-                        strPage = btn.CommandArgument;
-                    }
-                    else
-                        strPage = "~/Default.aspx";
-
-                    Response.Redirect(strPage);
+                    ImageButton btn = (ImageButton)sender;
+                    strPage = btn.CommandArgument;
                 }
+                else if (sender is Button)
+                {
+                    Button btn = (Button)sender;
+                    strPage = btn.CommandArgument;
+                }
+                else if (sender is LinkButton)
+                {
+                    LinkButton btn = (LinkButton)sender;
+                    strPage = btn.CommandArgument;
+                }
+                else
+                    strPage = "~/Default.aspx";
+
+                Response.Redirect(strPage);
             }
             catch (Exception ex)
             {
                 throw ex; //EventLog.WriteEntry("WinkAtHome.Settings.btnDefault_Click", ex.Message, EventLogEntryType.Error);
-            }
-        }
-
-        protected bool validatePassword()
-        {
-            try
-            {
-                string user = null;
-                string pass = null;
-
-                foreach (DataListItem item in dlRequiredSettings.Items)
-                {
-                    if (item.ItemType == ListItemType.Item || item.ItemType == ListItemType.AlternatingItem)
-                    {
-                        Label lblKey = (Label)item.FindControl("lblKey");
-                        if (lblKey != null)
-                        {
-                            TextBox tbValue = (TextBox)item.FindControl("tbValue");
-
-                            if (lblKey.Text.ToLower() == "winkusername")
-                                user = tbValue.Text;
-                            if (lblKey.Text.ToLower() == "winkpassword")
-                                pass = tbValue.Text;
-                        }
-                    }
-                }
-
-                if (Wink.validateWinkCredentials(user, pass))
-                {
-                    lblMessage.Text = "Username & Password verified";
-                    lblMessage.ForeColor = System.Drawing.Color.Green;
-                    return true;
-                }
-                else
-                    return false;
-            }
-            catch (Exception ex)
-            {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Settings.validatePassword", ex.Message, EventLogEntryType.Error);
-                return false;
             }
         }
     }

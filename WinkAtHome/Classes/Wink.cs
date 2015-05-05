@@ -22,7 +22,7 @@ public class Wink
     {
     }
 
-    #region Public Functions
+#region Public Functions
     
     public static string getSubscriptionTopics()
     {
@@ -47,38 +47,44 @@ public class Wink
             if (!string.IsNullOrWhiteSpace(group.subscriptionTopic))
                 subTopics += "," + group.subscriptionTopic;
         }
-        return subTopics.Substring(1);
+        if (subTopics.Length > 0)
+            return subTopics.Substring(1);
+
+        return null;
     }
     public static bool validateWinkCredentials(string username, string password)
     {
         try
         {
-            winkGetToken(true, username, password);
-            return true;
+            string token = winkGetToken(username, password, true, ConfigurationManager.AppSettings["unsecureClientID"], ConfigurationManager.AppSettings["unsecureClientSecret"]);
+            if (token != null)
+            {
+                winkUser.password = Common.Encrypt(password);
+
+                return true;
+            }
         }
         catch (Exception ex)
         {
-            throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.validateWinkCredentials", ex.Message, EventLogEntryType.Error);
-            return false;
         }
+
+        return false;
     }
     public static void clearWink()
     {
-        _winkToken = null;
         _devices = null;
         _shortcuts = null;
         _groups = null;
         _robots = null;
+        _winkUser = null;
+        _winkToken = null;
     }
     public static void reloadWink(bool clearFirst = true)
     {
-        if (clearFirst)
-            clearWink();
-
-        winkGetDevices();
-        winkGetShortcuts();
-        winkGetGroups();
-        winkGetRobots();
+        winkGetDevices(null,true);
+        winkGetShortcuts(true);
+        winkGetGroups(true);
+        winkGetRobots(null,true);
     }
     public static Dictionary<string, string>[] winkGetServerStatus()
     {
@@ -110,8 +116,7 @@ public class Wink
             return null;
         }
     }
-
-    #endregion
+#endregion
 
 #region token
     private static string WinkToken
@@ -127,14 +132,14 @@ public class Wink
     }
     private static string _winkToken;
 
-    private static string winkGetToken(bool forceRefresh = false, string forceUsername = null, string forcePassword = null, string forceClientID = null, string forceClientSecret = null)
+    private static string winkGetToken(string Username = null, string Password = null, bool forceRefresh = false,  string forceClientID = null, string forceClientSecret = null)
     {
         try
         {
             if (_winkToken == null || forceRefresh)
             {
-                string winkUsername = forceUsername == null ? SettingMgmt.getSetting("winkUsername") : forceUsername;
-                string winkPassword = forcePassword == null ? SettingMgmt.getSetting("winkPassword") : forcePassword;
+                string winkUsername = Username == null ? winkUser.email : Username;
+                string winkPassword = Password == null ? Common.Decrypt(winkUser.password) : Password;
                 string winkClientID = forceClientID == null ? SettingMgmt.getSetting("winkClientID") : forceClientID;
                 string winkClientSecret = forceClientSecret == null ? SettingMgmt.getSetting("winkClientSecret") : forceClientSecret;
 
@@ -152,9 +157,9 @@ public class Wink
         }
         catch
         {
-            HttpContext.Current.Response.Redirect("~/Settings.aspx?warning=Unable%20to%20verify%20your%20Username%20and%20Password%20with%20Wink");
-            return null;
         }
+
+        return null;
     }
 #endregion
 
@@ -169,6 +174,8 @@ public class Wink
         public string last_name { get; set; }
         [SimpleProperty]
         public string email { get; set; }
+        [SimpleProperty]
+        public string password { get; set; }
     }
     public static User winkUser
     {
@@ -198,6 +205,32 @@ public class Wink
                 _winkUser.first_name = jsonResponse["data"]["first_name"].ToString();
                 _winkUser.last_name = jsonResponse["data"]["last_name"].ToString();
                 _winkUser.email = jsonResponse["data"]["email"].ToString();
+
+                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                {
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText = "INSERT OR REPLACE INTO Users (UserID, Email) VALUES (@UserID,@Email);";
+                        command.Parameters.Add(new SQLiteParameter("@UserID", _winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@Email", _winkUser.email));
+                        command.ExecuteNonQuery();
+
+                        //LEGACY CORRECTIONS
+                        command.CommandText = "UPDATE Devices SET UserID=@UserID WHERE UserID='single'";
+                        command.ExecuteNonQuery();
+
+                        command.CommandText = "UPDATE Groups SET UserID=@UserID WHERE UserID='single'";
+                        command.ExecuteNonQuery();
+
+                        command.CommandText = "UPDATE Robots SET UserID=@UserID WHERE UserID='single'";
+                        command.ExecuteNonQuery();
+
+                        command.CommandText = "UPDATE Shortcuts SET UserID=@UserID WHERE UserID='single'";
+                        command.ExecuteNonQuery();
+                    }
+                }
             }
 
             return _winkUser;
@@ -298,9 +331,9 @@ public class Wink
         {
             List<string> types = null;
             if (forMenu)
-                types = _devices.Select(t => t.menu_type).Distinct().ToList();
+                types = Devices.Select(t => t.menu_type).Distinct().ToList();
             else
-                types = _devices.Select(t => t.type).Distinct().ToList();
+                types = Devices.Select(t => t.type).Distinct().ToList();
             
             if (types != null)
                 types.Sort();
@@ -332,12 +365,13 @@ public class Wink
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "UPDATE Devices SET displayname=@displayname WHERE DeviceID = @ID;";
+                        command.CommandText = "UPDATE Devices SET displayname=@displayname WHERE UserID = @UserID AND DeviceID = @ID;";
+                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", DeviceID));
                         command.Parameters.Add(new SQLiteParameter("@displayname", DisplayName));
                         command.ExecuteNonQuery();
 
-                        command.CommandText = "INSERT OR IGNORE INTO Devices (DeviceID, displayname) VALUES (@ID, @displayname);";
+                        command.CommandText = "INSERT OR IGNORE INTO Devices (UserID,DeviceID, displayname) VALUES (@UserID,@ID, @displayname);";
                         command.ExecuteNonQuery();
                     }
                 }
@@ -349,8 +383,8 @@ public class Wink
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setDeviceDisplayName", ex.Message, EventLogEntryType.Error);
                 return null;
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setDeviceDisplayName", ex.Message, EventLogEntryType.Error);
             }
         }
         public static int setDevicePosition(string DeviceID, int Position)
@@ -363,12 +397,13 @@ public class Wink
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "UPDATE Devices SET position=@Position WHERE DeviceID = @ID;";
+                        command.CommandText = "UPDATE Devices SET position=@Position WHERE UserID = @UserID AND DeviceID = @ID;";
+                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", DeviceID));
                         command.Parameters.Add(new SQLiteParameter("@Position", Position));
                         command.ExecuteNonQuery();
 
-                        command.CommandText = "INSERT OR IGNORE INTO Devices (DeviceID, position) VALUES (@ID, @Position);";
+                        command.CommandText = "INSERT OR IGNORE INTO Devices (UserID,DeviceID, position) VALUES (@UserID, @ID, @Position);";
                         command.ExecuteNonQuery();
                     }
                 }
@@ -469,18 +504,18 @@ public class Wink
     private static List<Device> _devices;
     public static bool hasDeviceChanges;
 
-    private static List<Device> winkGetDevices(JObject jsonObject = null)
+    private static List<Device> winkGetDevices(JObject jsonObject = null, bool forceRefresh = false)
     {
         try
         {
            
             bool firstRun = false;
-            if (_devices == null || jsonObject != null)
+            if (_devices == null || jsonObject != null || forceRefresh)
             {
                 List<Device> Devices = new List<Device>();
                 JObject json = null;
 
-                if (_devices == null)
+                if (_devices == null || forceRefresh)
                 {
                     firstRun = true;
                     json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetAllDevicesURL"]);
@@ -595,6 +630,7 @@ public class Wink
                                     outletdevice.json = outlet.ToString();
                                     outletdevice.id = outlet["outlet_id"].ToString();
                                     outletdevice.name = device.name + " - " + outlet["name"].ToString();
+                                    outletdevice.displayName = outletdevice.name;
                                     outletdevice.type = "outlets";
                                     outletdevice.menu_type = "powerstrips";
                                     outletdevice.manufacturer = device.manufacturer;
@@ -849,12 +885,13 @@ public class Wink
 
                                 using (SQLiteCommand command = new SQLiteCommand(connection))
                                 {
-                                    command.CommandText = "UPDATE Devices SET name=@name WHERE DeviceID = @ID and Name<>@name;";
+                                    command.CommandText = "UPDATE Devices SET name=@name WHERE UserID=@UserID AND DeviceID = @ID AND Name<>@name;";
+                                    command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                                     command.Parameters.Add(new SQLiteParameter("@ID", device.id));
                                     command.Parameters.Add(new SQLiteParameter("@name", device.name));
                                     command.ExecuteNonQuery();
 
-                                    command.CommandText = "INSERT OR IGNORE INTO Devices (DeviceID, name) VALUES (@ID, @name);";
+                                    command.CommandText = "INSERT OR IGNORE INTO Devices (UserID, DeviceID, name) VALUES (@UserID, @ID, @name);";
                                     command.ExecuteNonQuery();
                                 }
                             }
@@ -872,7 +909,8 @@ public class Wink
                 using (SQLiteCommand command = new SQLiteCommand(connection))
                 {
                     DataTable dt = new DataTable();
-                    command.CommandText = "select * from Devices";
+                    command.CommandText = "SELECT * FROM Devices WHERE UserID=@UserID";
+                    command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                     SQLiteDataAdapter da = new SQLiteDataAdapter(command);
                     da.Fill(dt);
 
@@ -880,21 +918,24 @@ public class Wink
                     {
                         //VALUE FROM DATABASE
                         DataRow[] rowArray = dt.Select("DeviceID = '" + device.id + "'");
-                        DataRow row = rowArray[0];
-                        
-                        device.position = Convert.ToInt32(row["Position"].ToString());
+                        if (rowArray.Length > 0)
+                        {
+                            DataRow row = rowArray[0];
 
-                        device.subscriptionCapable = Convert.ToBoolean(row["subscriptionCapable"].ToString());
-                        
-                        device.subscriptionTopic = row["SubscriptionTopic"].ToString();
+                            device.position = Convert.ToInt32(row["Position"].ToString());
 
-                        DateTime expires = new DateTime();
-                        string date = row["SubscriptionExpires"].ToString();
-                        DateTime.TryParse(date, out expires);
-                        device.subscriptionExpires = Convert.ToDateTime(expires);
+                            device.subscriptionCapable = Convert.ToBoolean(row["subscriptionCapable"].ToString());
 
-                        if (!string.IsNullOrWhiteSpace(row["DisplayName"].ToString()))
-                            device.displayName = row["DisplayName"].ToString();
+                            device.subscriptionTopic = row["SubscriptionTopic"].ToString();
+
+                            DateTime expires = new DateTime();
+                            string date = row["SubscriptionExpires"].ToString();
+                            DateTime.TryParse(date, out expires);
+                            device.subscriptionExpires = Convert.ToDateTime(expires);
+
+                            if (!string.IsNullOrWhiteSpace(row["DisplayName"].ToString()))
+                                device.displayName = row["DisplayName"].ToString();
+                        }
                     }
                 }
             }
@@ -936,14 +977,15 @@ public class Wink
                                 connection.Open();
                                 using (SQLiteCommand command = new SQLiteCommand(connection))
                                 {
-                                    command.CommandText = "UPDATE Devices SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable=@subscriptionCapable WHERE DeviceID = @ID;";
+                                    command.CommandText = "UPDATE Devices SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable=@subscriptionCapable WHERE UserID=@UserID AND DeviceID = @ID;";
+                                    command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                                     command.Parameters.Add(new SQLiteParameter("@ID", device.id));
                                     command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", device.subscriptionTopic));
                                     command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", device.subscriptionExpires));
                                     command.Parameters.Add(new SQLiteParameter("@subscriptionCapable", subCapable));
                                     command.ExecuteNonQuery();
 
-                                    command.CommandText = "INSERT OR IGNORE INTO Devices(DeviceID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@ID,@subscriptionTopic,@subscriptionExpires,@subscriptionCapable)";
+                                    command.CommandText = "INSERT OR IGNORE INTO Devices(UserID,DeviceID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID, @ID,@subscriptionTopic,@subscriptionExpires,@subscriptionCapable)";
                                     command.ExecuteNonQuery();
                                 }
                             }
@@ -1018,12 +1060,13 @@ public class Wink
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "UPDATE Shortcuts SET displayname=@displayname WHERE ShortcutID = @ID;";
+                        command.CommandText = "UPDATE Shortcuts SET displayname=@displayname WHERE UserID = @UserID AND ShortcutID = @ID;";
+                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", ShortcutID));
                         command.Parameters.Add(new SQLiteParameter("@displayname", DisplayName));
                         command.ExecuteNonQuery();
 
-                        command.CommandText = "INSERT OR IGNORE INTO Shortcuts (ShortcutID, displayname) VALUES (@ID, @displayname);";
+                        command.CommandText = "INSERT OR IGNORE INTO Shortcuts (UserID,ShortcutID, displayname) VALUES (@UserID, @ID, @displayname);";
                         command.ExecuteNonQuery();
                     }
                 }
@@ -1034,8 +1077,8 @@ public class Wink
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setShortcutDisplayName", ex.Message, EventLogEntryType.Error);
                 return null;
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setShortcutDisplayName", ex.Message, EventLogEntryType.Error);
             }
         }
         public static int setShortcutPosition(string ShortcutID, int Position)
@@ -1048,12 +1091,13 @@ public class Wink
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "UPDATE Shortcuts SET position=@Position WHERE ShortcutID = @ID;";
+                        command.CommandText = "UPDATE Shortcuts SET position=@Position WHERE UserID = @UserID AND ShortcutID = @ID;";
+                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", ShortcutID));
                         command.Parameters.Add(new SQLiteParameter("@Position", Position));
                         command.ExecuteNonQuery();
 
-                        command.CommandText = "INSERT OR IGNORE INTO Shortcuts (ShortcutID, position) VALUES (@ID, @Position);";
+                        command.CommandText = "INSERT OR IGNORE INTO Shortcuts (UserID,ShortcutID, position) VALUES (@UserID, @ID, @Position);";
                         command.ExecuteNonQuery();
                     }
                 }
@@ -1141,13 +1185,13 @@ public class Wink
     }
     private static List<Shortcut> _shortcuts;
     public static bool hasShortcutChanges;
-    
-    private static List<Shortcut> winkGetShortcuts()
+
+    private static List<Shortcut> winkGetShortcuts(bool forceRefresh = false)
     {
         try
         {
             bool firstRun = false;
-            if (_shortcuts == null)
+            if (_shortcuts == null || forceRefresh)
             {
                 firstRun = true;
 
@@ -1191,15 +1235,16 @@ public class Wink
 
                         using (SQLiteCommand command = new SQLiteCommand(connection))
                         {
-                            command.CommandText = "UPDATE Shortcuts SET Name=@name WHERE ShortcutID = @ID and Name<>@name;";
+                            command.CommandText = "UPDATE Shortcuts SET Name=@name WHERE UserID = @UserID AND ShortcutID = @ID and Name<>@name;";
+                            command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                             command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
                             command.Parameters.Add(new SQLiteParameter("@name", shortcut.name));
                             command.ExecuteNonQuery();
 
-                            command.CommandText = "INSERT OR IGNORE INTO Shortcuts (ShortcutID, name) VALUES (@ID, @name);";
+                            command.CommandText = "INSERT OR IGNORE INTO Shortcuts (UserID,ShortcutID, name) VALUES (@UserID,@ID, @name);";
                             command.ExecuteNonQuery();
 
-                            command.CommandText = "UPDATE Shortcuts SET DisplayName=@displayname WHERE ShortcutID = @ID and @name <> @displayname and IFNULL(DisplayName, '') = '';";
+                            command.CommandText = "UPDATE Shortcuts SET DisplayName=@displayname WHERE UserID = @UserID AND ShortcutID = @ID and @name <> @displayname and IFNULL(DisplayName, '') = '';";
                             command.Parameters.Add(new SQLiteParameter("@displayname", shortcut.displayName));
                             command.ExecuteNonQuery();
                         }
@@ -1220,7 +1265,8 @@ public class Wink
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "select * from Shortcuts where ShortcutID = @ID";
+                        command.CommandText = "select * from Shortcuts where UserID = @UserID AND ShortcutID = @ID";
+                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
                         SQLiteDataReader reader = command.ExecuteReader();
                         while (reader.Read())
@@ -1249,71 +1295,73 @@ public class Wink
 
             //SHORTCUTS CAN'T HAVE SUBS AT THE MOMENT
 
-            //if (PubNub.hasPubNub)
-            //{
-            //    foreach (Shortcut shortcut in _shortcuts)
-            //    {
-            //        if (string.IsNullOrWhiteSpace(shortcut.subscriptionTopic) || DateTime.Now > shortcut.subscriptionExpires)
-            //        {
-            //            if (shortcut.subscriptionCapable || firstRun)
-            //            {
-            //                string URL = ConfigurationManager.AppSettings["winkRootURL"] + "/scenes/" + shortcut.id + "/subscriptions";
-            //                string sendCommand = "{\"publisher_key\":\"" + PubNub.publishKey + "\",\"subscriber_key\":\"" + PubNub.subscriberKey + "\"}";
-            //                JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
-            //                if (subJSON != null)
-            //                {
-            //                    if (subJSON.ToString().Contains("404") && !firstRun)
-            //                    {
-            //                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
-            //                        {
+            if (PubNub.hasPubNub)
+            {
+                foreach (Shortcut shortcut in _shortcuts)
+                {
+                    if (string.IsNullOrWhiteSpace(shortcut.subscriptionTopic) || DateTime.Now > shortcut.subscriptionExpires)
+                    {
+                        if (shortcut.subscriptionCapable || firstRun)
+                        {
+                            string URL = ConfigurationManager.AppSettings["winkRootURL"] + "/scenes/" + shortcut.id + "/subscriptions";
+                            string sendCommand = "{\"publisher_key\":\"" + PubNub.publishKey + "\",\"subscriber_key\":\"" + PubNub.subscriberKey + "\"}";
+                            JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
+                            if (subJSON != null)
+                            {
+                                if (subJSON.ToString().Contains("404") && !firstRun)
+                                {
+                                    using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                                    {
 
-            //                            connection.Open();
-            //                            using (SQLiteCommand command = new SQLiteCommand(connection))
-            //                            {
-            //                                command.CommandText = "UPDATE Shortcuts SET subscriptionCapable='0' WHERE ShortcutID = @ID;";
-            //                                command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
-            //                                command.ExecuteNonQuery();
+                                        connection.Open();
+                                        using (SQLiteCommand command = new SQLiteCommand(connection))
+                                        {
+                                            command.CommandText = "UPDATE Shortcuts SET subscriptionCapable='0' WHERE UserID = @UserID AND ShortcutID = @ID;";
+                                            command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                            command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
+                                            command.ExecuteNonQuery();
 
-            //                                command.CommandText = "INSERT OR IGNORE INTO Shortcuts (ShortcutID,subscriptionCapable) VALUES (@ID,'0')";
-            //                                command.ExecuteNonQuery();
+                                            command.CommandText = "INSERT OR IGNORE INTO Shortcuts (UserID,ShortcutID,subscriptionCapable) VALUES (@UserID, @ID,'0')";
+                                            command.ExecuteNonQuery();
 
-            //                            }
-            //                        }
-            //                    }
-            //                    else
-            //                    {
-            //                        if (subJSON["data"] != null)
-            //                        {
-            //                            if (subJSON["data"]["topic"] != null)
-            //                                shortcut.subscriptionTopic = subJSON["data"]["topic"].ToString();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (subJSON["data"] != null)
+                                    {
+                                        if (subJSON["data"]["topic"] != null)
+                                            shortcut.subscriptionTopic = subJSON["data"]["topic"].ToString();
 
-            //                            if (subJSON["data"]["expires_at"] != null)
-            //                                shortcut.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
+                                        if (subJSON["data"]["expires_at"] != null)
+                                            shortcut.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
 
-            //                            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
-            //                            {
+                                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                                        {
 
-            //                                connection.Open();
-            //                                using (SQLiteCommand command = new SQLiteCommand(connection))
-            //                                {
-            //                                    command.CommandText = "UPDATE Shortcuts SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE ShortcutID = @ID;";
-            //                                    command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", shortcut.subscriptionTopic));
-            //                                    command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", shortcut.subscriptionExpires));
-            //                                    command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
-            //                                    command.ExecuteNonQuery();
+                                            connection.Open();
+                                            using (SQLiteCommand command = new SQLiteCommand(connection))
+                                            {
+                                                command.CommandText = "UPDATE Shortcuts SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE UserID = @UserID AND ShortcutID = @ID;";
+                                                command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                                command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", shortcut.subscriptionTopic));
+                                                command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", shortcut.subscriptionExpires));
+                                                command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
+                                                command.ExecuteNonQuery();
 
-            //                                    command.CommandText = "INSERT OR IGNORE INTO Shortcuts(ShortcutID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@ID,@subscriptionTopic,@subscriptionExpires,'1')";
-            //                                    command.ExecuteNonQuery();
+                                                command.CommandText = "INSERT OR IGNORE INTO Shortcuts(UserID,ShortcutID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID,@ID,@subscriptionTopic,@subscriptionExpires,'1')";
+                                                command.ExecuteNonQuery();
 
-            //                                }
-            //                            }
-            //                        }
-            //                    }
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             #endregion
 
             return _shortcuts;
@@ -1386,12 +1434,13 @@ public class Wink
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "UPDATE Groups SET displayname=@displayname WHERE GroupID = @ID;";
+                        command.CommandText = "UPDATE Groups SET displayname=@displayname WHERE UserID = @UserID AND GroupID = @ID;";
+                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", GroupID));
                         command.Parameters.Add(new SQLiteParameter("@displayname", DisplayName));
                         command.ExecuteNonQuery();
 
-                        command.CommandText = "INSERT OR IGNORE INTO Groups (GroupID, displayname) VALUES (@ID, @displayname);";
+                        command.CommandText = "INSERT OR IGNORE INTO Groups (UserID,GroupID, displayname) VALUES (@UserID,@ID, @displayname);";
                         command.ExecuteNonQuery();
                     }
                 }
@@ -1402,8 +1451,8 @@ public class Wink
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setGroupDisplayName", ex.Message, EventLogEntryType.Error);
                 return null;
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setGroupDisplayName", ex.Message, EventLogEntryType.Error);
             }
         }
         public static int setGroupPosition(string GroupID, int Position)
@@ -1416,12 +1465,13 @@ public class Wink
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "UPDATE Groups SET position=@Position WHERE GroupID = @ID;";
+                        command.CommandText = "UPDATE Groups SET position=@Position WHERE UserID = @UserID AND GroupID = @ID;";
+                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", GroupID));
                         command.Parameters.Add(new SQLiteParameter("@Position", Position));
                         command.ExecuteNonQuery();
 
-                        command.CommandText = "INSERT OR IGNORE INTO Groups (GroupID, position) VALUES (@ID, @Position);";
+                        command.CommandText = "INSERT OR IGNORE INTO Groups (UserID,GroupID, position) VALUES (@UserID,@ID, @Position);";
                         command.ExecuteNonQuery();
                     }
                 }
@@ -1467,12 +1517,12 @@ public class Wink
     private static List<Group> _groups;
     public static bool hasGroupChanges;
 
-    private static List<Group> winkGetGroups()
+    private static List<Group> winkGetGroups(bool forceRefresh = false)
     {
         try
         {
             bool firstRun = false;
-            if (_groups == null)
+            if (_groups == null || forceRefresh)
             {
                 firstRun = true;
 
@@ -1540,15 +1590,16 @@ public class Wink
 
                         using (SQLiteCommand command = new SQLiteCommand(connection))
                         {
-                            command.CommandText = "UPDATE Groups SET Name=@name WHERE GroupID = @ID and Name<>@name;";
+                            command.CommandText = "UPDATE Groups SET Name=@name WHERE UserID = @UserID AND GroupID = @ID and Name<>@name;";
+                            command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                             command.Parameters.Add(new SQLiteParameter("@ID", group.id));
                             command.Parameters.Add(new SQLiteParameter("@name", group.name));
                             command.ExecuteNonQuery();
 
-                            command.CommandText = "INSERT OR IGNORE INTO Groups (GroupID, name) VALUES (@ID, @name);";
+                            command.CommandText = "INSERT OR IGNORE INTO Groups (UserID,GroupID, name) VALUES (@UserID, @ID, @name);";
                             command.ExecuteNonQuery();
 
-                            command.CommandText = "UPDATE Groups SET DisplayName=@displayname WHERE GroupID = @ID and @name <> @displayname and IFNULL(DisplayName, '') = '';";
+                            command.CommandText = "UPDATE Groups SET DisplayName=@displayname WHERE UserID = @UserID AND GroupID = @ID and @name <> @displayname and IFNULL(DisplayName, '') = '';";
                             command.Parameters.Add(new SQLiteParameter("@displayname", group.displayName));
                             command.ExecuteNonQuery();
                         }
@@ -1569,7 +1620,8 @@ public class Wink
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "select * from Groups where GroupID = @ID";
+                        command.CommandText = "select * from Groups where UserID = @UserID AND GroupID = @ID";
+                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", group.id));
                         SQLiteDataReader reader = command.ExecuteReader();
                         while (reader.Read())
@@ -1619,11 +1671,12 @@ public class Wink
                                         connection.Open();
                                         using (SQLiteCommand command = new SQLiteCommand(connection))
                                         {
-                                            command.CommandText = "UPDATE Groups SET subscriptionCapable='0' WHERE GroupID = @ID;";
+                                            command.CommandText = "UPDATE Groups SET subscriptionCapable='0' WHERE UserID = @UserID AND GroupID = @ID;";
+                                            command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                                             command.Parameters.Add(new SQLiteParameter("@ID", group.id));
                                             command.ExecuteNonQuery();
 
-                                            command.CommandText = "INSERT OR IGNORE INTO Groups(GroupID,subscriptionCapable) VALUES (@ID,'0')";
+                                            command.CommandText = "INSERT OR IGNORE INTO Groups(UserID, GroupID,subscriptionCapable) VALUES (@UserID,@ID,'0')";
                                             command.ExecuteNonQuery();
 
                                         }
@@ -1645,13 +1698,14 @@ public class Wink
                                             connection.Open();
                                             using (SQLiteCommand command = new SQLiteCommand(connection))
                                             {
-                                                command.CommandText = "UPDATE Groups SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE GroupID = @ID;";
+                                                command.CommandText = "UPDATE Groups SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE UserID = @UserID AND GroupID = @ID;";
+                                                command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                                                 command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", group.subscriptionTopic));
                                                 command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", group.subscriptionExpires));
                                                 command.Parameters.Add(new SQLiteParameter("@ID", group.id));
                                                 command.ExecuteNonQuery();
 
-                                                command.CommandText = "INSERT OR IGNORE INTO Groups(GroupID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@ID,@subscriptionTopic,@subscriptionExpires,'1')";
+                                                command.CommandText = "INSERT OR IGNORE INTO Groups(UserID,GroupID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID,@ID,@subscriptionTopic,@subscriptionExpires,'1')";
                                                 command.ExecuteNonQuery();
 
                                             }
@@ -1751,12 +1805,13 @@ public class Wink
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "UPDATE Robots SET displayname=@displayname WHERE RobotID = @ID;";
+                        command.CommandText = "UPDATE Robots SET displayname=@displayname WHERE UserID = @UserID AND RobotID = @ID;";
+                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", RobotID));
                         command.Parameters.Add(new SQLiteParameter("@displayname", DisplayName));
                         command.ExecuteNonQuery();
 
-                        command.CommandText = "INSERT OR IGNORE INTO Robots (RobotID, displayname) VALUES (@ID, @displayname);";
+                        command.CommandText = "INSERT OR IGNORE INTO Robots (UserID,RobotID, displayname) VALUES (@UserID,@ID, @displayname);";
                         command.ExecuteNonQuery();
                     }
                 }
@@ -1767,8 +1822,8 @@ public class Wink
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setRobotDisplayName", ex.Message, EventLogEntryType.Error);
                 return null;
+                throw ex; //EventLog.WriteEntry("WinkAtHome.Wink.setRobotDisplayName", ex.Message, EventLogEntryType.Error);
             }
         }
         public static int setRobotPosition(string RobotID, int Position)
@@ -1781,12 +1836,13 @@ public class Wink
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "UPDATE Robots SET position=@Position WHERE RobotID = @ID;";
+                        command.CommandText = "UPDATE Robots SET position=@Position WHERE UserID = @UserID AND RobotID = @ID;";
+                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", RobotID));
                         command.Parameters.Add(new SQLiteParameter("@Position", Position));
                         command.ExecuteNonQuery();
 
-                        command.CommandText = "INSERT OR IGNORE INTO Robots (RobotID, position) VALUES (@ID, @Position);";
+                        command.CommandText = "INSERT OR IGNORE INTO Robots (UserID,RobotID, position) VALUES (@UserID,@ID, @Position);";
                         command.ExecuteNonQuery();
                     }
                 }
@@ -1815,17 +1871,17 @@ public class Wink
     private static List<Robot> _robots;
     public static bool hasRobotChanges;
 
-    private static List<Robot> winkGetRobots(JObject jsonObject = null)
+    private static List<Robot> winkGetRobots(JObject jsonObject = null, bool forceRefresh = false)
     {
         try
         {
             bool firstRun = false;
-            if (_robots == null)
+            if (_robots == null || forceRefresh)
             {
                 List<Robot> Robots = new List<Robot>();
                 JObject json = null;
 
-                if (_robots == null)
+                if (_robots == null || forceRefresh)
                 {
                     firstRun = true;
                     json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetRobotsURL"]);
@@ -1914,15 +1970,16 @@ public class Wink
 
                             using (SQLiteCommand command = new SQLiteCommand(connection))
                             {
-                                command.CommandText = "UPDATE Robots SET Name=@name WHERE RobotID = @ID and Name<>@name;";
+                                command.CommandText = "UPDATE Robots SET Name=@name WHERE UserID = @UserID AND RobotID = @ID and Name<>@name;";
+                                command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                                 command.Parameters.Add(new SQLiteParameter("@ID", robot.id));
                                 command.Parameters.Add(new SQLiteParameter("@name", robot.name));
                                 command.ExecuteNonQuery();
 
-                                command.CommandText = "INSERT OR IGNORE INTO Robots (RobotID, name) VALUES (@ID, @name);";
+                                command.CommandText = "INSERT OR IGNORE INTO Robots (UserID,RobotID, name) VALUES (@UserID,@ID, @name);";
                                 command.ExecuteNonQuery();
 
-                                command.CommandText = "UPDATE Robots SET DisplayName=@displayname WHERE RobotID = @ID and @name <> @displayname and IFNULL(DisplayName, '') = '';";
+                                command.CommandText = "UPDATE Robots SET DisplayName=@displayname WHERE UserID = @UserID AND RobotID = @ID and @name <> @displayname and IFNULL(DisplayName, '') = '';";
                                 command.Parameters.Add(new SQLiteParameter("@displayname", robot.displayName));
                                 command.ExecuteNonQuery();
                             }
@@ -1943,7 +2000,8 @@ public class Wink
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "select * from Robots where RobotID = @ID";
+                        command.CommandText = "select * from Robots where UserID = @UserID AND RobotID = @ID";
+                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", robot.id));
                         SQLiteDataReader reader = command.ExecuteReader();
                         while (reader.Read())
@@ -1953,14 +2011,14 @@ public class Wink
                             if (!string.IsNullOrWhiteSpace(reader["DisplayName"].ToString()))
                                 robot.displayName = reader["DisplayName"].ToString();
 
-                            //string subCapable = reader["subscriptionCapable"].ToString();
-                            //robot.subscriptionCapable = Convert.ToBoolean(subCapable);
-                            //robot.subscriptionTopic = reader["SubscriptionTopic"].ToString();
+                            string subCapable = reader["subscriptionCapable"].ToString();
+                            robot.subscriptionCapable = Convert.ToBoolean(subCapable);
+                            robot.subscriptionTopic = reader["SubscriptionTopic"].ToString();
 
-                            //DateTime expires = new DateTime();
-                            //string date = reader["SubscriptionExpires"].ToString();
-                            //DateTime.TryParse(date, out expires);
-                            //robot.subscriptionExpires = Convert.ToDateTime(expires);
+                            DateTime expires = new DateTime();
+                            string date = reader["SubscriptionExpires"].ToString();
+                            DateTime.TryParse(date, out expires);
+                            robot.subscriptionExpires = Convert.ToDateTime(expires);
 
                         }
                     }
@@ -1971,71 +2029,73 @@ public class Wink
             #region PUBNUB SUBSCRIPTIONS
             //ROBOTS CAN'T HAVE SUBS AT THE MOMENT
 
-            //if (PubNub.hasPubNub)
-            //{
-            //    foreach (Robot robot in _robots)
-            //    {
-            //        if (string.IsNullOrWhiteSpace(robot.subscriptionTopic) || DateTime.Now > robot.subscriptionExpires)
-            //        {
-            //            if (robot.subscriptionCapable || firstRun)
-            //            {
-            //                string URL = ConfigurationManager.AppSettings["winkRootURL"] + "/robots/" + robot.id + "/subscriptions";
-            //                string sendCommand = "{\"publisher_key\":\"" + PubNub.publishKey + "\",\"subscriber_key\":\"" + PubNub.subscriberKey + "\"}";
-            //                JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
-            //                if (subJSON != null)
-            //                {
-            //                    if (subJSON.ToString().Contains("404") && !firstRun)
-            //                    {
-            //                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
-            //                        {
+            if (PubNub.hasPubNub)
+            {
+                foreach (Robot robot in _robots)
+                {
+                    if (string.IsNullOrWhiteSpace(robot.subscriptionTopic) || DateTime.Now > robot.subscriptionExpires)
+                    {
+                        if (robot.subscriptionCapable || firstRun)
+                        {
+                            string URL = ConfigurationManager.AppSettings["winkRootURL"] + "/robots/" + robot.id + "/subscriptions";
+                            string sendCommand = "{\"publisher_key\":\"" + PubNub.publishKey + "\",\"subscriber_key\":\"" + PubNub.subscriberKey + "\"}";
+                            JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
+                            if (subJSON != null)
+                            {
+                                if (subJSON.ToString().Contains("404") && !firstRun)
+                                {
+                                    using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                                    {
 
-            //                            connection.Open();
-            //                            using (SQLiteCommand command = new SQLiteCommand(connection))
-            //                            {
-            //                                command.CommandText = "UPDATE Robots SET subscriptionCapable='0' WHERE RobotID = @ID;";
-            //                                command.Parameters.Add(new SQLiteParameter("@ID", robot.id));
-            //                                command.ExecuteNonQuery();
+                                        connection.Open();
+                                        using (SQLiteCommand command = new SQLiteCommand(connection))
+                                        {
+                                            command.CommandText = "UPDATE Robots SET subscriptionCapable='0' WHERE UserID = @UserID AND RobotID = @ID;";
+                                            command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                            command.Parameters.Add(new SQLiteParameter("@ID", robot.id));
+                                            command.ExecuteNonQuery();
 
-            //                                command.CommandText = "INSERT OR IGNORE INTO Robots(RobotID,subscriptionCapable) VALUES (@ID,'0')";
-            //                                command.ExecuteNonQuery();
+                                            command.CommandText = "INSERT OR IGNORE INTO Robots(UserID,RobotID,subscriptionCapable) VALUES (@UserID,@ID,'0')";
+                                            command.ExecuteNonQuery();
 
-            //                            }
-            //                        }
-            //                    }
-            //                    else
-            //                    {
-            //                        if (subJSON["data"] != null)
-            //                        {
-            //                            if (subJSON["data"]["topic"] != null)
-            //                                robot.subscriptionTopic = subJSON["data"]["topic"].ToString();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (subJSON["data"] != null)
+                                    {
+                                        if (subJSON["data"]["topic"] != null)
+                                            robot.subscriptionTopic = subJSON["data"]["topic"].ToString();
 
-            //                            if (subJSON["data"]["expires_at"] != null)
-            //                                robot.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
+                                        if (subJSON["data"]["expires_at"] != null)
+                                            robot.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
 
-            //                            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
-            //                            {
+                                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                                        {
 
-            //                                connection.Open();
-            //                                using (SQLiteCommand command = new SQLiteCommand(connection))
-            //                                {
-            //                                    command.CommandText = "UPDATE Robots SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE RobotID = @ID;";
-            //                                    command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", robot.subscriptionTopic));
-            //                                    command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", robot.subscriptionExpires));
-            //                                    command.Parameters.Add(new SQLiteParameter("@ID", robot.id));
-            //                                    command.ExecuteNonQuery();
+                                            connection.Open();
+                                            using (SQLiteCommand command = new SQLiteCommand(connection))
+                                            {
+                                                command.CommandText = "UPDATE Robots SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE UserID = @UserID AND RobotID = @ID;";
+                                                command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                                command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", robot.subscriptionTopic));
+                                                command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", robot.subscriptionExpires));
+                                                command.Parameters.Add(new SQLiteParameter("@ID", robot.id));
+                                                command.ExecuteNonQuery();
 
-            //                                    command.CommandText = "INSERT OR IGNORE INTO Robots(RobotID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@ID,@subscriptionTopic,@subscriptionExpires,'1')";
-            //                                    command.ExecuteNonQuery();
+                                                command.CommandText = "INSERT OR IGNORE INTO Robots(UserID,RobotID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID,@ID,@subscriptionTopic,@subscriptionExpires,'1')";
+                                                command.ExecuteNonQuery();
 
-            //                                }
-            //                            }
-            //                        }
-            //                    }
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             #endregion
 
             return _robots;
@@ -2079,46 +2139,43 @@ public class Wink
             if (responseString != null)
             {
                 #if DEBUG
-                    if (SettingMgmt.getSetting("winkUsername").ToLower().Contains("trunzo"))
+                if (url == "https://winkapi.quirky.com/users/me/wink_devices")
+                {
+                    if (winkUser.email.ToLower().Contains("trunzo"))
                     {
-                        if (url == "https://winkapi.quirky.com/users/me/wink_devices")
-                        {
-                            //Add Garage Door
-                    //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"garage_door_id\": \"8552\",\"name\": \"zTest Chamberlain\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1420250978,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"af309d2e12b86bd1e5e63123db745dad703e46fb|garage_door-8552|user-123172\"}},\"user_ids\": [\"123172\"],\"triggers\": [],\"desired_state\": {\"position\": 1.0},\"manufacturer_device_model\": \"chamberlain_vgdo\",\"manufacturer_device_id\": \"1180839\",\"device_manufacturer\": \"chamberlain\",\"model_name\": \"MyQ Garage Door Controller\",\"upc_id\": \"26\",\"linked_service_id\": \"59900\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428535030.025161,\"position\": 1.0,\"position_updated_at\": 1428535020.76,\"position_opened\": \"N/A\",\"position_opened_updated_at\": 1428534916.709,\"battery\": 1.0,\"battery_updated_at\": 1428534350.3417819,\"fault\": false,\"fault_updated_at\": 1428534350.3417749,\"control_enabled\": true,\"control_enabled_updated_at\": 1428534350.3417563,\"desired_position\": 0.0,\"desired_position_updated_at\": 1428535030.0404377},\"lat_lng\": [33.162135,-97.090945],\"location\": \"\",\"order\": 0},");
+                        //Add Garage Door
+                        //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"garage_door_id\": \"8552\",\"name\": \"zTest Chamberlain\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1420250978,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"af309d2e12b86bd1e5e63123db745dad703e46fb|garage_door-8552|user-123172\"}},\"user_ids\": [\"123172\"],\"triggers\": [],\"desired_state\": {\"position\": 1.0},\"manufacturer_device_model\": \"chamberlain_vgdo\",\"manufacturer_device_id\": \"1180839\",\"device_manufacturer\": \"chamberlain\",\"model_name\": \"MyQ Garage Door Controller\",\"upc_id\": \"26\",\"linked_service_id\": \"59900\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428535030.025161,\"position\": 1.0,\"position_updated_at\": 1428535020.76,\"position_opened\": \"N/A\",\"position_opened_updated_at\": 1428534916.709,\"battery\": 1.0,\"battery_updated_at\": 1428534350.3417819,\"fault\": false,\"fault_updated_at\": 1428534350.3417749,\"control_enabled\": true,\"control_enabled_updated_at\": 1428534350.3417563,\"desired_position\": 0.0,\"desired_position_updated_at\": 1428535030.0404377},\"lat_lng\": [33.162135,-97.090945],\"location\": \"\",\"order\": 0},");
 
-                            //Add Honeywell Thermostat
-                    //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"thermostat_id\": \"27239\",\"name\": \"zTest Honeywell\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419909349,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"f5cb03e4101d1668ff7933a703a864b4984fce5a|thermostat-27239|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"mode\": \"heat_only\",\"powered\": true,\"min_set_point\": 20.0,\"max_set_point\": 22.777777777777779},\"manufacturer_device_model\": \"MANHATTAN\",\"manufacturer_device_id\": \"798165\",\"device_manufacturer\": \"honeywell\",\"model_name\": \"Honeywell Wi-Fi Smart Thermostat\",\"upc_id\": \"151\",\"hub_id\": null,\"local_id\": \"00D02D49A90A\",\"radio_type\": null,\"linked_service_id\": \"57563\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428536316.8312173,\"mode\": \"heat_only\",\"mode_updated_at\": 1428536316.8312581,\"powered\": true,\"powered_updated_at\": 1428536316.831265,\"min_set_point\": 20.0,\"min_set_point_updated_at\": 1428536316.8312485,\"max_set_point\": 22.777777777777779,\"max_set_point_updated_at\": 1428536316.8312287,\"temperature\": 22.777777777777779,\"temperature_updated_at\": 1428536316.8312783,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.6666666666666667,\"deadband_updated_at\": 1428536316.831311,\"min_min_set_point\": 4.4444444444444446,\"min_min_set_point_updated_at\": 1428536316.8313046,\"max_min_set_point\": 29.444444444444443,\"max_min_set_point_updated_at\": 1428536316.8312914,\"min_max_set_point\": 16.666666666666668,\"min_max_set_point_updated_at\": 1428536316.8312984,\"max_max_set_point\": 37.222222222222221,\"max_max_set_point_updated_at\": 1428536316.831285,\"modes_allowed\": [\"auto\",\"cool_only\",\"heat_only\"],\"modes_allowed_updated_at\": 1428536316.8313177,\"units\": \"f\",\"units_updated_at\": 1428536316.8312719,\"desired_mode\": \"heat_only\",\"desired_mode_updated_at\": 1428365474.3775809,\"desired_powered\": true,\"desired_powered_updated_at\": 1424823532.9645114,\"desired_min_set_point\": 20.0,\"desired_min_set_point_updated_at\": 1428509375.1094887,\"desired_max_set_point\": 22.777777777777779,\"desired_max_set_point_updated_at\": 1428509375.109503},\"lat_lng\": [33.162074,-97.090928],\"location\": \"\",\"smart_schedule_enabled\": false},");
+                        //Add Honeywell Thermostat
+                        //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"thermostat_id\": \"27239\",\"name\": \"zTest Honeywell\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419909349,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"f5cb03e4101d1668ff7933a703a864b4984fce5a|thermostat-27239|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"mode\": \"heat_only\",\"powered\": true,\"min_set_point\": 20.0,\"max_set_point\": 22.777777777777779},\"manufacturer_device_model\": \"MANHATTAN\",\"manufacturer_device_id\": \"798165\",\"device_manufacturer\": \"honeywell\",\"model_name\": \"Honeywell Wi-Fi Smart Thermostat\",\"upc_id\": \"151\",\"hub_id\": null,\"local_id\": \"00D02D49A90A\",\"radio_type\": null,\"linked_service_id\": \"57563\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428536316.8312173,\"mode\": \"heat_only\",\"mode_updated_at\": 1428536316.8312581,\"powered\": true,\"powered_updated_at\": 1428536316.831265,\"min_set_point\": 20.0,\"min_set_point_updated_at\": 1428536316.8312485,\"max_set_point\": 22.777777777777779,\"max_set_point_updated_at\": 1428536316.8312287,\"temperature\": 22.777777777777779,\"temperature_updated_at\": 1428536316.8312783,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.6666666666666667,\"deadband_updated_at\": 1428536316.831311,\"min_min_set_point\": 4.4444444444444446,\"min_min_set_point_updated_at\": 1428536316.8313046,\"max_min_set_point\": 29.444444444444443,\"max_min_set_point_updated_at\": 1428536316.8312914,\"min_max_set_point\": 16.666666666666668,\"min_max_set_point_updated_at\": 1428536316.8312984,\"max_max_set_point\": 37.222222222222221,\"max_max_set_point_updated_at\": 1428536316.831285,\"modes_allowed\": [\"auto\",\"cool_only\",\"heat_only\"],\"modes_allowed_updated_at\": 1428536316.8313177,\"units\": \"f\",\"units_updated_at\": 1428536316.8312719,\"desired_mode\": \"heat_only\",\"desired_mode_updated_at\": 1428365474.3775809,\"desired_powered\": true,\"desired_powered_updated_at\": 1424823532.9645114,\"desired_min_set_point\": 20.0,\"desired_min_set_point_updated_at\": 1428509375.1094887,\"desired_max_set_point\": 22.777777777777779,\"desired_max_set_point_updated_at\": 1428509375.109503},\"lat_lng\": [33.162074,-97.090928],\"location\": \"\",\"smart_schedule_enabled\": false},");
 
-                            //Add Nest Thermostat
-                    //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"thermostat_id\": \"49534\",\"name\": \"zTest Nest\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1427241058,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"0e67d43624e47b3633273f1236b7cde2c1823ac7|thermostat-49410|user-81926\"}},\"user_ids\": [\"81926\"],\"triggers\": [],\"desired_state\": {\"mode\": \"cool_only\",\"powered\": true,\"min_set_point\": 21.0,\"max_set_point\": 22.0,\"users_away\": false,\"fan_timer_active\": false},\"manufacturer_device_model\": \"nest\",\"manufacturer_device_id\": \"pHNukJTND3MHRBT9zks77kxx11Qobba_\",\"device_manufacturer\": \"nest\",\"model_name\": \"Learning Thermostat\",\"upc_id\": \"168\",\"hub_id\": null,\"local_id\": null,\"radio_type\": null,\"linked_service_id\": \"92972\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428516397.2914052,\"mode\": \"cool_only\",\"mode_updated_at\": 1428516397.2914376,\"powered\": true,\"powered_updated_at\": 1428516397.2914565,\"min_set_point\": 21.0,\"min_set_point_updated_at\": 1428461324.5980272,\"max_set_point\": 22.0,\"max_set_point_updated_at\": 1428516397.2914746,\"users_away\": false,\"users_away_updated_at\": 1428516397.2914917,\"fan_timer_active\": false,\"fan_timer_active_updated_at\": 1428516397.2914684,\"temperature\": 22.0,\"temperature_updated_at\": 1428516397.2914257,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.5,\"deadband_updated_at\": 1428516397.2914317,\"min_min_set_point\": null,\"min_min_set_point_updated_at\": null,\"max_min_set_point\": null,\"max_min_set_point_updated_at\": null,\"min_max_set_point\": null,\"min_max_set_point_updated_at\": null,\"max_max_set_point\": null,\"max_max_set_point_updated_at\": null,\"modes_allowed\": [\"auto\",\"heat_only\",\"cool_only\"],\"modes_allowed_updated_at\": 1428516397.2914805,\"units\": \"f\",\"units_updated_at\": 1428516397.2914197,\"eco_target\": false,\"eco_target_updated_at\": 1428516397.2914433,\"manufacturer_structure_id\": \"kdCrRKp3UahHp8xWEoJBRYX9xnQWDsoU1sb5ej9Mp5Zb41WEIOKJtg\",\"manufacturer_structure_id_updated_at\": 1428516397.2914503,\"has_fan\": true,\"has_fan_updated_at\": 1428516397.2914622,\"fan_duration\": 0,\"fan_duration_updated_at\": 1428516397.2914863,\"last_error\": null,\"last_error_updated_at\": 1427241058.6980464,\"desired_mode\": \"cool_only\",\"desired_mode_updated_at\": 1427593066.90498,\"desired_powered\": true,\"desired_powered_updated_at\": 1428462838.6427567,\"desired_min_set_point\": 21.0,\"desired_min_set_point_updated_at\": 1428427791.3297703,\"desired_max_set_point\": 22.0,\"desired_max_set_point_updated_at\": 1428497187.9092989,\"desired_users_away\": false,\"desired_users_away_updated_at\": 1428440888.9921448,\"desired_fan_timer_active\": false,\"desired_fan_timer_active_updated_at\": 1427241058.6981435},\"lat_lng\": [null,null],\"location\": \"\",\"smart_schedule_enabled\": false},");
+                        //Add Nest Thermostat
+                        //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"thermostat_id\": \"49534\",\"name\": \"zTest Nest\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1427241058,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"0e67d43624e47b3633273f1236b7cde2c1823ac7|thermostat-49410|user-81926\"}},\"user_ids\": [\"81926\"],\"triggers\": [],\"desired_state\": {\"mode\": \"cool_only\",\"powered\": true,\"min_set_point\": 21.0,\"max_set_point\": 22.0,\"users_away\": false,\"fan_timer_active\": false},\"manufacturer_device_model\": \"nest\",\"manufacturer_device_id\": \"pHNukJTND3MHRBT9zks77kxx11Qobba_\",\"device_manufacturer\": \"nest\",\"model_name\": \"Learning Thermostat\",\"upc_id\": \"168\",\"hub_id\": null,\"local_id\": null,\"radio_type\": null,\"linked_service_id\": \"92972\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428516397.2914052,\"mode\": \"cool_only\",\"mode_updated_at\": 1428516397.2914376,\"powered\": true,\"powered_updated_at\": 1428516397.2914565,\"min_set_point\": 21.0,\"min_set_point_updated_at\": 1428461324.5980272,\"max_set_point\": 22.0,\"max_set_point_updated_at\": 1428516397.2914746,\"users_away\": false,\"users_away_updated_at\": 1428516397.2914917,\"fan_timer_active\": false,\"fan_timer_active_updated_at\": 1428516397.2914684,\"temperature\": 22.0,\"temperature_updated_at\": 1428516397.2914257,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.5,\"deadband_updated_at\": 1428516397.2914317,\"min_min_set_point\": null,\"min_min_set_point_updated_at\": null,\"max_min_set_point\": null,\"max_min_set_point_updated_at\": null,\"min_max_set_point\": null,\"min_max_set_point_updated_at\": null,\"max_max_set_point\": null,\"max_max_set_point_updated_at\": null,\"modes_allowed\": [\"auto\",\"heat_only\",\"cool_only\"],\"modes_allowed_updated_at\": 1428516397.2914805,\"units\": \"f\",\"units_updated_at\": 1428516397.2914197,\"eco_target\": false,\"eco_target_updated_at\": 1428516397.2914433,\"manufacturer_structure_id\": \"kdCrRKp3UahHp8xWEoJBRYX9xnQWDsoU1sb5ej9Mp5Zb41WEIOKJtg\",\"manufacturer_structure_id_updated_at\": 1428516397.2914503,\"has_fan\": true,\"has_fan_updated_at\": 1428516397.2914622,\"fan_duration\": 0,\"fan_duration_updated_at\": 1428516397.2914863,\"last_error\": null,\"last_error_updated_at\": 1427241058.6980464,\"desired_mode\": \"cool_only\",\"desired_mode_updated_at\": 1427593066.90498,\"desired_powered\": true,\"desired_powered_updated_at\": 1428462838.6427567,\"desired_min_set_point\": 21.0,\"desired_min_set_point_updated_at\": 1428427791.3297703,\"desired_max_set_point\": 22.0,\"desired_max_set_point_updated_at\": 1428497187.9092989,\"desired_users_away\": false,\"desired_users_away_updated_at\": 1428440888.9921448,\"desired_fan_timer_active\": false,\"desired_fan_timer_active_updated_at\": 1427241058.6981435},\"lat_lng\": [null,null],\"location\": \"\",\"smart_schedule_enabled\": false},");
 
-                            //Add Refuel
-                    //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"propane_tank_id\": \"6521\",\"name\": \"zTest Refuel\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419569612,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"5055752531a8aac104827ec4ba2a3366038ee15a|propane_tank-6521|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"device_manufacturer\": \"quirky_ge\",\"model_name\": \"Refuel\",\"upc_id\": \"17\",\"last_reading\": {\"connection\": true,\"battery\": 0.52,\"remaining\": 0.5},\"lat_lng\": [33.162101,-97.090547],\"location\": \"76210\",\"mac_address\": \"0c2a6907025a\",\"serial\": \"ACAB00033589\",\"tare\": 18.0,\"tank_changed_at\": 1421352479},");
+                        //Add Refuel
+                        //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"propane_tank_id\": \"6521\",\"name\": \"zTest Refuel\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419569612,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"5055752531a8aac104827ec4ba2a3366038ee15a|propane_tank-6521|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"device_manufacturer\": \"quirky_ge\",\"model_name\": \"Refuel\",\"upc_id\": \"17\",\"last_reading\": {\"connection\": true,\"battery\": 0.52,\"remaining\": 0.5},\"lat_lng\": [33.162101,-97.090547],\"location\": \"76210\",\"mac_address\": \"0c2a6907025a\",\"serial\": \"ACAB00033589\",\"tare\": 18.0,\"tank_changed_at\": 1421352479},");
 
-                            //Add Nest Protect
-                    //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"smoke_detector_id\": \"10076\", \"name\": \"zTest Nest Protect\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1419086573, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"5882005d3a98dbbd335c2cf778a6734557cd1f2f|smoke_detector-10076|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": \"nest\", \"manufacturer_device_id\": \"VpXN4GQ7MUD5QqV8vgvQOExx11Qobba_\", \"device_manufacturer\": \"nest\", \"model_name\": \"Smoke + Carbon Monoxide Detector\", \"upc_id\": \"170\", \"hub_id\": null, \"local_id\": null, \"radio_type\": null, \"linked_service_id\": \"50847\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865904.1217248, \"battery\": 1.0, \"battery_updated_at\": 1428865904.1217616, \"co_detected\": false, \"co_detected_updated_at\": 1428865904.1217353, \"smoke_detected\": false, \"smoke_detected_updated_at\": 1428865904.1217477, \"test_activated\": null, \"test_activated_updated_at\": 1428855697.3881633, \"smoke_severity\": 0.0, \"smoke_severity_updated_at\": 1428865904.1217549, \"co_severity\": 0.0, \"co_severity_updated_at\": 1428865904.1217415 }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
+                        //Add Nest Protect
+                        //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"smoke_detector_id\": \"10076\", \"name\": \"zTest Nest Protect\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1419086573, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"5882005d3a98dbbd335c2cf778a6734557cd1f2f|smoke_detector-10076|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": \"nest\", \"manufacturer_device_id\": \"VpXN4GQ7MUD5QqV8vgvQOExx11Qobba_\", \"device_manufacturer\": \"nest\", \"model_name\": \"Smoke + Carbon Monoxide Detector\", \"upc_id\": \"170\", \"hub_id\": null, \"local_id\": null, \"radio_type\": null, \"linked_service_id\": \"50847\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865904.1217248, \"battery\": 1.0, \"battery_updated_at\": 1428865904.1217616, \"co_detected\": false, \"co_detected_updated_at\": 1428865904.1217353, \"smoke_detected\": false, \"smoke_detected_updated_at\": 1428865904.1217477, \"test_activated\": null, \"test_activated_updated_at\": 1428855697.3881633, \"smoke_severity\": 0.0, \"smoke_severity_updated_at\": 1428865904.1217549, \"co_severity\": 0.0, \"co_severity_updated_at\": 1428865904.1217415 }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
 
-                            //Add Relay & Related
-                            //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"hub_id\": \"132595\", \"name\": \"Wink Relay\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545678, \"hidden_at\": null, \"capabilities\": { \"oauth2_clients\": [ \"wink_project_one\" ] }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"d9be1fe3abeb9fc46bec54a7cb62719a5a576c86|hub-132595|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": { \"pairing_mode\": null }, \"manufacturer_device_model\": \"wink_project_one\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"wink\", \"model_name\": \"Wink Relay\", \"upc_id\": \"186\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865074.9676549, \"agent_session_id\": \"9c99e3314c3a39f2eb9830a78d10684c\", \"agent_session_id_updated_at\": 1428855693.8299525, \"remote_pairable\": null, \"remote_pairable_updated_at\": null, \"updating_firmware\": false, \"updating_firmware_updated_at\": 1428855688.0774271, \"app_rootfs_version\": \"1.0.221\", \"app_rootfs_version_updated_at\": 1428855697.3881633, \"firmware_version\": \"1.0.221\", \"firmware_version_updated_at\": 1428855697.3881423, \"update_needed\": false, \"update_needed_updated_at\": 1428855697.3881698, \"mac_address\": \"B4:79:A7:0F:F7:DF\", \"mac_address_updated_at\": 1428855697.3881495, \"ip_address\": \"192.168.1.187\", \"ip_address_updated_at\": 1428855697.3881567, \"hub_version\": \"user\", \"hub_version_updated_at\": 1428855697.3881316, \"pairing_mode\": null, \"pairing_mode_updated_at\": 1428545678.0519505, \"desired_pairing_mode\": null, \"desired_pairing_mode_updated_at\": 1428545678.0519564 }, \"lat_lng\": [ null, null ], \"location\": \"\", \"configuration\": null, \"update_needed\": true, \"uuid\": \"9bb6a0d5-30f2-4bf7-8b37-d667c30e05bc\" },");
-                            //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"binary_switch_id\": \"46401\", \"name\": \"zTest Relay Switch A\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": { \"configuration\": null }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"bb1cb7a5d146cbc2cf09dca3655f684b2e24be89|binary_switch-46401|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": { \"powered\": false, \"powering_mode\": \"dumb\" }, \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"1\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855698.9869163, \"powered\": false, \"powered_updated_at\": 1428855698.9869256, \"powering_mode\": \"dumb\", \"powering_mode_updated_at\": 1428545815.5253267, \"consumption\": null, \"consumption_updated_at\": null, \"cost\": null, \"cost_updated_at\": null, \"budget_percentage\": null, \"budget_percentage_updated_at\": null, \"budget_velocity\": null, \"budget_velocity_updated_at\": null, \"summation_delivered\": null, \"summation_delivered_updated_at\": null, \"sum_delivered_multiplier\": null, \"sum_delivered_multiplier_updated_at\": null, \"sum_delivered_divisor\": null, \"sum_delivered_divisor_updated_at\": null, \"sum_delivered_formatting\": null, \"sum_delivered_formatting_updated_at\": null, \"sum_unit_of_measure\": null, \"sum_unit_of_measure_updated_at\": null, \"desired_powered\": false, \"desired_powered_updated_at\": 1428546752.8178129, \"desired_powering_mode\": \"dumb\", \"desired_powering_mode_updated_at\": 1428545815.5253191 }, \"current_budget\": null, \"lat_lng\": [ 0.0, 0.0 ], \"location\": \"\", \"order\": 0 },");
-                            //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"binary_switch_id\": \"30320\", \"name\": \"zTest Relay Switch B\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1422813943,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"8afe2bdfa540e4459b510bff44db636388afea88|binary_switch-30320|user-186645\"}},\"user_ids\": [\"186645\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"powering_mode\": \"none\"},\"manufacturer_device_model\": null,\"manufacturer_device_id\": null,\"device_manufacturer\": null,\"model_name\": null,\"upc_id\": null,\"gang_id\": \"2997\",\"hub_id\": \"98045\",\"local_id\": \"2\",\"radio_type\": \"project_one\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1429016828.833034,\"powered\": false,\"powered_updated_at\": 1429016828.8330438,\"powering_mode\": \"none\",\"powering_mode_updated_at\": 1422824216.9928842,\"consumption\": null,\"consumption_updated_at\": null,\"cost\": null,\"cost_updated_at\": null,\"budget_percentage\": null,\"budget_percentage_updated_at\": null,\"budget_velocity\": null,\"budget_velocity_updated_at\": null,\"summation_delivered\": null,\"summation_delivered_updated_at\": null,\"sum_delivered_multiplier\": null,\"sum_delivered_multiplier_updated_at\": null,\"sum_delivered_divisor\": null,\"sum_delivered_divisor_updated_at\": null,\"sum_delivered_formatting\": null,\"sum_delivered_formatting_updated_at\": null,\"sum_unit_of_measure\": null,\"sum_unit_of_measure_updated_at\": null,\"desired_powered\": false,\"desired_powered_updated_at\": 1422824138.418901,\"desired_powering_mode\": \"none\",\"desired_powering_mode_updated_at\": 1422824216.9928727},\"current_budget\": null,\"lat_lng\": [0.0,0.0],\"location\": \"\",\"order\": 0},");
-                            //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"button_id\": \"13333\", \"name\": \"Smart Button\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"2894740376a764e392d566474aac56f634c3731f|button-13333|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"4\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855697.7729235, \"pressed\": false, \"pressed_updated_at\": 1428855697.7729335, \"long_pressed\": null, \"long_pressed_updated_at\": null }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
-                            //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"button_id\": \"13334\", \"name\": \"Smart Button\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"51c9e90c1b352231a0ce9bdbfa1295c052af91f2|button-13334|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"5\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855697.9626672, \"pressed\": false, \"pressed_updated_at\": 1428855697.962677, \"long_pressed\": null, \"long_pressed_updated_at\": null }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
-                            //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"gang_id\": \"6776\", \"name\": \"Gang\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545678, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"1d8877fe2c53439330ef7e72548c6fa38e111420|gang-6776|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"desired_state\": {}, \"manufacturer_device_model\": \"wink_project_one\", \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"hub_id\": \"132595\", \"local_id\": null, \"radio_type\": null, \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428545678.122422 }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
+                        //Add Relay & Related
+                        //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"hub_id\": \"132595\", \"name\": \"Wink Relay\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545678, \"hidden_at\": null, \"capabilities\": { \"oauth2_clients\": [ \"wink_project_one\" ] }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"d9be1fe3abeb9fc46bec54a7cb62719a5a576c86|hub-132595|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": { \"pairing_mode\": null }, \"manufacturer_device_model\": \"wink_project_one\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"wink\", \"model_name\": \"Wink Relay\", \"upc_id\": \"186\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428865074.9676549, \"agent_session_id\": \"9c99e3314c3a39f2eb9830a78d10684c\", \"agent_session_id_updated_at\": 1428855693.8299525, \"remote_pairable\": null, \"remote_pairable_updated_at\": null, \"updating_firmware\": false, \"updating_firmware_updated_at\": 1428855688.0774271, \"app_rootfs_version\": \"1.0.221\", \"app_rootfs_version_updated_at\": 1428855697.3881633, \"firmware_version\": \"1.0.221\", \"firmware_version_updated_at\": 1428855697.3881423, \"update_needed\": false, \"update_needed_updated_at\": 1428855697.3881698, \"mac_address\": \"B4:79:A7:0F:F7:DF\", \"mac_address_updated_at\": 1428855697.3881495, \"ip_address\": \"192.168.1.187\", \"ip_address_updated_at\": 1428855697.3881567, \"hub_version\": \"user\", \"hub_version_updated_at\": 1428855697.3881316, \"pairing_mode\": null, \"pairing_mode_updated_at\": 1428545678.0519505, \"desired_pairing_mode\": null, \"desired_pairing_mode_updated_at\": 1428545678.0519564 }, \"lat_lng\": [ null, null ], \"location\": \"\", \"configuration\": null, \"update_needed\": true, \"uuid\": \"9bb6a0d5-30f2-4bf7-8b37-d667c30e05bc\" },");
+                        //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"binary_switch_id\": \"46401\", \"name\": \"zTest Relay Switch A\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": { \"configuration\": null }, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"bb1cb7a5d146cbc2cf09dca3655f684b2e24be89|binary_switch-46401|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": { \"powered\": false, \"powering_mode\": \"dumb\" }, \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"1\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855698.9869163, \"powered\": false, \"powered_updated_at\": 1428855698.9869256, \"powering_mode\": \"dumb\", \"powering_mode_updated_at\": 1428545815.5253267, \"consumption\": null, \"consumption_updated_at\": null, \"cost\": null, \"cost_updated_at\": null, \"budget_percentage\": null, \"budget_percentage_updated_at\": null, \"budget_velocity\": null, \"budget_velocity_updated_at\": null, \"summation_delivered\": null, \"summation_delivered_updated_at\": null, \"sum_delivered_multiplier\": null, \"sum_delivered_multiplier_updated_at\": null, \"sum_delivered_divisor\": null, \"sum_delivered_divisor_updated_at\": null, \"sum_delivered_formatting\": null, \"sum_delivered_formatting_updated_at\": null, \"sum_unit_of_measure\": null, \"sum_unit_of_measure_updated_at\": null, \"desired_powered\": false, \"desired_powered_updated_at\": 1428546752.8178129, \"desired_powering_mode\": \"dumb\", \"desired_powering_mode_updated_at\": 1428545815.5253191 }, \"current_budget\": null, \"lat_lng\": [ 0.0, 0.0 ], \"location\": \"\", \"order\": 0 },");
+                        //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"binary_switch_id\": \"30320\", \"name\": \"zTest Relay Switch B\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1422813943,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"8afe2bdfa540e4459b510bff44db636388afea88|binary_switch-30320|user-186645\"}},\"user_ids\": [\"186645\"],\"triggers\": [],\"desired_state\": {\"powered\": false,\"powering_mode\": \"none\"},\"manufacturer_device_model\": null,\"manufacturer_device_id\": null,\"device_manufacturer\": null,\"model_name\": null,\"upc_id\": null,\"gang_id\": \"2997\",\"hub_id\": \"98045\",\"local_id\": \"2\",\"radio_type\": \"project_one\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1429016828.833034,\"powered\": false,\"powered_updated_at\": 1429016828.8330438,\"powering_mode\": \"none\",\"powering_mode_updated_at\": 1422824216.9928842,\"consumption\": null,\"consumption_updated_at\": null,\"cost\": null,\"cost_updated_at\": null,\"budget_percentage\": null,\"budget_percentage_updated_at\": null,\"budget_velocity\": null,\"budget_velocity_updated_at\": null,\"summation_delivered\": null,\"summation_delivered_updated_at\": null,\"sum_delivered_multiplier\": null,\"sum_delivered_multiplier_updated_at\": null,\"sum_delivered_divisor\": null,\"sum_delivered_divisor_updated_at\": null,\"sum_delivered_formatting\": null,\"sum_delivered_formatting_updated_at\": null,\"sum_unit_of_measure\": null,\"sum_unit_of_measure_updated_at\": null,\"desired_powered\": false,\"desired_powered_updated_at\": 1422824138.418901,\"desired_powering_mode\": \"none\",\"desired_powering_mode_updated_at\": 1422824216.9928727},\"current_budget\": null,\"lat_lng\": [0.0,0.0],\"location\": \"\",\"order\": 0},");
+                        //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"button_id\": \"13333\", \"name\": \"Smart Button\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"2894740376a764e392d566474aac56f634c3731f|button-13333|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"4\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855697.7729235, \"pressed\": false, \"pressed_updated_at\": 1428855697.7729335, \"long_pressed\": null, \"long_pressed_updated_at\": null }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
+                        //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"button_id\": \"13334\", \"name\": \"Smart Button\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"51c9e90c1b352231a0ce9bdbfa1295c052af91f2|button-13334|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"5\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855697.9626672, \"pressed\": false, \"pressed_updated_at\": 1428855697.962677, \"long_pressed\": null, \"long_pressed_updated_at\": null }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
+                        //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"gang_id\": \"6776\", \"name\": \"Gang\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545678, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"1d8877fe2c53439330ef7e72548c6fa38e111420|gang-6776|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"desired_state\": {}, \"manufacturer_device_model\": \"wink_project_one\", \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"hub_id\": \"132595\", \"local_id\": null, \"radio_type\": null, \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428545678.122422 }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
 
-                            //Spotter
-                    //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"last_event\":{\"brightness_occurred_at\":1428961404.2836313,\"loudness_occurred_at\":1427547964.9292188,\"vibration_occurred_at\":1428879300.9600453},\"sensor_threshold_events\":[],\"sensor_pod_id\":\"40794\",\"name\":\"zTest Spotter\",\"locale\":\"en_us\",\"units\":{\"temperature\":\"f\"},\"created_at\":1422657639,\"hidden_at\":null,\"capabilities\":{\"sensor_types\":[{\"type\":\"percentage\",\"field\":\"battery\"},{\"type\":\"percentage\",\"field\":\"brightness\"},{\"type\":\"boolean\",\"field\":\"external_power\"},{\"type\":\"integer_percentage\",\"field\":\"humidity\"},{\"type\":\"percentage\",\"field\":\"loudness\"},{\"type\":\"float\",\"field\":\"temperature\"},{\"type\":\"boolean\",\"field\":\"vibration\"}]},\"subscription\":{\"pubnub\":{\"subscribe_key\":\"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\":\"959bda140ade2f77ded3fd968bfac2242489175e|sensor_pod-40794|user-186645\"}},\"user_ids\":[\"186645\"],\"triggers\":[],\"desired_state\":{},\"manufacturer_device_model\":\"quirky_ge_spotter\",\"manufacturer_device_id\":null,\"device_manufacturer\":\"quirky_ge\",\"model_name\":\"Spotter\",\"upc_id\":\"25\",\"gang_id\":null,\"hub_id\":null,\"local_id\":null,\"radio_type\":null,\"last_reading\":{\"connection\":true,\"connection_updated_at\":1428969581.0099306,\"agent_session_id\":null,\"agent_session_id_updated_at\":1425384214.8524168,\"battery\":0.98,\"battery_updated_at\":1428969581.0099251,\"brightness\":1.0,\"brightness_updated_at\":1428969581.0098875,\"external_power\":true,\"external_power_updated_at\":1428969581.0098965,\"humidity\":35,\"humidity_updated_at\":1428969581.0099025,\"loudness\":0.0,\"loudness_updated_at\":1428969581.0099192,\"temperature\":19.0,\"temperature_updated_at\":1428969581.0099139,\"vibration\":false,\"vibration_updated_at\":1428969581.0099082,\"brightness_true\":\"N/A\",\"brightness_true_updated_at\":1428961404.2836313,\"loudness_true\":\"N/A\",\"loudness_true_updated_at\":1427547964.9292188,\"vibration_true\":\"N/A\",\"vibration_true_updated_at\":1428879300.9600453},\"lat_lng\":[0.0,0.0],\"location\":\"\",\"mac_address\":\"0c2a690656b3\",\"serial\":\"ABAB00029469\",\"uuid\":\"005f5493-2ab6-46fa-ab7d-f2932c37dd4a\"},");
+                        //Spotter
+                        //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"last_event\":{\"brightness_occurred_at\":1428961404.2836313,\"loudness_occurred_at\":1427547964.9292188,\"vibration_occurred_at\":1428879300.9600453},\"sensor_threshold_events\":[],\"sensor_pod_id\":\"40794\",\"name\":\"zTest Spotter\",\"locale\":\"en_us\",\"units\":{\"temperature\":\"f\"},\"created_at\":1422657639,\"hidden_at\":null,\"capabilities\":{\"sensor_types\":[{\"type\":\"percentage\",\"field\":\"battery\"},{\"type\":\"percentage\",\"field\":\"brightness\"},{\"type\":\"boolean\",\"field\":\"external_power\"},{\"type\":\"integer_percentage\",\"field\":\"humidity\"},{\"type\":\"percentage\",\"field\":\"loudness\"},{\"type\":\"float\",\"field\":\"temperature\"},{\"type\":\"boolean\",\"field\":\"vibration\"}]},\"subscription\":{\"pubnub\":{\"subscribe_key\":\"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\":\"959bda140ade2f77ded3fd968bfac2242489175e|sensor_pod-40794|user-186645\"}},\"user_ids\":[\"186645\"],\"triggers\":[],\"desired_state\":{},\"manufacturer_device_model\":\"quirky_ge_spotter\",\"manufacturer_device_id\":null,\"device_manufacturer\":\"quirky_ge\",\"model_name\":\"Spotter\",\"upc_id\":\"25\",\"gang_id\":null,\"hub_id\":null,\"local_id\":null,\"radio_type\":null,\"last_reading\":{\"connection\":true,\"connection_updated_at\":1428969581.0099306,\"agent_session_id\":null,\"agent_session_id_updated_at\":1425384214.8524168,\"battery\":0.98,\"battery_updated_at\":1428969581.0099251,\"brightness\":1.0,\"brightness_updated_at\":1428969581.0098875,\"external_power\":true,\"external_power_updated_at\":1428969581.0098965,\"humidity\":35,\"humidity_updated_at\":1428969581.0099025,\"loudness\":0.0,\"loudness_updated_at\":1428969581.0099192,\"temperature\":19.0,\"temperature_updated_at\":1428969581.0099139,\"vibration\":false,\"vibration_updated_at\":1428969581.0099082,\"brightness_true\":\"N/A\",\"brightness_true_updated_at\":1428961404.2836313,\"loudness_true\":\"N/A\",\"loudness_true_updated_at\":1427547964.9292188,\"vibration_true\":\"N/A\",\"vibration_true_updated_at\":1428879300.9600453},\"lat_lng\":[0.0,0.0],\"location\":\"\",\"mac_address\":\"0c2a690656b3\",\"serial\":\"ABAB00029469\",\"uuid\":\"005f5493-2ab6-46fa-ab7d-f2932c37dd4a\"},");
 
-                            //Power Pivot Genius
-                    //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"powerstrip_triggers\":[],\"powerstrip_id\":\"14934\",\"name\":\"zTest Power Pivot Genius\",\"locale\":\"en_us\",\"units\":{\"temperature\":\"f\"},\"created_at\":1425598308,\"hidden_at\":null,\"capabilities\":{\"configuration\":null},\"subscription\":{\"pubnub\":{\"subscribe_key\":\"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\":\"d7494912a8d8fcb85eb71a4e68ff540071a27688|powerstrip-14934|user-186645\"}},\"user_ids\":[\"186645\"],\"triggers\":[],\"desired_state\":{},\"device_manufacturer\":\"quirky_ge\",\"model_name\":\"Pivot Power Genius\",\"upc_id\":\"24\",\"last_reading\":{\"connection\":true,\"connection_updated_at\":1428968058.934176},\"lat_lng\":[41.389192,-81.425188],\"location\":\"44139\",\"mac_address\":\"0c2a69025d34\",\"serial\":\"AAAA00002820\",\"outlets\":[{\"powered\":true,\"scheduled_outlet_states\":[],\"name\":\"Outlet A\",\"desired_state\":{\"powered\":true,\"powered_updated_at\":1428955233.9824348},\"last_reading\":{\"powered\":true,\"powered_updated_at\":1428955233.9834647,\"desired_powered\":true},\"outlet_index\":0,\"outlet_id\":\"29871\",\"icon_id\":\"9\",\"parent_object_type\":\"powerstrip\",\"parent_object_id\":\"14934\"},{\"powered\":false,\"scheduled_outlet_states\":[],\"name\":\"Outlet B\",\"desired_state\":{\"powered\":false,\"powered_updated_at\":1428970607.6637535},\"last_reading\":{\"powered\":false,\"powered_updated_at\":1428970607.663765,\"desired_powered\":false},\"outlet_index\":1,\"outlet_id\":\"29872\",\"icon_id\":null,\"parent_object_type\":\"powerstrip\",\"parent_object_id\":\"14934\"}]},");
+                        //Rachio Iro
+                        //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"sprinkler_id\": \"1483\",\"name\": \"Sprinkler\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1429295028,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"ecbd8151da8524635b2dfd777c4f55f33a042285|sprinkler-1483|user-186645\"}},\"user_ids\": [\"186645\"],\"desired_state\": {\"master_valve\": false,\"rain_sensor\": false,\"schedule_enabled\": false,\"run_zone_indices\": [],\"run_zone_durations\": []},\"manufacturer_device_model\": \"rachio_iro\",\"manufacturer_device_id\": \"b26d4e70-f4df-481a-9149-c9bac4c3a09e\",\"device_manufacturer\": \"rachio\",\"model_name\": \"Iro\",\"upc_id\": \"152\",\"linked_service_id\": \"100792\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1429477160.725,\"master_valve\": false,\"master_valve_updated_at\": 1429477160.725,\"rain_sensor\": false,\"rain_sensor_updated_at\": 1429477160.725,\"schedule_enabled\": false,\"schedule_enabled_updated_at\": 1429477160.725,\"run_zone_indices\": [],\"run_zone_indices_updated_at\": 1429361044.5683227,\"run_zone_durations\": [],\"run_zone_durations_updated_at\": 1429361044.5683227,\"desired_master_valve\": false,\"desired_master_valve_updated_at\": 1429361044.6298194,\"desired_rain_sensor\": false,\"desired_rain_sensor_updated_at\": 1429361042.534966,\"desired_schedule_enabled\": false,\"desired_schedule_enabled_updated_at\": 1429361044.6298397,\"desired_run_zone_indices\": [],\"desired_run_zone_indices_updated_at\": 1429361042.5349822,\"desired_run_zone_durations\": [],\"desired_run_zone_durations_updated_at\": 1429361042.5349896},\"lat_lng\": [41.38983,-81.42602],\"location\": \"\",\"zones\": [{\"name\": \"Top Driveway\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6298468,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6298535,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6298602,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6298668,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.629873,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6298814},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 0,\"zone_id\": \"12501\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Driveway Bottom\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6298881,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6298945,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299007,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299071,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299136,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6299202},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 1,\"zone_id\": \"12502\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Tree Lawn\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6299269,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6299338,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299408,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299474,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299543,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.629961},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 2,\"zone_id\": \"12503\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Right\",\"desired_state\": {\"enabled\": false,\"enabled_updated_at\": 1429361044.6299675,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6299734,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299799,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299863,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299949,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6300077},\"last_reading\": {\"enabled\": false,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 3,\"zone_id\": \"12504\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Mailbox\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6300216,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6300349,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6300464,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.630054,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6300609,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6300678},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 4,\"zone_id\": \"12505\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Center\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6300743,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6300812,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6300881,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6300948,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301012,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301079},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 5,\"zone_id\": \"12506\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Left\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6301141,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6301203,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6301262,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6301327,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301389,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301456},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 6,\"zone_id\": \"12507\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Zone 8\",\"desired_state\": {\"enabled\": false,\"enabled_updated_at\": 1429361044.630152,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6301584,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6301646,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6301739,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301811,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301878},\"last_reading\": {\"enabled\": false,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 7,\"zone_id\": \"12508\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"}]},");
 
-                            //Rachio Iro
-                    //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"sprinkler_id\": \"1483\",\"name\": \"Sprinkler\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1429295028,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"ecbd8151da8524635b2dfd777c4f55f33a042285|sprinkler-1483|user-186645\"}},\"user_ids\": [\"186645\"],\"desired_state\": {\"master_valve\": false,\"rain_sensor\": false,\"schedule_enabled\": false,\"run_zone_indices\": [],\"run_zone_durations\": []},\"manufacturer_device_model\": \"rachio_iro\",\"manufacturer_device_id\": \"b26d4e70-f4df-481a-9149-c9bac4c3a09e\",\"device_manufacturer\": \"rachio\",\"model_name\": \"Iro\",\"upc_id\": \"152\",\"linked_service_id\": \"100792\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1429477160.725,\"master_valve\": false,\"master_valve_updated_at\": 1429477160.725,\"rain_sensor\": false,\"rain_sensor_updated_at\": 1429477160.725,\"schedule_enabled\": false,\"schedule_enabled_updated_at\": 1429477160.725,\"run_zone_indices\": [],\"run_zone_indices_updated_at\": 1429361044.5683227,\"run_zone_durations\": [],\"run_zone_durations_updated_at\": 1429361044.5683227,\"desired_master_valve\": false,\"desired_master_valve_updated_at\": 1429361044.6298194,\"desired_rain_sensor\": false,\"desired_rain_sensor_updated_at\": 1429361042.534966,\"desired_schedule_enabled\": false,\"desired_schedule_enabled_updated_at\": 1429361044.6298397,\"desired_run_zone_indices\": [],\"desired_run_zone_indices_updated_at\": 1429361042.5349822,\"desired_run_zone_durations\": [],\"desired_run_zone_durations_updated_at\": 1429361042.5349896},\"lat_lng\": [41.38983,-81.42602],\"location\": \"\",\"zones\": [{\"name\": \"Top Driveway\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6298468,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6298535,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6298602,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6298668,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.629873,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6298814},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 0,\"zone_id\": \"12501\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Driveway Bottom\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6298881,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6298945,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299007,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299071,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299136,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6299202},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 1,\"zone_id\": \"12502\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Tree Lawn\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6299269,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6299338,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299408,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299474,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299543,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.629961},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 2,\"zone_id\": \"12503\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Right\",\"desired_state\": {\"enabled\": false,\"enabled_updated_at\": 1429361044.6299675,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6299734,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299799,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299863,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299949,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6300077},\"last_reading\": {\"enabled\": false,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 3,\"zone_id\": \"12504\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Mailbox\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6300216,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6300349,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6300464,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.630054,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6300609,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6300678},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 4,\"zone_id\": \"12505\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Center\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6300743,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6300812,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6300881,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6300948,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301012,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301079},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 5,\"zone_id\": \"12506\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Left\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6301141,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6301203,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6301262,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6301327,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301389,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301456},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 6,\"zone_id\": \"12507\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Zone 8\",\"desired_state\": {\"enabled\": false,\"enabled_updated_at\": 1429361044.630152,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6301584,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6301646,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6301739,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301811,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301878},\"last_reading\": {\"enabled\": false,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 7,\"zone_id\": \"12508\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"}]},");
-
-                            //Ascend
-                            responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"garage_door_id\": \"16896\", \"name\": \"Ascend Garage Door\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1430344326, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"9fe350e72a807190df334cd839a00992f59446b2|garage_door-16896|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": { \"position\": 0.0, \"laser\": false, \"calibration_enabled\": false }, \"manufacturer_device_model\": \"quirky_ge_ascend\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"quirky_ge\", \"model_name\": \"Ascend\", \"upc_id\": \"182\", \"linked_service_id\": null, \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1430362778.3658881, \"position\": 0.0, \"position_updated_at\": 1430362778.3658676, \"position_opened\": \"N/A\", \"position_opened_updated_at\": 1430351386.88027, \"battery\": null, \"battery_updated_at\": null, \"fault\": false, \"fault_updated_at\": 1430362778.3658946, \"control_enabled\": null, \"control_enabled_updated_at\": null, \"laser\": false, \"laser_updated_at\": 1430362778.3658564, \"buzzer\": null, \"buzzer_updated_at\": null, \"led\": null, \"led_updated_at\": null, \"moving\": null, \"moving_updated_at\": null, \"calibrated\": true, \"calibrated_updated_at\": 1430362778.3658812, \"calibration_enabled\": false, \"calibration_enabled_updated_at\": 1430362778.3658745, \"last_error\": null, \"last_error_updated_at\": 1430362778.3659008, \"desired_position\": 0.0, \"desired_position_updated_at\": 1430362531.397609, \"desired_laser\": false, \"desired_laser_updated_at\": 1430345748.1740961, \"desired_calibration_enabled\": false, \"desired_calibration_enabled_updated_at\": 1430345759.9318135 }, \"lat_lng\": [ 41.675863, -81.287492 ], \"location\": \"44060\", \"mac_address\": null, \"serial\": \"20000c2a69088729\", \"order\": null},");
-                        }
+                        //Ascend
+                        //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"garage_door_id\": \"16896\", \"name\": \"Ascend Garage Door\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1430344326, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"9fe350e72a807190df334cd839a00992f59446b2|garage_door-16896|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"triggers\": [], \"desired_state\": { \"position\": 0.0, \"laser\": false, \"calibration_enabled\": false }, \"manufacturer_device_model\": \"quirky_ge_ascend\", \"manufacturer_device_id\": null, \"device_manufacturer\": \"quirky_ge\", \"model_name\": \"Ascend\", \"upc_id\": \"182\", \"linked_service_id\": null, \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1430362778.3658881, \"position\": 0.0, \"position_updated_at\": 1430362778.3658676, \"position_opened\": \"N/A\", \"position_opened_updated_at\": 1430351386.88027, \"battery\": null, \"battery_updated_at\": null, \"fault\": false, \"fault_updated_at\": 1430362778.3658946, \"control_enabled\": null, \"control_enabled_updated_at\": null, \"laser\": false, \"laser_updated_at\": 1430362778.3658564, \"buzzer\": null, \"buzzer_updated_at\": null, \"led\": null, \"led_updated_at\": null, \"moving\": null, \"moving_updated_at\": null, \"calibrated\": true, \"calibrated_updated_at\": 1430362778.3658812, \"calibration_enabled\": false, \"calibration_enabled_updated_at\": 1430362778.3658745, \"last_error\": null, \"last_error_updated_at\": 1430362778.3659008, \"desired_position\": 0.0, \"desired_position_updated_at\": 1430362531.397609, \"desired_laser\": false, \"desired_laser_updated_at\": 1430345748.1740961, \"desired_calibration_enabled\": false, \"desired_calibration_enabled_updated_at\": 1430345759.9318135 }, \"lat_lng\": [ 41.675863, -81.287492 ], \"location\": \"44060\", \"mac_address\": null, \"serial\": \"20000c2a69088729\", \"order\": null},");
                     }
+                }
                 #endif                
                 jsonResponse = JObject.Parse(responseString);
                 if (jsonResponse != null)
