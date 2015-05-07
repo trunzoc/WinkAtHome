@@ -56,7 +56,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Robots.Page_Load", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Robots.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -83,7 +83,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Robots.BindData", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Robots.BindData", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -161,7 +161,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Robots.dlRobots_ItemDataBound", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Robots.dlRobots_ItemDataBound", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -180,7 +180,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Robots.imgIcon_Click", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Robots.imgIcon_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -197,7 +197,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Robots.ibInfo_Click", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Robots.ibInfo_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -280,7 +280,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Robots.btnClose_Click", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Robots.btnClose_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 

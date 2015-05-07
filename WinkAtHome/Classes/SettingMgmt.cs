@@ -13,8 +13,6 @@ namespace WinkAtHome
 {
     public class SettingMgmt
     {
-        private static string dbPath = Common.dbPath;
-
         public class stringbool : Tuple<string, bool>
         {
             public stringbool(string value, bool isEncrypted)
@@ -32,16 +30,9 @@ namespace WinkAtHome
         }
         public static List<Setting> Settings
         {
-            get
-            {
-                return loadSettings();
-            }
-            set
-            {
-                _settings = value;
-            }
+            get { return loadSettings(); }
+            set { HttpContext.Current.Session["_settings"] = value; }
         }
-        private static List<Setting> _settings;
 
         public static string getSetting(string KeyName)
         {
@@ -56,7 +47,7 @@ namespace WinkAtHome
             catch (Exception ex)
             {
                 return null;
-                throw ex; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.getSetting", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.getSetting", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -64,11 +55,11 @@ namespace WinkAtHome
         {
             try
             {
-                if (_settings == null || forceReset)
+                if (HttpContext.Current.Session["_settings"] == null || forceReset)
                 {
                     List<Setting> settings = new List<Setting>();
 
-                    using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                    using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
                     {
                         connection.Open();
 
@@ -97,6 +88,7 @@ namespace WinkAtHome
                         basicSettings.Add("Hide-Empty-Robots", (new stringbool("false", false)));
                         basicSettings.Add("Hide-Empty-Groups", (new stringbool("false", false)));
                         basicSettings.Add("Robot-Alert-Minutes-Since-Last-Trigger", (new stringbool("60", false)));
+                        basicSettings.Add("Show-Pubnub-Log-In-Monitor", (new stringbool("true", false)));
 
                         foreach (KeyValuePair<string, stringbool> pair in basicSettings)
                         {
@@ -157,13 +149,13 @@ namespace WinkAtHome
                         }
                     }
 
-                    _settings = settings;
+                    HttpContext.Current.Session["_settings"] = settings;
                 }
-                return _settings;
+                return (List<Setting>)HttpContext.Current.Session["_settings"];
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.loadSettings", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.loadSettings", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -173,7 +165,7 @@ namespace WinkAtHome
             {
                 Setting setting = Settings.SingleOrDefault(s => s.key == key);
                 string newValue = (setting != null && setting.isEncrypted) ? Common.Encrypt(value) : value;
-                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
                 {
 
                     connection.Open();
@@ -197,8 +189,8 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.saveSetting", ex.Message, EventLogEntryType.Error);
-                throw ex;
+                throw; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.saveSetting", ex.Message, EventLogEntryType.Error);
+                throw;
             }
         }
         
@@ -214,8 +206,8 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.saveSetting", ex.Message, EventLogEntryType.Error);
-                throw ex;
+                throw; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.saveSetting", ex.Message, EventLogEntryType.Error);
+                throw;
             }
         }
 
@@ -223,7 +215,7 @@ namespace WinkAtHome
         {
             try
             {
-                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;"))
+                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
                 {
                     connection.Open();
 
@@ -243,7 +235,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.wipeSettings", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.wipeSettings", ex.Message, EventLogEntryType.Error);
             }
         }
     }

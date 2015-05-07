@@ -38,7 +38,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Shortcuts.Page_Load", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Shortcuts.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -54,7 +54,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Shortcuts.BindData", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Shortcuts.BindData", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -97,7 +97,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Shortcuts.dlShortcuts_ItemDataBound", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Shortcuts.dlShortcuts_ItemDataBound", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -114,7 +114,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Shortcuts.imgIcon_Click", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Shortcuts.imgIcon_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -152,7 +152,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Shortcuts.ibInfo_Click", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Shortcuts.ibInfo_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -235,7 +235,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Shortcuts.btnClose_Click", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Shortcuts.btnClose_Click", ex.Message, EventLogEntryType.Error);
             }
         }
     }

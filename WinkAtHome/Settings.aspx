@@ -147,7 +147,7 @@
                                 </table>
                             </asp:TableCell>
                         </asp:TableRow>
-                        <asp:TableRow>
+                        <asp:TableRow ID="rowInfo">
                             <asp:TableCell>
                                 <table width="100%">
                                     <tr>

@@ -16,6 +16,7 @@ namespace WinkAtHome
 {
     public class Common
     {
+        public static bool isLocalHost = (HttpContext.Current.Request.PhysicalApplicationPath.Contains("winkathome.net")) ? false : true;
         public static string dbPath = HttpContext.Current.Request.PhysicalApplicationPath + "WinkAtHome.sqlite";
         public static string currentVersion = "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         public static string newVersion = string.Empty;
@@ -65,7 +66,7 @@ namespace WinkAtHome
                         foreach (var asset in jsonResponse["assets"])
                         {
                             string name = asset["name"].ToString();
-                            if (name.ToLower() == "winkathome.zip")
+                            if (name.ToLower() == "winkathome.exe")
                             {
                                 string updatePath = asset["browser_download_url"].ToString();
                                 updateFilePath = updatePath;
@@ -85,7 +86,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
             return newer;
         }
@@ -103,8 +104,8 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.FromUnixTime", ex.Message, EventLogEntryType.Error);
                 return new DateTime();
+                throw; //EventLog.WriteEntry("WinkAtHome.Common.FromUnixTime", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -135,7 +136,7 @@ namespace WinkAtHome
             catch (Exception ex)
             {
                 return null;
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.Encrypt", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Common.Encrypt", ex.Message, EventLogEntryType.Error);
             }
 
         }
@@ -167,7 +168,6 @@ namespace WinkAtHome
             catch (Exception ex)
             {
                 return null;
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.Decrypt", ex.Message, EventLogEntryType.Error);
             }
         }
         
@@ -179,7 +179,6 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.Open", ex.Message, EventLogEntryType.Error);
                 return -1;
             }
 
@@ -192,7 +191,6 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.FromFahrenheitToCelsius", ex.Message, EventLogEntryType.Error);
                 return -1;
             }
 
@@ -449,7 +447,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Common.prepareDatabase", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Common.prepareDatabase", ex.Message, EventLogEntryType.Error);
             }
 
         }

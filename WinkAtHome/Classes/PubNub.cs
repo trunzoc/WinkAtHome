@@ -14,31 +14,33 @@ public delegate void pubnubEventHandler(object sender, EventArgs e);
 
 public class PubNub
 {
-    protected static Pubnub pubnub;
+    public static PubNub myPubNub
+    {
+        get { return HttpContext.Current.Session["_pubnub"] == null ? new PubNub() : (PubNub)HttpContext.Current.Session["_pubnub"]; }
+        set { HttpContext.Current.Session["_pubnub"] = value; }
+    }
+    public string publishKey { get { return SettingMgmt.getSetting("PubNub-PublishKey"); } }
+    public string subscriberKey { get { return SettingMgmt.getSetting("PubNub-SubscribeKey"); } }
+    public string secretKey { get { return SettingMgmt.getSetting("PubNub-SecretKey"); } }
+    public bool hasPubNub { get { return !(String.IsNullOrWhiteSpace(publishKey) || String.IsNullOrWhiteSpace(subscriberKey) || String.IsNullOrWhiteSpace(secretKey)); } }
 
-    static string channel = "";
-    static bool ssl = true;
-    static string origin = "pubsub.pubnub.com";
-    public static string publishKey = SettingMgmt.getSetting("PubNub-PublishKey");
-    public static string subscriberKey = SettingMgmt.getSetting("PubNub-SubscribeKey");
-    public static string secretKey = SettingMgmt.getSetting("PubNub-SecretKey");
-    public static bool hasPubNub = !(String.IsNullOrWhiteSpace(publishKey) || String.IsNullOrWhiteSpace(subscriberKey) || String.IsNullOrWhiteSpace(secretKey));
-    static string cipherKey = "";
-    static string uuid = "";
-    static string authKey = "";
-    static bool resumeOnReconnect = true;
+    private Pubnub pubnub;
 
-    static int subscribeTimeoutInSeconds = 310;
-    static int operationTimeoutInSeconds = 15;
-    static int networkMaxRetries = 50;
-    static int networkRetryIntervalInSeconds = 10;
-    static int localClientheartbeatIntervalInSeconds = 10;
-    static int presenceHeartbeat = 63;
-    static int presenceHeartbeatInterval = 60;
-
-    ManualResetEvent mre = new ManualResetEvent(false);
-    private object _lockObject = new object();
-    private static List<string> _pubnubResult = new List<string>();
+    private static string channel = "";
+    private static bool ssl = true;
+    private static string cipherKey = "";
+    private static string uuid = "";
+    private static string authKey = "";
+    private static bool resumeOnReconnect = true;
+    private static int subscribeTimeoutInSeconds = 310;
+    private static int operationTimeoutInSeconds = 15;
+    private static int networkMaxRetries = 50;
+    private static int networkRetryIntervalInSeconds = 10;
+    private static int localClientheartbeatIntervalInSeconds = 10;
+    private static int presenceHeartbeat = 63;
+    private static int presenceHeartbeatInterval = 60;
+   
+    //MAKE NON_STATIC
     private static ConcurrentQueue<string> _recordQueue = new ConcurrentQueue<string>();
     public static ConcurrentQueue<string> RecordQueue
     {
@@ -48,20 +50,6 @@ public class PubNub
         }
     }
     
-    internal class RecordStatusHolder
-    {
-        public string Record
-        {
-            get;
-            set;
-        }
-
-        public bool Status
-        {
-            get;
-            set;
-        }
-    }
 
     public void Open()
     {
@@ -76,7 +64,7 @@ public class PubNub
                     if (pubnub == null)
                     {
                         pubnub = new Pubnub(publishKey, subscriberKey, secretKey, cipherKey, ssl);
-                        pubnub.Origin = origin;
+                        pubnub.Origin = "pubsub.pubnub.com";
                     }
                     pubnub.SessionUUID = uuid;
                     pubnub.AuthenticationKey = authKey;
@@ -94,7 +82,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.Open", ex.Message, EventLogEntryType.Error);
+            throw; //EventLog.WriteEntry("WinkAtHome.PubNub.Open", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -106,7 +94,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.Close", ex.Message, EventLogEntryType.Error);
+            throw; //EventLog.WriteEntry("WinkAtHome.PubNub.Close", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -118,7 +106,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.AddToPubnubResultContainer", ex.Message, EventLogEntryType.Error);
+            throw; //EventLog.WriteEntry("WinkAtHome.PubNub.AddToPubnubResultContainer", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -139,7 +127,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.DisplayUserCallbackMessage", ex.Message, EventLogEntryType.Error);
+            throw; //EventLog.WriteEntry("WinkAtHome.PubNub.DisplayUserCallbackMessage", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -153,7 +141,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.DisplayConnectCallbackMessage", ex.Message, EventLogEntryType.Error);
+            throw; //EventLog.WriteEntry("WinkAtHome.PubNub.DisplayConnectCallbackMessage", ex.Message, EventLogEntryType.Error);
         }
     }
     protected void DisplayDisconnectCallbackMessage(string result)
@@ -166,7 +154,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.DisplayDisconnectCallbackMessage", ex.Message, EventLogEntryType.Error);
+            throw; //EventLog.WriteEntry("WinkAtHome.PubNub.DisplayDisconnectCallbackMessage", ex.Message, EventLogEntryType.Error);
         }
     }
     protected void DisplayErrorMessage(string result)
@@ -290,7 +278,7 @@ public class PubNub
         }
         catch (Exception ex)
         {
-            throw ex; //EventLog.WriteEntry("WinkAtHome.PubNub.DisplayErrorMessage", ex.Message, EventLogEntryType.Error);
+            throw; //EventLog.WriteEntry("WinkAtHome.PubNub.DisplayErrorMessage", ex.Message, EventLogEntryType.Error);
         }
     }
 }

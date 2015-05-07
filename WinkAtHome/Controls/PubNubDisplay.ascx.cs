@@ -13,8 +13,6 @@ namespace WinkAtHome.Controls
 {
     public partial class PubNubDisplay : System.Web.UI.UserControl
     {
-        protected static PubNub pubnub;
-
         protected void Page_Load(object sender, EventArgs e)
         {
             try
@@ -45,7 +43,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.PubNubDisplay.Page_Load", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.PubNubDisplay.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -74,7 +72,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.PubNubDisplay.UpdateResultView", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.PubNubDisplay.UpdateResultView", ex.Message, EventLogEntryType.Error);
             }
         }
 

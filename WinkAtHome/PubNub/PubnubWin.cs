@@ -1472,7 +1472,7 @@ namespace PubNubMessaging.Core
 				//                                  Javax.Net.Ssl.TrustManagerFactory.DefaultAlgorithm);
 				return true;
 			}
-			catch (Exception e) {
+			catch (Exception ex) {
 				throw new Exception("SSL error");
 			}
 		}
@@ -1824,7 +1824,7 @@ namespace PubNubMessaging.Core
                 catch (Exception ex)
                 {
                     LoggingMethod.WriteToLog(string.Format("DateTime {0} Decrypt Error. {1}", DateTime.Now.ToString(), ex.ToString()), LoggingMethod.LevelVerbose);
-                    throw ex;
+                    throw;
                     //LoggingMethod.WriteToLog(string.Format("DateTime {0} Decrypt Error. {1}", DateTime.Now.ToString(), ex.ToString()), LoggingMethod.LevelVerbose);
                     //return "**DECRYPT ERROR**";
                 }

@@ -335,7 +335,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //throw ex; //EventLog.WriteEntry("WinkAtHome.Groups.btnClose_Click", ex.Message, EventLogEntryType.Error);
+                throw; //throw; //EventLog.WriteEntry("WinkAtHome.Groups.btnClose_Click", ex.Message, EventLogEntryType.Error);
             }
         }
     }

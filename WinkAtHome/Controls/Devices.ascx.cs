@@ -1055,7 +1055,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Devices.btnClose_Click", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Devices.btnClose_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -1099,7 +1099,7 @@ namespace WinkAtHome.Controls
             }
             catch (Exception ex)
             {
-                throw ex; //EventLog.WriteEntry("WinkAtHome.Devices.ibHubDevices_Click", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Devices.ibHubDevices_Click", ex.Message, EventLogEntryType.Error);
             }
         }
 

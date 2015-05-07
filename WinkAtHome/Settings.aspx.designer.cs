@@ -148,6 +148,15 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.Button btnDefault;
         
         /// <summary>
+        /// rowInfo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowInfo;
+        
+        /// <summary>
         /// Label3 control.
         /// </summary>
         /// <remarks>
