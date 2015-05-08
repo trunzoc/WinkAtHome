@@ -71,10 +71,10 @@ namespace WinkAtHome.Controls
 
                 if (SettingMgmt.getSetting("Hide-Empty-Robots").ToLower() == "true")
                 {
-                    robots = Wink.Robots.Where(p => !p.isempty).ToList();
+                    robots = Wink.myWink.Robots.Where(p => !p.isempty).ToList();
                 }
                 else
-                    robots = Wink.Robots;
+                    robots = Wink.myWink.Robots;
 
                 robots = robots.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
 

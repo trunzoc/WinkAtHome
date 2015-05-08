@@ -110,6 +110,7 @@
     <Content Include="Controls\Shortcuts.ascx" />
     <Content Include="Controls\winkStatus.ascx" />
     <Content Include="Default.aspx" />
+    <Content Include="Donate.html" />
     <Content Include="Images\alert.png" />
     <Content Include="Images\Battery\Battery0.png" />
     <Content Include="Images\Battery\Battery100.png" />
@@ -357,7 +358,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-    <None Include="Properties\PublishProfiles\GoDaddy - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\GoDaddy - Web Deploy - Prod.pubxml" />
+    <None Include="Properties\PublishProfiles\GoDaddy - Web Deploy - Test.pubxml" />
     <None Include="Properties\PublishProfiles\Publish Local.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

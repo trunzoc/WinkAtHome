@@ -1,76 +1,85 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="Robots.ascx.cs" Inherits="WinkAtHome.Controls.Robots" %>
 
+<asp:UpdateProgress ID="UpdateProgress1" runat="server" AssociatedUpdatePanelID="upData">
+    <ProgressTemplate>
+        <div style="position: fixed; text-align: center; height: 100%; width: 100%; top: 0; right: 0; left: 0; z-index: 9999999; background-color: #000000; opacity: 0.7;">
+            <asp:Image ID="imgUpdateProgress" runat="server" ImageUrl="~/images/loading.gif" AlternateText="Loading ..." ToolTip="Loading ..." style="padding: 10px;" />
+        </div>
+    </ProgressTemplate>
+</asp:UpdateProgress>
+
 <asp:HiddenField ID="hfSettingBase" runat="server" />
 
-<asp:Table ID="Table1" runat="server" BorderColor="#22b9ec" BorderWidth="1"  BackColor="#22b9ec" Width="100%" CellPadding="0" CellSpacing="0" >
-    <asp:TableRow>
-        <asp:TableCell>
-            <asp:Table ID="Table7" runat="server" Width="100%">
-                <asp:TableHeaderRow BackColor="#22b9ec">
-                    <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
-                        <asp:Label ID="lblHeader" runat="server" Text="Robots" ForeColor="White" />
-                    </asp:TableHeaderCell>
-                    <asp:TableCell Width="40">
-                        <asp:ImageButton ID="ibSettings" runat="server" ImageUrl="~/Images/wrench.png" Height="30" ToolTip="Panel Settings" OnClick="ibSettings_Click" />
-                        <asp:button id="btnShowSettings" runat="server" style="display:none;" />
-                        <ajaxtoolkit:ModalPopupExtender ID="mpeSettings" runat="server" PopupControlID="pnlSettings" 
-                            TargetControlID="btnShowSettings" BackgroundCssClass="modalBackground" Y="100">
-                        </ajaxtoolkit:ModalPopupExtender>
-                        <asp:Panel ID="pnlSettings" runat="server" style="display:none">
-                            <asp:Table ID="Table9" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee">
-                                <asp:TableRow>
-                                    <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
-                                        <asp:Label ID="Label3" runat="server" Text="Section Settings " ForeColor="White" Font-Bold="true"/>
-                                    </asp:TableHeaderCell>
-                                </asp:TableRow>
-                                <asp:TableRow>
-                                    <asp:TableCell>
-                                        <asp:Label ID="Label7" runat="server" Text="Show Panel: "  Font-Size="Small" />
-                                    </asp:TableCell>
-                                    <asp:TableCell>
-                                        <asp:CheckBox ID="cbShow" runat="server" Checked="true" />
-                                    </asp:TableCell>
-                                </asp:TableRow>
-                                <asp:TableRow>
-                                    <asp:TableCell>
-                                        <asp:Label ID="Label1" runat="server" Text="Hide Empty Groups: "  Font-Size="Small" />
-                                    </asp:TableCell>
-                                    <asp:TableCell>
-                                        <asp:CheckBox ID="cbHideEmpty" runat="server" Checked="true" />
-                                    </asp:TableCell>
-                                </asp:TableRow>
-                                <asp:TableRow>
-                                    <asp:TableCell>
-                                        <asp:Label ID="Label2" runat="server" Text="Alert Timeout in Minutes: "  Font-Size="Small" />
-                                    </asp:TableCell>
-                                    <asp:TableCell>
-                                        <asp:TextBox ID="tbAlertTimeout" runat="server" Text="5" Width="30px" />
-                                    </asp:TableCell>
-                                </asp:TableRow>
-                                <asp:TableRow>
-                                    <asp:TableCell>
-                                        <asp:Label ID="Label8" runat="server" Font-Size="Small"  Text="Objects Per Line: "  />
-                                    </asp:TableCell>
-                                    <asp:TableCell>
-                                        <asp:TextBox ID="tbColumns" runat="server" Text="5" Width="30px" />
-                                    </asp:TableCell>
-                                </asp:TableRow>
-                                <asp:TableRow>
-                                    <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
-                                        <asp:LinkButton ID="ibSettingsClose" runat="server" Text="Save & Close" ForeColor="White" style="text-decoration: none;" OnClick="ibSettingsClose_Click" />
-                                    </asp:TableHeaderCell>
-                                </asp:TableRow>
-                            </asp:Table>
-                        </asp:Panel>
-                    </asp:TableCell>
-                </asp:TableHeaderRow>
-            </asp:Table>
-        </asp:TableCell>
-    </asp:TableRow>
-    <asp:TableRow ID="rowData" BackColor="#eeeeee">
-        <asp:TableCell style="padding:10px;">
-            <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
-                <ContentTemplate>
+<asp:UpdatePanel ID="upData" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
+    <ContentTemplate>
+
+        <asp:Table ID="Table1" runat="server" BorderColor="#22b9ec" BorderWidth="1"  BackColor="#22b9ec" Width="100%" CellPadding="0" CellSpacing="0" >
+            <asp:TableRow>
+                <asp:TableCell>
+                    <asp:Table ID="Table7" runat="server" Width="100%">
+                        <asp:TableHeaderRow BackColor="#22b9ec">
+                            <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
+                                <asp:Label ID="lblHeader" runat="server" Text="Robots" ForeColor="White" />
+                            </asp:TableHeaderCell>
+                            <asp:TableCell Width="40">
+                                <asp:ImageButton ID="ibSettings" runat="server" ImageUrl="~/Images/wrench.png" Height="30" ToolTip="Panel Settings" OnClick="ibSettings_Click" />
+                                <asp:button id="btnShowSettings" runat="server" style="display:none;" />
+                                <ajaxtoolkit:ModalPopupExtender ID="mpeSettings" runat="server" PopupControlID="pnlSettings" 
+                                    TargetControlID="btnShowSettings" BackgroundCssClass="modalBackground" Y="100">
+                                </ajaxtoolkit:ModalPopupExtender>
+                                <asp:Panel ID="pnlSettings" runat="server" style="display:none">
+                                    <asp:Table ID="Table9" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee">
+                                        <asp:TableRow>
+                                            <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
+                                                <asp:Label ID="Label3" runat="server" Text="Section Settings " ForeColor="White" Font-Bold="true"/>
+                                            </asp:TableHeaderCell>
+                                        </asp:TableRow>
+                                        <asp:TableRow>
+                                            <asp:TableCell>
+                                                <asp:Label ID="Label7" runat="server" Text="Show Panel: "  Font-Size="Small" />
+                                            </asp:TableCell>
+                                            <asp:TableCell>
+                                                <asp:CheckBox ID="cbShow" runat="server" Checked="true" />
+                                            </asp:TableCell>
+                                        </asp:TableRow>
+                                        <asp:TableRow>
+                                            <asp:TableCell>
+                                                <asp:Label ID="Label1" runat="server" Text="Hide Empty Groups: "  Font-Size="Small" />
+                                            </asp:TableCell>
+                                            <asp:TableCell>
+                                                <asp:CheckBox ID="cbHideEmpty" runat="server" Checked="true" />
+                                            </asp:TableCell>
+                                        </asp:TableRow>
+                                        <asp:TableRow>
+                                            <asp:TableCell>
+                                                <asp:Label ID="Label2" runat="server" Text="Alert Timeout in Minutes: "  Font-Size="Small" />
+                                            </asp:TableCell>
+                                            <asp:TableCell>
+                                                <asp:TextBox ID="tbAlertTimeout" runat="server" Text="5" Width="30px" />
+                                            </asp:TableCell>
+                                        </asp:TableRow>
+                                        <asp:TableRow>
+                                            <asp:TableCell>
+                                                <asp:Label ID="Label8" runat="server" Font-Size="Small"  Text="Objects Per Line: "  />
+                                            </asp:TableCell>
+                                            <asp:TableCell>
+                                                <asp:TextBox ID="tbColumns" runat="server" Text="5" Width="30px" />
+                                            </asp:TableCell>
+                                        </asp:TableRow>
+                                        <asp:TableRow>
+                                            <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
+                                                <asp:LinkButton ID="ibSettingsClose" runat="server" Text="Save & Close" ForeColor="White" style="text-decoration: none;" OnClick="ibSettingsClose_Click" />
+                                            </asp:TableHeaderCell>
+                                        </asp:TableRow>
+                                    </asp:Table>
+                                </asp:Panel>
+                            </asp:TableCell>
+                        </asp:TableHeaderRow>
+                    </asp:Table>
+                </asp:TableCell>
+            </asp:TableRow>
+            <asp:TableRow ID="rowData" BackColor="#eeeeee">
+                <asp:TableCell style="padding:10px;">
                     <asp:DataList ID="dlRobots" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" OnItemDataBound="dlRobots_ItemDataBound" Width="100%">
                         <ItemStyle Height="150" HorizontalAlign="Center" VerticalAlign="Top" />
                         <ItemTemplate>
@@ -173,8 +182,8 @@
                             <asp:Label ID="lblEmpty" Text="No Robots To Display" runat="server" Visible='<%#bool.Parse((dlRobots.Items.Count==0).ToString())%>' />
                         </FooterTemplate>
                     </asp:DataList>
-                </ContentTemplate>
-            </asp:UpdatePanel>
-        </asp:TableCell>
-    </asp:TableRow>
-</asp:Table>
+                </asp:TableCell>
+            </asp:TableRow>
+        </asp:Table>
+    </ContentTemplate>
+</asp:UpdatePanel>

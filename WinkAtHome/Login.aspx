@@ -33,6 +33,16 @@
             <asp:TableRow>
                 <asp:TableCell VerticalAlign="Top" Width="265px" style="padding-right:40px;">
                     <ucWS:ucWinkStatus ID="ucWinkStatus" runat="server" />
+                    
+                    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                    <!-- WinkAtHome Menu -->
+                    <ins class="adsbygoogle"
+                            style="display:inline-block;width:300px;height:250px"
+                            data-ad-client="ca-pub-9030204945381170"
+                            data-ad-slot="1966087641"></ins>
+                    <script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
                 </asp:TableCell>
                 <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top">
                     <asp:Table ID="Table1" runat="server">

@@ -7,6 +7,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title><%: Page.Title %> - Wink@Home</title>
+
     <style type="text/css">
         *
         {
@@ -20,6 +21,7 @@
             opacity: 0.8;
         }
     </style>
+    
 </head>
 <body style="background-color:#eeeeee;margin: 0px ">
 
@@ -39,7 +41,7 @@
             </ContentTemplate>
         </asp:UpdatePanel>
 
-        <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
+        <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="conditional" ChildrenAsTriggers="true">
             <ContentTemplate>
 
                 <asp:Table ID="Table1" runat="server" CellPadding="0" CellSpacing="0" Width="100%">
@@ -155,6 +157,24 @@
                                         <asp:LinkButton ID="lbLogout" runat="server" Text="LOGOUT" ForeColor="White" OnClick="lbLogout_Click" style="text-decoration: none;" />
                                     </asp:TableHeaderCell>
                                 </asp:TableHeaderRow>
+                                <asp:TableRow ID="rowDonate">
+                                    <asp:TableCell ColumnSpan="2">
+                                        <iframe src="Donate.html" height="100" style="border-width:0px;" ></iframe>
+                                    </asp:TableCell>
+                                </asp:TableRow>
+                                <asp:TableRow ID="rowMenuAdds">
+                                    <asp:TableCell ColumnSpan="2">
+                                        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                                        <!-- WinkAtHome Menu -->
+                                        <ins class="adsbygoogle"
+                                             style="display:inline-block;width:300px;height:250px"
+                                             data-ad-client="ca-pub-9030204945381170"
+                                             data-ad-slot="1966087641"></ins>
+                                        <script>
+                                            (adsbygoogle = window.adsbygoogle || []).push({});
+                                        </script>
+                                    </asp:TableCell>
+                                </asp:TableRow>
                             </asp:Table>
 
                             <asp:Table ID="tblCollapsed" runat="server" BackColor="#22b9ec" Width="40" Visible="false" CellPadding="0" CellSpacing="0">
@@ -179,6 +199,19 @@
                        </asp:TableCell>
                         <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top" BorderColor="#22b9ec">
                                     <asp:ContentPlaceHolder ID="cphMain" runat="server" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowBottomAds">
+                        <asp:TableCell ColumnSpan="2" HorizontalAlign="Center">
+                            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                            <!-- WinkAtHome bottom Leaderboard -->
+                            <ins class="adsbygoogle"
+                                    style="display:inline-block;width:728px;height:90px"
+                                    data-ad-client="ca-pub-9030204945381170"
+                                    data-ad-slot="1047757646"></ins>
+                            <script>
+                                (adsbygoogle = window.adsbygoogle || []).push({});
+                            </script>
                         </asp:TableCell>
                     </asp:TableRow>
                 </asp:Table>

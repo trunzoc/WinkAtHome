@@ -14,15 +14,19 @@ namespace WinkAtHome.Controls
         {
             try
             {
+
                 Dictionary<string, string>[] dictStatuses = Wink.winkGetServerStatus();
 
-                rptStatus.DataSource = dictStatuses[0];
-                rptStatus.DataBind();
+                if (dictStatuses != null)
+                {
+                    rptStatus.DataSource = dictStatuses[0];
+                    rptStatus.DataBind();
 
-                rptIncident.DataSource = dictStatuses[1];
-                rptIncident.DataBind();
+                    rptIncident.DataSource = dictStatuses[1];
+                    rptIncident.DataBind();
 
-                lblStatusLastUpdate.Text = "Last Updated: " + dictStatuses[2]["LastUpdated"];
+                    lblStatusLastUpdate.Text = "Last Updated: " + dictStatuses[2]["LastUpdated"];
+                }
             }
             catch (Exception ex)
             {

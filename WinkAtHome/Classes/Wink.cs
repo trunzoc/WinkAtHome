@@ -23,10 +23,17 @@ public class Wink
 #region Public Functions
     public static Wink myWink
     {
-        get { return HttpContext.Current.Session["_wink"] == null ? new Wink() : (Wink)HttpContext.Current.Session["_wink"]; }
+        get { return HttpContext.Current.Session["_wink"] == null ? createWink() : (Wink)HttpContext.Current.Session["_wink"]; }
         set { HttpContext.Current.Session["_wink"] = value; }
     }
-    public static string getSubscriptionTopics()
+    private static Wink createWink()
+    {
+        if (HttpContext.Current.Session["_wink"] == null)
+            HttpContext.Current.Session["_wink"] = new Wink();
+        
+        return (Wink)HttpContext.Current.Session["_wink"];
+    }
+    public string getSubscriptionTopics()
     {
         string subTopics = string.Empty;
         foreach (Device device in Devices)
@@ -54,7 +61,7 @@ public class Wink
 
         return null;
     }
-    public static bool validateWinkCredentials(string username, string password)
+    public bool validateWinkCredentials(string username, string password)
     {
         try
         {
@@ -72,16 +79,11 @@ public class Wink
 
         return false;
     }
-    public static void clearWink()
+    public void clearWink()
     {
-        _devices = null;
-        _shortcuts = null;
-        _groups = null;
-        _robots = null;
-        _winkUser = null;
-        _winkToken = null;
+        myWink= new Wink();
     }
-    public static void reloadWink(bool clearFirst = true)
+    public void reloadWink(bool clearFirst = true)
     {
         winkGetDevices(null,true);
         winkGetShortcuts(true);
@@ -96,7 +98,7 @@ public class Wink
             Dictionary<string, string> dictIncidents = new Dictionary<string, string>();
             Dictionary<string, string> dictInfo = new Dictionary<string, string>();
 
-            JObject jsonResponse = winkCallAPI(ConfigurationManager.AppSettings["winkStatusURL"], "", "", false);
+            JObject jsonResponse = myWink.winkCallAPI(ConfigurationManager.AppSettings["winkStatusURL"], "", "", false);
 
             foreach (var data in jsonResponse["components"])
             {
@@ -121,24 +123,19 @@ public class Wink
 #endregion
 
 #region token
-    private static string WinkToken
+    private string WinkToken
     {
-        get
-        {
-            return winkGetToken();
-        }
-        set
-        {
-            _winkToken = value;
-        }
+        get { return winkGetToken(); }
+        set { HttpContext.Current.Session["_winkToken"] = value; }
     }
-    private static string _winkToken;
 
-    private static string winkGetToken(string Username = null, string Password = null, bool forceRefresh = false,  string forceClientID = null, string forceClientSecret = null)
+    private string winkGetToken(string Username = null, string Password = null, bool forceRefresh = false,  string forceClientID = null, string forceClientSecret = null)
     {
         try
         {
-            if (_winkToken == null || forceRefresh)
+            string token = string.Empty;
+
+            if (forceRefresh || HttpContext.Current.Session["_winkToken"] == null)
             {
                 string winkUsername = Username == null ? winkUser.email : Username;
                 string winkPassword = Password == null ? Common.Decrypt(winkUser.password) : Password;
@@ -150,12 +147,17 @@ public class Wink
 
                 JObject jsonResponse = winkCallAPI(oAuthURL, "POST", sendstring, false);
 
-                _winkToken = jsonResponse["access_token"].ToString();
+                token = jsonResponse["access_token"].ToString();
 
-                User user = winkUser;
+                HttpContext.Current.Session["_winkToken"] = token;
+
+                winkGetUser(true);
             }
+            else
+                token = HttpContext.Current.Session["_winkToken"].ToString();
 
-            return _winkToken;
+
+            return token;
         }
         catch
         {
@@ -179,34 +181,28 @@ public class Wink
         [SimpleProperty]
         public string password { get; set; }
     }
-    public static User winkUser
+    public User winkUser
     {
-        get
-        {
-            return winkGetUser();
-        }
-        set
-        {
-            _winkUser = value;
-        }
+        get { return winkGetUser(); }
+        set { HttpContext.Current.Session["_winkUser"] = value; }
     }
-    private static User _winkUser;
 
-    private static User winkGetUser(bool forceRefresh = false)
+    private User winkGetUser(bool forceRefresh = false)
     {
         try
         {
-            if (_winkUser == null || forceRefresh)
+            User user = new User();
+
+            if (forceRefresh || HttpContext.Current.Session["_winkUser"] == null)
             {
                 string URL = ConfigurationManager.AppSettings["winkRootURL"] + "users/me";
 
                 JObject jsonResponse = winkCallAPI(URL);
 
-                _winkUser = new User();
-                _winkUser.userID = jsonResponse["data"]["user_id"].ToString();
-                _winkUser.first_name = jsonResponse["data"]["first_name"].ToString();
-                _winkUser.last_name = jsonResponse["data"]["last_name"].ToString();
-                _winkUser.email = jsonResponse["data"]["email"].ToString();
+                user.userID = jsonResponse["data"]["user_id"].ToString();
+                user.first_name = jsonResponse["data"]["first_name"].ToString();
+                user.last_name = jsonResponse["data"]["last_name"].ToString();
+                user.email = jsonResponse["data"]["email"].ToString();
 
                 using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
                 {
@@ -215,8 +211,8 @@ public class Wink
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "INSERT OR REPLACE INTO Users (UserID, Email) VALUES (@UserID,@Email);";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", _winkUser.userID));
-                        command.Parameters.Add(new SQLiteParameter("@Email", _winkUser.email));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", user.userID));
+                        command.Parameters.Add(new SQLiteParameter("@Email", user.email));
                         command.ExecuteNonQuery();
 
                         //LEGACY CORRECTIONS
@@ -233,9 +229,13 @@ public class Wink
                         command.ExecuteNonQuery();
                     }
                 }
-            }
 
-            return _winkUser;
+                HttpContext.Current.Session["_winkUser"] = user;
+            }
+            else
+                user = (User)HttpContext.Current.Session["_winkUser"];
+
+            return user;
         }
         catch
         {
@@ -299,32 +299,19 @@ public class Wink
 
         public static Device getDeviceByID(string deviceID)
         {
-            Device device = _devices.SingleOrDefault(Device => Device.id.Equals(deviceID));
+            Device device = myWink._devices.SingleOrDefault(Device => Device.id.Equals(deviceID));
             return device;
         }
         
         public static Device getDeviceByName(string deviceName)
         {
-            Device device = _devices.SingleOrDefault(Device => Device.name.ToLower().Equals(deviceName.ToLower()));
+            Device device = myWink._devices.SingleOrDefault(Device => Device.name.ToLower().Equals(deviceName.ToLower()));
             return device;
         }
-        
-        public static List<Device> getDevicesByType(List<string> deviceTypes)
-        {
-            List<Device> devices = new List<Device>();
-
-            foreach (string deviceType in deviceTypes)
-            {
-                List<Device> lista = _devices.Where(device => device.type.ToLower().Equals(deviceType.ToLower())).ToList();
-                devices = devices.Union(lista).ToList();
-            }
-
-            return devices;
-        }
-        
+                
         public static List<Device> getDevicesByHubID(string hubID)
         {
-            List<Device> devices = _devices.Where(device => device.hub_id == hubID).ToList();
+            List<Device> devices = myWink._devices.Where(device => device.hub_id == hubID).ToList();
 
             return devices;
         }
@@ -333,9 +320,9 @@ public class Wink
         {
             List<string> types = null;
             if (forMenu)
-                types = Devices.Select(t => t.menu_type).Distinct().ToList();
+                types = myWink.Devices.Select(t => t.menu_type).Distinct().ToList();
             else
-                types = Devices.Select(t => t.type).Distinct().ToList();
+                types = myWink.Devices.Select(t => t.type).Distinct().ToList();
             
             if (types != null)
                 types.Sort();
@@ -345,12 +332,12 @@ public class Wink
         
         public static void updateDevice(JObject json)
         {
-            winkGetDevices(json);
+            myWink.winkGetDevices(json);
         }
         
         public static JObject getDeviceJSON()
         {
-            JObject json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetAllDevicesURL"]);
+            JObject json = myWink.winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetAllDevicesURL"]);
             if (json != null)
                 return json;
 
@@ -368,7 +355,7 @@ public class Wink
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "UPDATE Devices SET displayname=@displayname WHERE UserID = @UserID AND DeviceID = @ID;";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", DeviceID));
                         command.Parameters.Add(new SQLiteParameter("@displayname", DisplayName));
                         command.ExecuteNonQuery();
@@ -378,7 +365,7 @@ public class Wink
                     }
                 }
 
-                Device device = _devices.SingleOrDefault(d => d.id == DeviceID);
+                Device device = myWink._devices.SingleOrDefault(d => d.id == DeviceID);
                 device.displayName = DisplayName;
 
                 return DisplayName;
@@ -400,7 +387,7 @@ public class Wink
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "UPDATE Devices SET position=@Position WHERE UserID = @UserID AND DeviceID = @ID;";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", DeviceID));
                         command.Parameters.Add(new SQLiteParameter("@Position", Position));
                         command.ExecuteNonQuery();
@@ -483,7 +470,7 @@ public class Wink
                 if (device != null)
                 {
                     string url = ConfigurationManager.AppSettings["winkRootURL"] + device.type + "/" + device.id;
-                    winkCallAPI(url, "PUT", command);
+                    myWink.winkCallAPI(url, "PUT", command);
                 }
             }
             catch (Exception ex)
@@ -492,7 +479,7 @@ public class Wink
             }
         }
     }
-    public static List<Device> Devices
+    public List<Device> Devices
     {
         get
         {
@@ -503,10 +490,10 @@ public class Wink
             _devices = value;
         }
     }
-    private static List<Device> _devices;
-    public static bool hasDeviceChanges;
+    private List<Device> _devices;
+    public bool hasDeviceChanges;
 
-    private static List<Device> winkGetDevices(JObject jsonObject = null, bool forceRefresh = false)
+    private List<Device> winkGetDevices(JObject jsonObject = null, bool forceRefresh = false)
     {
         try
         {
@@ -899,7 +886,7 @@ public class Wink
                                 using (SQLiteCommand command = new SQLiteCommand(connection))
                                 {
                                     command.CommandText = "UPDATE Devices SET name=@name WHERE UserID=@UserID AND DeviceID = @ID AND Name<>@name;";
-                                    command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                    command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                                     command.Parameters.Add(new SQLiteParameter("@ID", device.id));
                                     command.Parameters.Add(new SQLiteParameter("@name", device.name));
                                     command.ExecuteNonQuery();
@@ -923,7 +910,7 @@ public class Wink
                 {
                     DataTable dt = new DataTable();
                     command.CommandText = "SELECT * FROM Devices WHERE UserID=@UserID";
-                    command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                    command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                     SQLiteDataAdapter da = new SQLiteDataAdapter(command);
                     da.Fill(dt);
 
@@ -992,7 +979,7 @@ public class Wink
                                 using (SQLiteCommand command = new SQLiteCommand(connection))
                                 {
                                     command.CommandText = "UPDATE Devices SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable=@subscriptionCapable WHERE UserID=@UserID AND DeviceID = @ID;";
-                                    command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                    command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                                     command.Parameters.Add(new SQLiteParameter("@ID", device.id));
                                     command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", device.subscriptionTopic));
                                     command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", device.subscriptionExpires));
@@ -1054,13 +1041,13 @@ public class Wink
 
         public static Shortcut getShortcutByID(string ShortcutID)
         {
-            Shortcut shortcut = Shortcuts.SingleOrDefault(s => s.id.Equals(ShortcutID));
+            Shortcut shortcut = myWink.Shortcuts.SingleOrDefault(s => s.id.Equals(ShortcutID));
             return shortcut;
         }
 
         public static Shortcut getShortcutByName(string shortcutName)
         {
-            Shortcut shortcut = Shortcuts.SingleOrDefault(s => s.name.ToLower().Equals(shortcutName.ToLower()));
+            Shortcut shortcut = myWink.Shortcuts.SingleOrDefault(s => s.name.ToLower().Equals(shortcutName.ToLower()));
             return shortcut;
         }
 
@@ -1075,7 +1062,7 @@ public class Wink
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "UPDATE Shortcuts SET displayname=@displayname WHERE UserID = @UserID AND ShortcutID = @ID;";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", ShortcutID));
                         command.Parameters.Add(new SQLiteParameter("@displayname", DisplayName));
                         command.ExecuteNonQuery();
@@ -1084,7 +1071,7 @@ public class Wink
                         command.ExecuteNonQuery();
                     }
                 }
-                Shortcut shortcut = _shortcuts.SingleOrDefault(d => d.id == ShortcutID);
+                Shortcut shortcut = myWink._shortcuts.SingleOrDefault(d => d.id == ShortcutID);
                 shortcut.displayName = DisplayName;
 
                 return DisplayName;
@@ -1106,7 +1093,7 @@ public class Wink
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "UPDATE Shortcuts SET position=@Position WHERE UserID = @UserID AND ShortcutID = @ID;";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", ShortcutID));
                         command.Parameters.Add(new SQLiteParameter("@Position", Position));
                         command.ExecuteNonQuery();
@@ -1133,7 +1120,7 @@ public class Wink
                 if (shortcut != null)
                 {
                     string url = ConfigurationManager.AppSettings["winkRootURL"] + "scenes/" + shortcut.id + "/activate/";
-                    winkCallAPI(url, "POST");
+                    myWink.winkCallAPI(url, "POST");
 
                     List<Shortcut.ShortcutMember> members = shortcut.members;
                     foreach (Shortcut.ShortcutMember member in members)
@@ -1186,7 +1173,7 @@ public class Wink
         }
     }
 
-    public static List<Shortcut> Shortcuts
+    public List<Shortcut> Shortcuts
     {
         get
         {
@@ -1197,15 +1184,15 @@ public class Wink
             _shortcuts = value;
         }
     }
-    private static List<Shortcut> _shortcuts;
-    public static bool hasShortcutChanges;
+    private List<Shortcut> _shortcuts;
+    public bool hasShortcutChanges;
 
-    private static List<Shortcut> winkGetShortcuts(bool forceRefresh = false)
+    private List<Shortcut> winkGetShortcuts(bool forceRefresh = false)
     {
         try
         {
             bool firstRun = false;
-            if (_shortcuts == null || forceRefresh)
+            if (myWink._shortcuts == null || forceRefresh)
             {
                 firstRun = true;
 
@@ -1250,7 +1237,7 @@ public class Wink
                         using (SQLiteCommand command = new SQLiteCommand(connection))
                         {
                             command.CommandText = "UPDATE Shortcuts SET Name=@name WHERE UserID = @UserID AND ShortcutID = @ID and Name<>@name;";
-                            command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                            command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                             command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
                             command.Parameters.Add(new SQLiteParameter("@name", shortcut.name));
                             command.ExecuteNonQuery();
@@ -1267,11 +1254,11 @@ public class Wink
                     Shortcuts.Add(shortcut);
                 }
 
-                _shortcuts = Shortcuts.OrderBy(c => c.name).ToList();
+                myWink._shortcuts = Shortcuts.OrderBy(c => c.name).ToList();
             }
 
             #region RETRIEVE DATABASE VALUES
-            foreach (Shortcut shortcut in _shortcuts)
+            foreach (Shortcut shortcut in myWink._shortcuts)
             {
                 using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
                 {
@@ -1280,7 +1267,7 @@ public class Wink
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "select * from Shortcuts where UserID = @UserID AND ShortcutID = @ID";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
                         SQLiteDataReader reader = command.ExecuteReader();
                         while (reader.Read())
@@ -1310,7 +1297,7 @@ public class Wink
             //SHORTCUTS CAN'T HAVE SUBS AT THE MOMENT
             if (PubNub.myPubNub.hasPubNub)
             {
-                foreach (Shortcut shortcut in _shortcuts)
+                foreach (Shortcut shortcut in myWink._shortcuts)
                 {
                     if (string.IsNullOrWhiteSpace(shortcut.subscriptionTopic) || DateTime.Now > shortcut.subscriptionExpires)
                     {
@@ -1330,7 +1317,7 @@ public class Wink
                                         using (SQLiteCommand command = new SQLiteCommand(connection))
                                         {
                                             command.CommandText = "UPDATE Shortcuts SET subscriptionCapable='0' WHERE UserID = @UserID AND ShortcutID = @ID;";
-                                            command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                            command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                                             command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
                                             command.ExecuteNonQuery();
 
@@ -1357,7 +1344,7 @@ public class Wink
                                             using (SQLiteCommand command = new SQLiteCommand(connection))
                                             {
                                                 command.CommandText = "UPDATE Shortcuts SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE UserID = @UserID AND ShortcutID = @ID;";
-                                                command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                                                 command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", shortcut.subscriptionTopic));
                                                 command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", shortcut.subscriptionExpires));
                                                 command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
@@ -1377,7 +1364,7 @@ public class Wink
             }
             #endregion
 
-            return _shortcuts;
+            return myWink._shortcuts;
         }
         catch (Exception ex)
         {
@@ -1420,7 +1407,7 @@ public class Wink
             public DateTime? last_updated;
             public static void clearGroupStatus(string groupID)
             {
-                Group group = Groups.SingleOrDefault(g => g.id.Equals(groupID));
+                Group group = myWink.Groups.SingleOrDefault(g => g.id.Equals(groupID));
                 group.status = null;
                 group.status = new List<GroupStatus>();
             }
@@ -1428,12 +1415,12 @@ public class Wink
 
         public static Group getGroupByID(string GroupID)
         {
-            Group group = Groups.SingleOrDefault(s => s.id.Equals(GroupID));
+            Group group = myWink.Groups.SingleOrDefault(s => s.id.Equals(GroupID));
             return group;
         }
         public static Group getGroupByName(string GroupName)
         {
-            Group group = Groups.SingleOrDefault(s => s.name.ToLower().Equals(GroupName.ToLower()));
+            Group group = myWink.Groups.SingleOrDefault(s => s.name.ToLower().Equals(GroupName.ToLower()));
             return group;
         }
 
@@ -1448,7 +1435,7 @@ public class Wink
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "UPDATE Groups SET displayname=@displayname WHERE UserID = @UserID AND GroupID = @ID;";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", GroupID));
                         command.Parameters.Add(new SQLiteParameter("@displayname", DisplayName));
                         command.ExecuteNonQuery();
@@ -1457,7 +1444,7 @@ public class Wink
                         command.ExecuteNonQuery();
                     }
                 }
-                Group group = _groups.SingleOrDefault(d => d.id == GroupID);
+                Group group = myWink._groups.SingleOrDefault(d => d.id == GroupID);
                 group.displayName = DisplayName;
 
                 return DisplayName;
@@ -1479,7 +1466,7 @@ public class Wink
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "UPDATE Groups SET position=@Position WHERE UserID = @UserID AND GroupID = @ID;";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", GroupID));
                         command.Parameters.Add(new SQLiteParameter("@Position", Position));
                         command.ExecuteNonQuery();
@@ -1506,7 +1493,7 @@ public class Wink
                 if (group != null)
                 {
                     string url = ConfigurationManager.AppSettings["winkRootURL"] + "groups/" + groupID + "/activate/";
-                    winkCallAPI(url, "POST", command);
+                    myWink.winkCallAPI(url, "POST", command);
                 }
             }
             catch (Exception ex)
@@ -1516,7 +1503,7 @@ public class Wink
         }
     }
  
-    public static List<Group> Groups
+    public List<Group> Groups
     {
         get
         {
@@ -1527,10 +1514,10 @@ public class Wink
             _groups = value;
         }
     }
-    private static List<Group> _groups;
-    public static bool hasGroupChanges;
+    private List<Group> _groups;
+    public bool hasGroupChanges;
 
-    private static List<Group> winkGetGroups(bool forceRefresh = false)
+    private List<Group> winkGetGroups(bool forceRefresh = false)
     {
         try
         {
@@ -1604,7 +1591,7 @@ public class Wink
                         using (SQLiteCommand command = new SQLiteCommand(connection))
                         {
                             command.CommandText = "UPDATE Groups SET Name=@name WHERE UserID = @UserID AND GroupID = @ID and Name<>@name;";
-                            command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                            command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                             command.Parameters.Add(new SQLiteParameter("@ID", group.id));
                             command.Parameters.Add(new SQLiteParameter("@name", group.name));
                             command.ExecuteNonQuery();
@@ -1634,7 +1621,7 @@ public class Wink
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "select * from Groups where UserID = @UserID AND GroupID = @ID";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", group.id));
                         SQLiteDataReader reader = command.ExecuteReader();
                         while (reader.Read())
@@ -1685,7 +1672,7 @@ public class Wink
                                         using (SQLiteCommand command = new SQLiteCommand(connection))
                                         {
                                             command.CommandText = "UPDATE Groups SET subscriptionCapable='0' WHERE UserID = @UserID AND GroupID = @ID;";
-                                            command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                            command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                                             command.Parameters.Add(new SQLiteParameter("@ID", group.id));
                                             command.ExecuteNonQuery();
 
@@ -1712,7 +1699,7 @@ public class Wink
                                             using (SQLiteCommand command = new SQLiteCommand(connection))
                                             {
                                                 command.CommandText = "UPDATE Groups SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE UserID = @UserID AND GroupID = @ID;";
-                                                command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                                                 command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", group.subscriptionTopic));
                                                 command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", group.subscriptionExpires));
                                                 command.Parameters.Add(new SQLiteParameter("@ID", group.id));
@@ -1770,12 +1757,12 @@ public class Wink
         public List<string> members = new List<string>();
         public static Robot getRobotByID(string RobotID)
         {
-            Robot robot = Robots.SingleOrDefault(s => s.id.Equals(RobotID));
+            Robot robot = myWink.Robots.SingleOrDefault(s => s.id.Equals(RobotID));
             return robot;
         }
         public static Robot getRobotByName(string robotName)
         {
-            Robot robot = Robots.SingleOrDefault(s => s.name.ToLower().Equals(robotName.ToLower()));
+            Robot robot = myWink.Robots.SingleOrDefault(s => s.name.ToLower().Equals(robotName.ToLower()));
             return robot;
         }
         internal static void changeRobotState(string robotID, bool newEnabledState)
@@ -1790,7 +1777,7 @@ public class Wink
                     string url = ConfigurationManager.AppSettings["winkRootURL"] + "robots/" + robot.id;
                     string sendcommand = "{\"enabled\":" + newstate + "}";
 
-                    winkCallAPI(url, "PUT", sendcommand);
+                    myWink.winkCallAPI(url, "PUT", sendcommand);
 
                     robot.enabled = newstate;
                 }
@@ -1802,7 +1789,7 @@ public class Wink
         }
         public static JObject getRobotJSON()
         {
-            JObject json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetRobotsURL"]);
+            JObject json = myWink.winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetRobotsURL"]);
             if (json != null)
                 return json;
 
@@ -1819,7 +1806,7 @@ public class Wink
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "UPDATE Robots SET displayname=@displayname WHERE UserID = @UserID AND RobotID = @ID;";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", RobotID));
                         command.Parameters.Add(new SQLiteParameter("@displayname", DisplayName));
                         command.ExecuteNonQuery();
@@ -1828,7 +1815,7 @@ public class Wink
                         command.ExecuteNonQuery();
                     }
                 }
-                Robot robot = _robots.SingleOrDefault(d => d.id == RobotID);
+                Robot robot = myWink._robots.SingleOrDefault(d => d.id == RobotID);
                 robot.displayName = DisplayName;
 
                 return DisplayName;
@@ -1850,7 +1837,7 @@ public class Wink
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "UPDATE Robots SET position=@Position WHERE UserID = @UserID AND RobotID = @ID;";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", RobotID));
                         command.Parameters.Add(new SQLiteParameter("@Position", Position));
                         command.ExecuteNonQuery();
@@ -1870,7 +1857,7 @@ public class Wink
         }
     }
 
-    public static List<Robot> Robots
+    public List<Robot> Robots
     {
         get
         {
@@ -1881,10 +1868,10 @@ public class Wink
             _robots = value;
         }
     }
-    private static List<Robot> _robots;
-    public static bool hasRobotChanges;
+    private List<Robot> _robots;
+    public bool hasRobotChanges;
 
-    private static List<Robot> winkGetRobots(JObject jsonObject = null, bool forceRefresh = false)
+    private List<Robot> winkGetRobots(JObject jsonObject = null, bool forceRefresh = false)
     {
         try
         {
@@ -1933,11 +1920,14 @@ public class Wink
                                 //RENAME "MY ROBOT" WHEN IS SENSOR BATTERY WARNING
                                 if (robot.name.ToLower() == "my robot")
                                 {
-                                    Device device = _devices.SingleOrDefault(d => d.id == data["causes"][0]["observed_object_id"].ToString());
+                                    Device device = myWink._devices.SingleOrDefault(d => d.id == data["causes"][0]["observed_object_id"].ToString());
 
-                                    string strDeviceIden = device != null ? device.name : "device ID " + data["causes"][0]["observed_object_id"].ToString();
+                                    if (device != null)
+                                    {
+                                        string strDeviceIden = device != null ? device.name : "device ID " + data["causes"][0]["observed_object_id"].ToString();
 
-                                    robot.displayName = robot.name + " (" + strDeviceIden + " " + data["causes"][0]["observed_field"].ToString() + " warning)";
+                                        robot.displayName = robot.name + " (" + strDeviceIden + " " + data["causes"][0]["observed_field"].ToString() + " warning)";
+                                    }
                                 }
 
                             }
@@ -1984,7 +1974,7 @@ public class Wink
                             using (SQLiteCommand command = new SQLiteCommand(connection))
                             {
                                 command.CommandText = "UPDATE Robots SET Name=@name WHERE UserID = @UserID AND RobotID = @ID and Name<>@name;";
-                                command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                                 command.Parameters.Add(new SQLiteParameter("@ID", robot.id));
                                 command.Parameters.Add(new SQLiteParameter("@name", robot.name));
                                 command.ExecuteNonQuery();
@@ -2014,7 +2004,7 @@ public class Wink
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "select * from Robots where UserID = @UserID AND RobotID = @ID";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@ID", robot.id));
                         SQLiteDataReader reader = command.ExecuteReader();
                         while (reader.Read())
@@ -2064,7 +2054,7 @@ public class Wink
                                         using (SQLiteCommand command = new SQLiteCommand(connection))
                                         {
                                             command.CommandText = "UPDATE Robots SET subscriptionCapable='0' WHERE UserID = @UserID AND RobotID = @ID;";
-                                            command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                            command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                                             command.Parameters.Add(new SQLiteParameter("@ID", robot.id));
                                             command.ExecuteNonQuery();
 
@@ -2091,7 +2081,7 @@ public class Wink
                                             using (SQLiteCommand command = new SQLiteCommand(connection))
                                             {
                                                 command.CommandText = "UPDATE Robots SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE UserID = @UserID AND RobotID = @ID;";
-                                                command.Parameters.Add(new SQLiteParameter("@UserID", winkUser.userID));
+                                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                                                 command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", robot.subscriptionTopic));
                                                 command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", robot.subscriptionExpires));
                                                 command.Parameters.Add(new SQLiteParameter("@ID", robot.id));
@@ -2120,7 +2110,7 @@ public class Wink
     }
 #endregion
 
-    private static JObject winkCallAPI(string url, string method = "", string sendcommand = "", bool requiresToken = true)
+    private JObject winkCallAPI(string url, string method = "", string sendcommand = "", bool requiresToken = true)
     {
         try
         {
@@ -2132,7 +2122,7 @@ public class Wink
                 xhr.Headers[HttpRequestHeader.ContentType] = "application/json";
 
                 if (requiresToken)
-                    xhr.Headers.Add("Authorization", "Bearer " + WinkToken);
+                    xhr.Headers.Add("Authorization", "Bearer " + myWink.WinkToken);
 
                 byte[] result = null;
 
@@ -2154,7 +2144,7 @@ public class Wink
                 #if DEBUG
                 if (url == "https://winkapi.quirky.com/users/me/wink_devices")
                 {
-                    if (winkUser.email.ToLower().Contains("trunzo"))
+                    if (myWink.winkUser.email.ToLower().Contains("trunzo"))
                     {
                         //Add Garage Door
                         //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"garage_door_id\": \"8552\",\"name\": \"zTest Chamberlain\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1420250978,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"af309d2e12b86bd1e5e63123db745dad703e46fb|garage_door-8552|user-123172\"}},\"user_ids\": [\"123172\"],\"triggers\": [],\"desired_state\": {\"position\": 1.0},\"manufacturer_device_model\": \"chamberlain_vgdo\",\"manufacturer_device_id\": \"1180839\",\"device_manufacturer\": \"chamberlain\",\"model_name\": \"MyQ Garage Door Controller\",\"upc_id\": \"26\",\"linked_service_id\": \"59900\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428535030.025161,\"position\": 1.0,\"position_updated_at\": 1428535020.76,\"position_opened\": \"N/A\",\"position_opened_updated_at\": 1428534916.709,\"battery\": 1.0,\"battery_updated_at\": 1428534350.3417819,\"fault\": false,\"fault_updated_at\": 1428534350.3417749,\"control_enabled\": true,\"control_enabled_updated_at\": 1428534350.3417563,\"desired_position\": 0.0,\"desired_position_updated_at\": 1428535030.0404377},\"lat_lng\": [33.162135,-97.090945],\"location\": \"\",\"order\": 0},");

@@ -52,7 +52,7 @@ namespace WinkAtHome.Controls
             try
             {
                 string recordTest;
-                if (PubNub.RecordQueue.TryPeek(out recordTest))
+                if (PubNub.myPubNub.RecordQueue.TryPeek(out recordTest))
                 {
                     if (txtMessage.Text.Length > 10000)
                     {
@@ -61,10 +61,9 @@ namespace WinkAtHome.Controls
                     }
 
                     string currentRecord;
-                    while (PubNub.RecordQueue.TryDequeue(out currentRecord))
+                    while (PubNub.myPubNub.RecordQueue.TryDequeue(out currentRecord))
                     {
                         txtMessage.Text += string.Format("{0}{1}", currentRecord, Environment.NewLine);
-                        System.Diagnostics.Debug.WriteLine(currentRecord);
                     }
                 }
 

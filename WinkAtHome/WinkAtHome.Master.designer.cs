@@ -301,6 +301,24 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.LinkButton lbLogout;
         
         /// <summary>
+        /// rowDonate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowDonate;
+        
+        /// <summary>
+        /// rowMenuAdds control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowMenuAdds;
+        
+        /// <summary>
         /// tblCollapsed control.
         /// </summary>
         /// <remarks>
@@ -344,6 +362,15 @@ namespace WinkAtHome {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphMain;
+        
+        /// <summary>
+        /// rowBottomAds control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowBottomAds;
         
         /// <summary>
         /// btnUpdates control.

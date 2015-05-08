@@ -1,31 +1,5 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="PubNubDisplay.ascx.cs" Inherits="WinkAtHome.Controls.PubNubDisplay" %>
 
-<script type="text/javascript" language="javascript">
-
-    var xPos, yPos;
-    var prm = Sys.WebForms.PageRequestManager.getInstance();
-    prm.add_pageLoaded(PageLoadedEventHandler);
-    function PageLoadedEventHandler() {
-        //alert("page loaded event handler");
-    }
-
-    prm.add_beginRequest(BeginRequestEventHandler);
-    function BeginRequestEventHandler() {
-        if ($get('<%= txtMessage.ClientID %>') != null) {
-            xPos = $get('<%= txtMessage.ClientID %>').scrollLeft;
-            yPos = $get('<%= txtMessage.ClientID %>').scrollTop;
-        }
-    }
-
-    prm.add_endRequest(EndRequestEventHandler);
-    function EndRequestEventHandler() {
-        if ($get('<%= txtMessage.ClientID %>') != null) {
-            $get('<%= txtMessage.ClientID %>').scrollLeft = xPos;
-            $get('<%= txtMessage.ClientID %>').scrollTop = $get('<%= txtMessage.ClientID %>').scrollHeight;
-        }
-    }
-</script>
-
 <asp:HiddenField ID="hfSettingBase" runat="server" />
 
 <asp:Table ID="Table1" runat="server" BorderColor="#22b9ec" BorderWidth="1" Width="100%" BackColor="#22b9ec"  CellPadding="0" CellSpacing="0">

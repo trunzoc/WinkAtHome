@@ -52,10 +52,10 @@ namespace WinkAtHome.Controls
 
             if (SettingMgmt.getSetting("Hide-Empty-Groups").ToLower() == "true")
             {
-                groups = Wink.Groups.Where(p => !p.isempty).ToList();
+                groups = Wink.myWink.Groups.Where(p => !p.isempty).ToList();
             }
             else
-                groups = Wink.Groups;
+                groups = Wink.myWink.Groups;
 
             groups = groups.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
 

@@ -120,23 +120,23 @@ namespace WinkAtHome.Controls
             if (ControllableOnly)
             {
                 lblHeader.Text = "Devices: Controllable Only";
-                devices = Wink.Devices.Where(p => p.iscontrollable == true).ToList();
+                devices = Wink.myWink.Devices.Where(p => p.iscontrollable == true).ToList();
             }
             else if (SensorsOnly)
             {
                 lblHeader.Text = "Sensors";
-                devices = Wink.Devices.Where(p => p.issensor == true).ToList();
+                devices = Wink.myWink.Devices.Where(p => p.issensor == true).ToList();
             }
             else if (typeToShow != "all")
             {
                 TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
                 lblHeader.Text = "Devices: " + textInfo.ToTitleCase(typeToShow.Replace("_", " "));
-                devices = Wink.Devices.Where(p => p.menu_type == typeToShow).ToList();
+                devices = Wink.myWink.Devices.Where(p => p.menu_type == typeToShow).ToList();
             }
             else
             {
                 lblHeader.Text = "All Devices";
-                devices = Wink.Devices.Where(p => p.issensor != true || p.menu_type=="hubs").ToList();
+                devices = Wink.myWink.Devices.Where(p => p.issensor != true || p.menu_type == "hubs").ToList();
             }
 
             devices = devices.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();

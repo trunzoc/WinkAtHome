@@ -35,7 +35,7 @@ namespace WinkAtHome
                                 string username = Common.Decrypt(strUser);
                                 string password = Common.Decrypt(strPass);
 
-                                if (Wink.validateWinkCredentials(username, password))
+                                if (Wink.myWink.validateWinkCredentials(username, password))
                                 {
                                     Session["loggedin"] = strloggedin;
                                     Session["username"] = strUser;
@@ -59,10 +59,10 @@ namespace WinkAtHome
         {
             try
             {
-                Wink.clearWink();
+                Wink.myWink.clearWink();
                 SettingMgmt.Settings = null;
 
-                bool validated = Wink.validateWinkCredentials(tbUsername.Text, tbPassword.Text);
+                bool validated = Wink.myWink.validateWinkCredentials(tbUsername.Text, tbPassword.Text);
 
                 if (validated)
                 {

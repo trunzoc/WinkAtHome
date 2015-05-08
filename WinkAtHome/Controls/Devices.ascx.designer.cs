@@ -40,6 +40,15 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.HiddenField hfSettingBase;
         
         /// <summary>
+        /// upData control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel upData;
+        
+        /// <summary>
         /// Table1 control.
         /// </summary>
         /// <remarks>
@@ -173,15 +182,6 @@ namespace WinkAtHome.Controls {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TableRow rowData;
-        
-        /// <summary>
-        /// upData control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.UpdatePanel upData;
         
         /// <summary>
         /// dlDevices control.

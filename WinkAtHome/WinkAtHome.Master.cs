@@ -45,7 +45,12 @@ namespace WinkAtHome
                     }
                     else
                         ibVersion.Text = Common.currentVersion;
-                    
+
+                    if (Common.isLocalHost)
+                    {
+                        rowBottomAds.Visible = false;
+                        rowMenuAdds.Visible = false;
+                    }
 
                     lblRefreshed.Text = DateTime.Now.ToString();
 
@@ -82,11 +87,9 @@ namespace WinkAtHome
                     }
 
                     PubNub pubnub = PubNub.myPubNub;
-                    Response.Write(pubnub.hasPubNub);
                     if (pubnub.hasPubNub)
                     {
-                        PubNub pubnubSocket = new PubNub();
-                        pubnubSocket.Open();
+                        pubnub.Open();
                     }
                 }
             }
@@ -149,7 +152,7 @@ namespace WinkAtHome
 
                 Session.Abandon();
 
-                Wink.clearWink();
+                Wink.myWink.clearWink();
                 SettingMgmt.Settings = null;
 
                 Response.Redirect("~/Login.aspx");
@@ -213,7 +216,7 @@ namespace WinkAtHome
 
                 if (modalshowing == "false")
                 {
-                    Wink.reloadWink();
+                    Wink.myWink.reloadWink();
                     Response.Redirect(Request.RawUrl);
                 }
             }
@@ -233,9 +236,16 @@ namespace WinkAtHome
 
                 if (modalshowing == "false")
                 {
-                    if (Wink.hasDeviceChanges)
+                    JObject currentRecord;
+                    while (PubNub.myPubNub.DeviceQueue.TryDequeue(out currentRecord))
                     {
-                        Wink.hasDeviceChanges = false;
+                        Wink.myWink.hasDeviceChanges = true;
+                        Wink.Device.updateDevice(currentRecord);
+                    }
+
+                    if (Wink.myWink.hasDeviceChanges)
+                    {
+                        Wink.myWink.hasDeviceChanges = false;
 
                         //UPDATE DEVICES
                         UserControl ucDevices = (UserControl)cphMain.FindControl("ucDevices");
@@ -254,7 +264,7 @@ namespace WinkAtHome
                         {
                             var control = ucSensors as Controls.Devices;
                             control.BindData();
-                            
+
                             UpdatePanel upData = (UpdatePanel)control.FindControl("upData");
                             upData.Update();
                         }

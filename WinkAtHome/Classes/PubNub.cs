@@ -16,9 +16,17 @@ public class PubNub
 {
     public static PubNub myPubNub
     {
-        get { return HttpContext.Current.Session["_pubnub"] == null ? new PubNub() : (PubNub)HttpContext.Current.Session["_pubnub"]; }
+        get { return HttpContext.Current.Session["_pubnub"] == null ? createPubNub() : (PubNub)HttpContext.Current.Session["_pubnub"]; }
         set { HttpContext.Current.Session["_pubnub"] = value; }
     }
+    private static PubNub createPubNub()
+    {
+        if (HttpContext.Current.Session["_pubnub"] == null)
+            HttpContext.Current.Session["_pubnub"] = new PubNub();
+
+        return (PubNub)HttpContext.Current.Session["_pubnub"];
+    }
+    
     public string publishKey { get { return SettingMgmt.getSetting("PubNub-PublishKey"); } }
     public string subscriberKey { get { return SettingMgmt.getSetting("PubNub-SubscribeKey"); } }
     public string secretKey { get { return SettingMgmt.getSetting("PubNub-SecretKey"); } }
@@ -40,13 +48,21 @@ public class PubNub
     private static int presenceHeartbeat = 63;
     private static int presenceHeartbeatInterval = 60;
    
-    //MAKE NON_STATIC
-    private static ConcurrentQueue<string> _recordQueue = new ConcurrentQueue<string>();
-    public static ConcurrentQueue<string> RecordQueue
+    private ConcurrentQueue<string> _recordQueue = new ConcurrentQueue<string>();
+    public ConcurrentQueue<string> RecordQueue
     {
         get
         {
             return _recordQueue;
+        }
+    }
+
+    private ConcurrentQueue<JObject> _deviceQueue = new ConcurrentQueue<JObject>();
+    public ConcurrentQueue<JObject> DeviceQueue
+    {
+        get
+        {
+            return _deviceQueue;
         }
     }
     
@@ -57,7 +73,7 @@ public class PubNub
         {
             if (hasPubNub)
             {
-                channel = Wink.getSubscriptionTopics();
+                channel = Wink.myWink.getSubscriptionTopics();
 
                 if (channel != null)
                 {
@@ -109,7 +125,17 @@ public class PubNub
             throw; //EventLog.WriteEntry("WinkAtHome.PubNub.AddToPubnubResultContainer", ex.Message, EventLogEntryType.Error);
         }
     }
-
+    private void AddToPubnubDeviceContainer(JObject result)
+    {
+        try
+        {
+            _deviceQueue.Enqueue(result);
+        }
+        catch (Exception ex)
+        {
+            throw; //EventLog.WriteEntry("WinkAtHome.PubNub.AddToPubnubResultContainer", ex.Message, EventLogEntryType.Error);
+        }
+    }
     protected void DisplayUserCallbackMessage(string result)
     {
         try
@@ -120,9 +146,11 @@ public class PubNub
             
             string strResult = "{\"data\": " + result.Remove(result.LastIndexOf("},")) + "}]}";
             JObject json = JObject.Parse(strResult);
+            AddToPubnubDeviceContainer(json);
 
-            Wink.Device.updateDevice(json);
-            Wink.hasDeviceChanges = true;
+            //Wink mywink = (Wink)HttpContext.Current.Session["myWink"];
+            //mywink.hasDeviceChanges = true;
+            //mywink.updateDevice(json);
 
         }
         catch (Exception ex)

@@ -49,7 +49,7 @@ namespace WinkAtHome.Controls
                 dlShortcuts.DataSource = null;
                 dlShortcuts.DataBind();
 
-                dlShortcuts.DataSource = Wink.Shortcuts.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
+                dlShortcuts.DataSource = Wink.myWink.Shortcuts.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
                 dlShortcuts.DataBind();
             }
             catch (Exception ex)
