@@ -140,7 +140,7 @@ public class PubNub
     {
         try
         {
-            AddToPubnubResultContainer("REGULAR CALLBACK: " + DateTime.Now.ToString());
+            AddToPubnubResultContainer("REGULAR CALLBACK: " + Common.getLocalTime().ToString());
             AddToPubnubResultContainer(result);
             AddToPubnubResultContainer(""); 
             
@@ -163,7 +163,7 @@ public class PubNub
     {
         try
         {
-            AddToPubnubResultContainer("CONNECT CALLBACK: " + DateTime.Now.ToString());
+            AddToPubnubResultContainer("CONNECT CALLBACK: " + Common.getLocalTime().ToString());
             AddToPubnubResultContainer(result);
             AddToPubnubResultContainer("");
         }
@@ -176,7 +176,7 @@ public class PubNub
     {
         try
         {
-            AddToPubnubResultContainer("DISCONNECT CALLBACK: " + DateTime.Now.ToString());
+            AddToPubnubResultContainer("DISCONNECT CALLBACK: " + Common.getLocalTime().ToString());
             AddToPubnubResultContainer(result);
             AddToPubnubResultContainer("");
         }
@@ -192,9 +192,12 @@ public class PubNub
     {
         try
         {
-            AddToPubnubResultContainer("ERROR CALLBACK: " + DateTime.Now.ToString());
-            AddToPubnubResultContainer(result.Description);
-            AddToPubnubResultContainer("");
+            if (result.StatusCode != 111)
+            {
+                AddToPubnubResultContainer("ERROR CALLBACK: " + Common.getLocalTime().ToString());
+                AddToPubnubResultContainer(result.Description);
+                AddToPubnubResultContainer("");
+            }
 
             switch (result.StatusCode)
             {

@@ -59,8 +59,7 @@ namespace WinkAtHome
         {
             try
             {
-                Wink.myWink.clearWink();
-                SettingMgmt.Settings = null;
+                //Session.Abandon();
 
                 bool validated = Wink.myWink.validateWinkCredentials(tbUsername.Text, tbPassword.Text);
 
@@ -79,7 +78,7 @@ namespace WinkAtHome
                     }
 
 
-                    Response.Redirect("~/Default.aspx", false);
+                    Response.Redirect("~/Default.aspx");
                 }
             }
             catch (Exception ex)

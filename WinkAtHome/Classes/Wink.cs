@@ -65,7 +65,7 @@ public class Wink
     {
         try
         {
-            string token = winkGetToken(username, password, true, ConfigurationManager.AppSettings["unsecureClientID"], ConfigurationManager.AppSettings["unsecureClientSecret"]);
+            string token = winkGetToken(username, password, true, ConfigurationManager.AppSettings["APIClientID"], ConfigurationManager.AppSettings["APIClientSecret"]);
             if (token != null)
             {
                 winkUser.password = Common.Encrypt(password);
@@ -139,8 +139,8 @@ public class Wink
             {
                 string winkUsername = Username == null ? winkUser.email : Username;
                 string winkPassword = Password == null ? Common.Decrypt(winkUser.password) : Password;
-                string winkClientID = forceClientID == null ? SettingMgmt.getSetting("winkClientID") : forceClientID;
-                string winkClientSecret = forceClientSecret == null ? SettingMgmt.getSetting("winkClientSecret") : forceClientSecret;
+                string winkClientID = forceClientID == null ? ConfigurationManager.AppSettings["APIClientID"] : forceClientID;
+                string winkClientSecret = forceClientSecret == null ? ConfigurationManager.AppSettings["APIClientSecret"] : forceClientSecret;
 
                 string oAuthURL = ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkOAuthURL"];
                 string sendstring = "{\"client_id\":\"" + winkClientID + "\",\"client_secret\":\"" + winkClientSecret + "\",\"username\":\"" + winkUsername + "\",\"password\":\"" + winkPassword + "\",\"grant_type\":\"password\"}";
@@ -210,9 +210,10 @@ public class Wink
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "INSERT OR REPLACE INTO Users (UserID, Email) VALUES (@UserID,@Email);";
+                        command.CommandText = "INSERT OR REPLACE INTO Users (UserID, Email, Last_Login) VALUES (@UserID,@Email,@Last_Login);";
                         command.Parameters.Add(new SQLiteParameter("@UserID", user.userID));
                         command.Parameters.Add(new SQLiteParameter("@Email", user.email));
+                        command.Parameters.Add(new SQLiteParameter("@Last_Login", DateTime.Now));
                         command.ExecuteNonQuery();
 
                         //LEGACY CORRECTIONS

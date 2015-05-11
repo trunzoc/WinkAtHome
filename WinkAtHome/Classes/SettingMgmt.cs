@@ -79,8 +79,6 @@ namespace WinkAtHome
 
                         //INSERT DEFAULT SETTINGS
                         Dictionary<string, stringbool> basicSettings = new Dictionary<string, stringbool>();
-                        basicSettings.Add("winkClientID", (new stringbool("quirky_wink_android_app", true)));
-                        basicSettings.Add("winkClientSecret", (new stringbool("e749124ad386a5a35c0ab554a4f2c045", true)));
                         basicSettings.Add("PubNub-PublishKey", (new stringbool(null, true)));
                         basicSettings.Add("PubNub-SubscribeKey", (new stringbool(null, true)));
                         basicSettings.Add("PubNub-SecretKey", (new stringbool(null, true)));
@@ -89,6 +87,7 @@ namespace WinkAtHome
                         basicSettings.Add("Hide-Empty-Groups", (new stringbool("false", false)));
                         basicSettings.Add("Robot-Alert-Minutes-Since-Last-Trigger", (new stringbool("60", false)));
                         basicSettings.Add("Show-Pubnub-Log-In-Monitor", (new stringbool("true", false)));
+                        basicSettings.Add("TimeZone-Adjuster", (new stringbool("-5", false)));
 
                         foreach (KeyValuePair<string, stringbool> pair in basicSettings)
                         {

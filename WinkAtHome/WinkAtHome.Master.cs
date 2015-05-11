@@ -52,7 +52,7 @@ namespace WinkAtHome
                         rowMenuAdds.Visible = false;
                     }
 
-                    lblRefreshed.Text = DateTime.Now.ToString();
+                    lblRefreshed.Text = Common.getLocalTime().ToString();
 
                     //SET PAGE OPTIONS
                     string timerrefresh = SettingMgmt.getSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
@@ -86,6 +86,8 @@ namespace WinkAtHome
                         cellMenu.BackColor = tblExpand.Visible ? System.Drawing.ColorTranslator.FromHtml("#eeeeee") : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
                     }
 
+
+                    //SET PUBNUB
                     PubNub pubnub = PubNub.myPubNub;
                     if (pubnub.hasPubNub)
                     {
@@ -139,7 +141,7 @@ namespace WinkAtHome
             }
         }
 
-        protected void lbLogout_Click(object sender, EventArgs e)
+        public void lbLogout_Click(object sender, EventArgs e)
         {
             try
             {

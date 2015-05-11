@@ -113,7 +113,7 @@ namespace WinkAtHome
                 }
 
                 Session.Abandon();
-                Response.Redirect("~/Settings.aspx");
+                Response.Redirect("~/Login.aspx");
             }
             catch (Exception ex)
             {

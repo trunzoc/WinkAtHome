@@ -108,6 +108,23 @@ namespace WinkAtHome
                 throw; //EventLog.WriteEntry("WinkAtHome.Common.FromUnixTime", ex.Message, EventLogEntryType.Error);
             }
         }
+        public static DateTime getLocalTime()
+        {
+            DateTime dtnow = DateTime.Now;
+            int timezone = -5;
+
+            if (HttpContext.Current.Session["timezone"] == null)
+            {
+                Int32.TryParse(SettingMgmt.getSetting("TimeZone-Adjuster"), out timezone);
+                HttpContext.Current.Session["timezone"] = timezone;
+            }
+            else
+                timezone = (Int32)HttpContext.Current.Session["timezone"];
+
+            dtnow.AddHours(timezone);
+
+            return dtnow;
+        }
 
         public static string Encrypt(string toEncrypt)
         {
@@ -437,10 +454,22 @@ namespace WinkAtHome
                     //PREPARE USER TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "CREATE TABLE IF NOT EXISTS Users(UserID VARCHAR PRIMARY KEY NOT NULL, Email VARCHAR NOT NULL ON CONFLICT REPLACE);";
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS Users(UserID VARCHAR PRIMARY KEY NOT NULL, Email VARCHAR NOT NULL ON CONFLICT REPLACE, Last_Login DATETIME);";
                         command.ExecuteNonQuery();
-                    }
 
+                        command.CommandText = "PRAGMA table_info(Users);";
+                        DataTable dt = new DataTable();
+                        SQLiteDataAdapter da = new SQLiteDataAdapter(command);
+                        da.Fill(dt);
+                        DataRow[] foundRows;
+
+                        foundRows = dt.Select("name = 'Last_Login'");
+                        if (foundRows.Length == 0)
+                        {
+                            command.CommandText = "ALTER TABLE Users ADD COLUMN Last_Login DATETIME;";
+                            command.ExecuteNonQuery();
+                        }
+                    }
                     connection.Close();
                     connection.Dispose();
                 }
