@@ -16,7 +16,7 @@ namespace WinkAtHome
 {
     public class Common
     {
-        public static bool isLocalHost = (HttpContext.Current.Request.PhysicalApplicationPath.Contains("winkathome.net")) ? false : true;
+        public static bool isLocalHost = (ConfigurationManager.AppSettings["isLocalHost"].ToLower() == "true") ? true : false;
         public static string dbPath = HttpContext.Current.Request.PhysicalApplicationPath + "WinkAtHome.sqlite";
         public static string currentVersion = "v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         public static string newVersion = string.Empty;

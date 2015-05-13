@@ -32,19 +32,21 @@ namespace WinkAtHome
 
                 if (!IsPostBack)
                 {
-                    bool hasUpdate = Common.checkForUpdate();
-                    if (hasUpdate && Common.isLocalHost)
+                    ibVersion.Text = Common.currentVersion;
+                    if (Common.isLocalHost)
                     {
-                        ibVersion.Text = "UPDATE AVAILABLE!";
-                        ibVersion.Enabled = true;
-                        lblCurrentVersion.Text = Common.currentVersion;
-                        lblNewVersion.Text = Common.newVersion;
-                        tbReleaseNotes.Text = Common.updateNotes;
-                        hlDownloadUpdate.NavigateUrl = Common.updateFilePath;
-                        mpeUpdate.Show();
+                        bool hasUpdate = Common.checkForUpdate();
+                        if (hasUpdate)
+                        {
+                            ibVersion.Text = "UPDATE AVAILABLE!";
+                            ibVersion.Enabled = true;
+                            lblCurrentVersion.Text = Common.currentVersion;
+                            lblNewVersion.Text = Common.newVersion;
+                            tbReleaseNotes.Text = Common.updateNotes;
+                            hlDownloadUpdate.NavigateUrl = Common.updateFilePath;
+                            mpeUpdate.Show();
+                        }
                     }
-                    else
-                        ibVersion.Text = Common.currentVersion;
 
                     if (Common.isLocalHost)
                     {
@@ -88,11 +90,11 @@ namespace WinkAtHome
 
 
                     //SET PUBNUB
-                    PubNub pubnub = PubNub.myPubNub;
-                    if (pubnub.hasPubNub)
-                    {
-                        pubnub.Open();
-                    }
+                    //PubNub pubnub = PubNub.myPubNub;
+                    //if (pubnub.hasPubNub)
+                    //{
+                    //    pubnub.Open();
+                    //}
                 }
             }
             catch (Exception ex)

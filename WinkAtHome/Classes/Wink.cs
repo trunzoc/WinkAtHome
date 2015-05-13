@@ -26,6 +26,7 @@ public class Wink
         get { return HttpContext.Current.Session["_wink"] == null ? createWink() : (Wink)HttpContext.Current.Session["_wink"]; }
         set { HttpContext.Current.Session["_wink"] = value; }
     }
+
     private static Wink createWink()
     {
         if (HttpContext.Current.Session["_wink"] == null)
@@ -61,17 +62,59 @@ public class Wink
 
         return null;
     }
-    public bool validateWinkCredentials(string username, string password)
+    public bool validateWinkCredentialsByUsername(string username, string password)
     {
         try
         {
-            string token = winkGetToken(username, password, true, ConfigurationManager.AppSettings["APIClientID"], ConfigurationManager.AppSettings["APIClientSecret"]);
+            if (HttpContext.Current.Session["_wink"] == null)
+                createWink(); 
+            
+            string token = winkGetTokenByUsername(username, password, true, ConfigurationManager.AppSettings["APIClientID"], ConfigurationManager.AppSettings["APIClientSecret"]);
             if (token != null)
             {
                 winkUser.password = Common.Encrypt(password);
 
                 return true;
             }
+        }
+        catch (Exception ex)
+        {
+        }
+
+        return false;
+    }
+    public bool validateWinkCredentialsByAuthCode(string AuthCode)
+    {
+        try
+        {
+            if (HttpContext.Current.Session["_wink"] == null)
+                createWink();
+
+            string token = winkGetTokenByAuthToken(AuthCode, true, ConfigurationManager.AppSettings["APIClientID"], ConfigurationManager.AppSettings["APIClientSecret"]);
+            if (token != null)
+            {
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+        }
+
+        return false;
+    }
+    public bool validateWinkCredentialsByToken(string Token)
+    {
+        try
+        {
+            if (HttpContext.Current.Session["_wink"] == null)
+                createWink();
+
+            HttpContext.Current.Session["_winkToken"] = Token;
+
+            User user = winkGetUser(true);
+
+            if (user != null)
+                return true;
         }
         catch (Exception ex)
         {
@@ -125,17 +168,17 @@ public class Wink
 #region token
     private string WinkToken
     {
-        get { return winkGetToken(); }
+        get { return HttpContext.Current.Session["_winkToken"] == null ? winkGetTokenByUsername() : (string)HttpContext.Current.Session["_winkToken"]; }
         set { HttpContext.Current.Session["_winkToken"] = value; }
     }
 
-    private string winkGetToken(string Username = null, string Password = null, bool forceRefresh = false,  string forceClientID = null, string forceClientSecret = null)
+    private string winkGetTokenByUsername(string Username = null, string Password = null, bool forceRefresh = false,  string forceClientID = null, string forceClientSecret = null)
     {
         try
         {
             string token = string.Empty;
 
-            if (forceRefresh || HttpContext.Current.Session["_winkToken"] == null)
+            if (forceRefresh || HttpContext.Current == null || (HttpContext.Current != null && HttpContext.Current.Session["_winkToken"] == null))
             {
                 string winkUsername = Username == null ? winkUser.email : Username;
                 string winkPassword = Password == null ? Common.Decrypt(winkUser.password) : Password;
@@ -144,6 +187,40 @@ public class Wink
 
                 string oAuthURL = ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkOAuthURL"];
                 string sendstring = "{\"client_id\":\"" + winkClientID + "\",\"client_secret\":\"" + winkClientSecret + "\",\"username\":\"" + winkUsername + "\",\"password\":\"" + winkPassword + "\",\"grant_type\":\"password\"}";
+
+                JObject jsonResponse = winkCallAPI(oAuthURL, "POST", sendstring, false);
+
+                token = jsonResponse["access_token"].ToString();
+
+                HttpContext.Current.Session["_winkToken"] = token;
+
+                winkGetUser(true);
+            }
+            else
+                token = HttpContext.Current.Session["_winkToken"].ToString();
+
+
+            return token;
+        }
+        catch
+        {
+        }
+
+        return null;
+    }
+    private string winkGetTokenByAuthToken(string AuthToken, bool forceRefresh = false, string forceClientID = null, string forceClientSecret = null)
+    {
+        try
+        {
+            string token = string.Empty;
+
+            if (forceRefresh || HttpContext.Current == null || (HttpContext.Current != null && HttpContext.Current.Session["_winkToken"] == null))
+            {
+                string winkClientID = forceClientID == null ? ConfigurationManager.AppSettings["APIClientID"] : forceClientID;
+                string winkClientSecret = forceClientSecret == null ? ConfigurationManager.AppSettings["APIClientSecret"] : forceClientSecret;
+
+                string oAuthURL = ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkOAuthURL"];
+                string sendstring = "{\"client_id\":\"" + winkClientID + "\",\"client_secret\":\"" + winkClientSecret + "\",\"grant_type\":\" authorization_code\",\"code\":\"" + AuthToken + "\"}";
 
                 JObject jsonResponse = winkCallAPI(oAuthURL, "POST", sendstring, false);
 
@@ -199,39 +276,44 @@ public class Wink
 
                 JObject jsonResponse = winkCallAPI(URL);
 
-                user.userID = jsonResponse["data"]["user_id"].ToString();
-                user.first_name = jsonResponse["data"]["first_name"].ToString();
-                user.last_name = jsonResponse["data"]["last_name"].ToString();
-                user.email = jsonResponse["data"]["email"].ToString();
-
-                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
+                if (jsonResponse != null)
                 {
-                    connection.Open();
+                    user.userID = jsonResponse["data"]["user_id"].ToString();
+                    user.first_name = jsonResponse["data"]["first_name"].ToString();
+                    user.last_name = jsonResponse["data"]["last_name"].ToString();
+                    user.email = jsonResponse["data"]["email"].ToString();
 
-                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
                     {
-                        command.CommandText = "INSERT OR REPLACE INTO Users (UserID, Email, Last_Login) VALUES (@UserID,@Email,@Last_Login);";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", user.userID));
-                        command.Parameters.Add(new SQLiteParameter("@Email", user.email));
-                        command.Parameters.Add(new SQLiteParameter("@Last_Login", DateTime.Now));
-                        command.ExecuteNonQuery();
+                        connection.Open();
 
-                        //LEGACY CORRECTIONS
-                        command.CommandText = "UPDATE Devices SET UserID=@UserID WHERE UserID='single'";
-                        command.ExecuteNonQuery();
+                        using (SQLiteCommand command = new SQLiteCommand(connection))
+                        {
+                            command.CommandText = "INSERT OR REPLACE INTO Users (UserID, Email, Last_Login) VALUES (@UserID,@Email,@Last_Login);";
+                            command.Parameters.Add(new SQLiteParameter("@UserID", user.userID));
+                            command.Parameters.Add(new SQLiteParameter("@Email", user.email));
+                            command.Parameters.Add(new SQLiteParameter("@Last_Login", DateTime.Now));
+                            command.ExecuteNonQuery();
 
-                        command.CommandText = "UPDATE Groups SET UserID=@UserID WHERE UserID='single'";
-                        command.ExecuteNonQuery();
+                            //LEGACY CORRECTIONS
+                            command.CommandText = "UPDATE Devices SET UserID=@UserID WHERE UserID='single'";
+                            command.ExecuteNonQuery();
 
-                        command.CommandText = "UPDATE Robots SET UserID=@UserID WHERE UserID='single'";
-                        command.ExecuteNonQuery();
+                            command.CommandText = "UPDATE Groups SET UserID=@UserID WHERE UserID='single'";
+                            command.ExecuteNonQuery();
 
-                        command.CommandText = "UPDATE Shortcuts SET UserID=@UserID WHERE UserID='single'";
-                        command.ExecuteNonQuery();
+                            command.CommandText = "UPDATE Robots SET UserID=@UserID WHERE UserID='single'";
+                            command.ExecuteNonQuery();
+
+                            command.CommandText = "UPDATE Shortcuts SET UserID=@UserID WHERE UserID='single'";
+                            command.ExecuteNonQuery();
+                        }
                     }
-                }
 
-                HttpContext.Current.Session["_winkUser"] = user;
+                    HttpContext.Current.Session["_winkUser"] = user;
+                }
+                else
+                    return null;
             }
             else
                 user = (User)HttpContext.Current.Session["_winkUser"];

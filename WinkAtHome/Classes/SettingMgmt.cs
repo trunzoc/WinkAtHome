@@ -66,7 +66,7 @@ namespace WinkAtHome
                         //LEGACY CORRECTIONS
                         using (SQLiteCommand command = new SQLiteCommand(connection))
                         {
-                            command.CommandText = "DELETE FROM Settings WHERE Name='winkPassword' or Name='winkUsername'";
+                            command.CommandText = "DELETE FROM Settings WHERE Name='winkPassword' or Name='winkUsername' or Name='winkClientID' or Name='winkClientSecret'";
                             command.ExecuteNonQuery();
 
                             if (Wink.myWink.winkUser != null)
