@@ -19,7 +19,7 @@ _UpgradeReport_Files/
 bin/
 obj/
 TestResults/
-PublishProfiles/
+Properties/PublishProfiles/
 # Web publish log #
 ###################
 *.Publish.xml
