@@ -10,6 +10,9 @@
 *.suo
 # Include dlls if they’re in the NuGet packages directory
 !/packages/*/lib/*.dll
+# TRANSFORMS #
+##############
+web.*.config
 # VS Upgrade stuff #
 ####################
 UpgradeLog.XML
@@ -23,6 +26,8 @@ Properties/PublishProfiles/
 # Web publish log #
 ###################
 *.Publish.xml
+*.pubxml
+*.pubxml.user
 # Resharper #
 #############
 /_ReSharper.*
