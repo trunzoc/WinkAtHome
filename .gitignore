@@ -19,6 +19,7 @@ _UpgradeReport_Files/
 bin/
 obj/
 TestResults/
+PublishProfiles/
 # Web publish log #
 ###################
 *.Publish.xml
@@ -48,4 +49,3 @@ TestResults/
 ehthumbs.db
 Icon?
 Thumbs.db
-/WinkAtHome/DLLs
