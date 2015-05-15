@@ -113,7 +113,9 @@ namespace WinkAtHome.Controls
                     DataList dlProperties = (DataList)e.Item.FindControl("dlProperties");
                     if (dlProperties != null)
                     {
-                        dlProperties.DataSource = properties;
+                        var displayprops = properties.Where(p => p.Value.ToLower() != "schedules only");
+
+                        dlProperties.DataSource = displayprops;
                         dlProperties.DataBind();
                     }
 
@@ -132,11 +134,13 @@ namespace WinkAtHome.Controls
 
 
                     //Set Last/Next Trigger Time
-                    TextBox tbName = (TextBox)e.Item.FindControl("tbName");
-                    string tooltip = "Last Triggered: " + (robot.last_fired.ToString().Contains("1/1/1970") ? "Never" : robot.last_fired.ToString());
+                    string tooltip = "Last Triggered: " + robot.last_fired;
                     if (robot.isschedule)
-                        tooltip += Environment.NewLine + "Next Scheduled Run: " + (robot.next_run.ToString().Contains("1/1/1970") ? "Never" : robot.next_run.ToString());
+                    {
+                        tooltip += Environment.NewLine + "Next Scheduled Run: " + robot.next_run;
+                    }
 
+                    TextBox tbName = (TextBox)e.Item.FindControl("tbName");
                     tbName.ToolTip = tooltip;
 
                     //Resize for long names
@@ -145,17 +149,21 @@ namespace WinkAtHome.Controls
                     tbName.Rows = rowsize;
 
                     //Set Alert icon
-                    string alertTimeout = SettingMgmt.getSetting("Robot-Alert-Minutes-Since-Last-Trigger");
-                    Int32 timeout = 60;
-                    Int32.TryParse(alertTimeout, out timeout);
-
-                    DateTime lastTrigger = Convert.ToDateTime(robot.last_fired);
-                    DateTime dateAlert = DateTime.Now.AddMinutes(timeout * -1);
-
-                    if (lastTrigger > dateAlert)
+                    DateTime lastalert = DateTime.MinValue;
+                    if (DateTime.TryParse(robot.last_fired, out lastalert))
                     {
-                        Image imgAlert = (Image)e.Item.FindControl("imgAlert");
-                        imgAlert.Visible = true;
+                        string alertTimeout = SettingMgmt.getSetting("Robot-Alert-Minutes-Since-Last-Trigger");
+                        Int32 timeout = 60;
+                        Int32.TryParse(alertTimeout, out timeout);
+
+                        DateTime lastTrigger = lastalert;
+                        DateTime dateAlert = DateTime.Now.AddMinutes(timeout * -1);
+
+                        if (lastTrigger > dateAlert)
+                        {
+                            Image imgAlert = (Image)e.Item.FindControl("imgAlert");
+                            imgAlert.Visible = true;
+                        }
                     }
                 }
             }

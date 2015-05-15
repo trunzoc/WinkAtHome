@@ -16,28 +16,34 @@ namespace WinkAtHome
             try
             {
                 Common.prepareDatabase();
+
                 if (!IsPostBack)
                 {
+                    pnlLocalLogin.Visible = Common.isLocalHost;
+                    pnlWinkLogin.Visible = !Common.isLocalHost;
+                    btnLogin.CommandArgument = Common.isLocalHost ? "local" : "wink";
+
                     if (ConfigurationManager.AppSettings["Maintenance"].ToLower() == "true")
                     {
                         btnLogin.Enabled = false;
                         btnLogin.Text = "Closed for Miantenance";
                         return;
                     }
-                    
+
                     Wink wink = Wink.myWink;
 
-                    if (Request.QueryString["code"] != null)
+                    if (Session["_winkToken"] == null || Request.QueryString["code"] != null)
                     {
-                        string tempToken = Request.QueryString["code"].ToString();
-                        if (wink.validateWinkCredentialsByAuthCode(tempToken))
+                        if (Request.QueryString["code"] != null)
                         {
-                            Response.Redirect("~/Default.aspx", false);
+                            string tempToken = Request.QueryString["code"].ToString();
+                            if (wink.validateWinkCredentialsByAuthCode(tempToken))
+                            {
+                                Response.Redirect("~/Default.aspx", false);
+                                return;
+                            }
                         }
-                    }
-                    else if (Session["_winkToken"] == null)
-                    {
-                        if (Request.Cookies["token"] != null)
+                        else if (Request.Cookies["token"] != null)
                         {
                             HttpCookie aCookie = Request.Cookies["token"];
                             if (aCookie != null)
@@ -53,18 +59,16 @@ namespace WinkAtHome
                                         Session["_winkToken"] = strDecryptedToken;
 
                                         Response.Redirect("~/Default.aspx", false);
+                                        return;
                                     }
                                 }
                                 catch { }
                             }
                         }
-                        else
+                        else if (!Common.isLocalHost)
                         {
-                            if (!Common.isLocalHost)
-                            {
-                                string url = "https://winkapi.quirky.com/oauth2/authorize?client_id=" + ConfigurationManager.AppSettings["APIClientID"];
-                                Response.Redirect(url, false);
-                            }
+                            string loginURL = "https://winkapi.quirky.com/oauth2/authorize?client_id=" + ConfigurationManager.AppSettings["APIClientID"] + "&redirect_uri=" + ConfigurationManager.AppSettings["LoginRedirect"];
+                            Response.Redirect(loginURL, false);
                         }
                     }
                 }
@@ -79,24 +83,32 @@ namespace WinkAtHome
         {
             try
             {
-                bool validated = Wink.myWink.validateWinkCredentialsByUsername(tbUsername.Text, tbPassword.Text);
+                Button btn = (Button)sender;
 
-                if (validated)
+                Wink wink = Wink.myWink;
+
+                if (btn.CommandArgument == "local")
                 {
-                    Session["loggedin"] = Common.Encrypt(Common.Encrypt(tbUsername.Text) + "|||" + Common.Encrypt(tbPassword.Text));
-                    Session["username"] = Common.Encrypt(tbUsername.Text);
-                    Session["password"] = Common.Encrypt(tbPassword.Text);
+                    bool validated = wink.validateWinkCredentialsByUsername(tbUsername.Text, tbPassword.Text);
 
-                    HttpCookie aCookie = new HttpCookie("token");
-                    aCookie.Value = Session["loggedin"].ToString();
-                    if (cbRemember.Checked)
-                        aCookie.Expires = DateTime.Now.AddMonths(1);
-                    else
-                        aCookie.Expires = DateTime.Now.AddMinutes(10);
+                    if (validated)
+                    {
+                        HttpCookie aCookie = new HttpCookie("token");
+                        aCookie.Value = Common.Encrypt(Session["_winkToken"].ToString());
+                        if (cbRemember.Checked)
+                            aCookie.Expires = DateTime.Now.AddMonths(1);
+                        else
+                            aCookie.Expires = DateTime.Now.AddMinutes(10);
 
-                    Response.Cookies.Add(aCookie);
+                        Response.Cookies.Add(aCookie);
 
-                    Response.Redirect("~/Default.aspx");
+                        Response.Redirect("~/Default.aspx", false);
+                    }
+                }
+                else if (btn.CommandArgument=="wink")
+                {
+                    string loginURL = "https://winkapi.quirky.com/oauth2/authorize?client_id=" + ConfigurationManager.AppSettings["APIClientID"] + "&redirect_uri=" + ConfigurationManager.AppSettings["LoginRedirect"];
+                    Response.Redirect(loginURL, false);
                 }
             }
             catch (Exception ex)

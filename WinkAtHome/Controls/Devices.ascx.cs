@@ -329,7 +329,11 @@ namespace WinkAtHome.Controls
                 else if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
                 {
                     Wink.Device.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
-                    Double converted = Convert.ToDouble(stat.current_status) * 100;
+                    
+                    Double converted = 0;
+                    Double.TryParse(stat.current_status, out converted);
+                    converted = converted * 100; 
+                    
                     state = converted > 0 ? "true" : "false";
                     hfMainCommand.Value = stat.name;
                     hfCurrentStatus.Value = state;

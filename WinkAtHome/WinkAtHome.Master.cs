@@ -25,7 +25,7 @@ namespace WinkAtHome
             {
                 Common.prepareDatabase();
 
-                if (Session["loggedin"] == null)
+                if (Session["_winkToken"] == null)
                 {
                     Response.Redirect("~/Login.aspx");
                 }
@@ -147,9 +147,9 @@ namespace WinkAtHome
         {
             try
             {
-                if (Request.Cookies["login"] != null)
+                if (Request.Cookies["token"] != null)
                 {
-                    HttpCookie aCookie = new HttpCookie("login");
+                    HttpCookie aCookie = new HttpCookie("token");
                     aCookie.Expires = DateTime.Now.AddDays(-1d);
                     Response.Cookies.Add(aCookie);
                 }

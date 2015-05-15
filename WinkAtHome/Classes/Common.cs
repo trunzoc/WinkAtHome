@@ -104,7 +104,7 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                return new DateTime();
+                return DateTime.MinValue;
                 throw; //EventLog.WriteEntry("WinkAtHome.Common.FromUnixTime", ex.Message, EventLogEntryType.Error);
             }
         }

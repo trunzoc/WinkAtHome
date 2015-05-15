@@ -16,7 +16,7 @@ namespace WinkAtHome
             {
                 Common.prepareDatabase();
 
-                if (Session["loggedin"] == null)
+                if (Session["_winkToken"] == null)
                     Response.Redirect("~/login.aspx", false);
                 else
                 {

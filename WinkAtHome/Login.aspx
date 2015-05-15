@@ -45,39 +45,58 @@
                     </script>
                 </asp:TableCell>
                 <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top">
-                    <asp:Table ID="Table1" runat="server">
+                    <asp:Table ID="Table1" runat="server" Width="100%">
                         <asp:TableHeaderRow>
-                            <asp:TableHeaderCell ColumnSpan="2" BackColor="#22b9ec" HorizontalAlign="Left" style="padding:10px;">
+                            <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Left" style="padding:10px;">
                                 <asp:Label ID="lblHeader" runat="server" Text="LOGIN" ForeColor="White" />
                             </asp:TableHeaderCell>
                         </asp:TableHeaderRow>
                         <asp:TableRow>
                             <asp:TableCell>
-                                <asp:Label ID="Label1" runat="server" Text="Username:" />
-                            </asp:TableCell>
-                            <asp:TableCell>
-                                <asp:TextBox ID="tbUsername" runat="server" Width="200" />
+                                <asp:Panel ID="pnlLocalLogin" runat="server">
+                                    <asp:Table ID="Table3" runat="server">
+                                        <asp:TableRow>
+                                            <asp:TableCell>
+                                                <asp:Label ID="Label1" runat="server" Text="Username:" />
+                                            </asp:TableCell>
+                                            <asp:TableCell>
+                                                <asp:TextBox ID="tbUsername" runat="server" Width="200" />
+                                            </asp:TableCell>
+                                        </asp:TableRow>
+                                        <asp:TableRow>
+                                            <asp:TableCell>
+                                                <asp:Label ID="Label2" runat="server" Text="Password:" />
+                                            </asp:TableCell>
+                                            <asp:TableCell>
+                                                <asp:TextBox ID="tbPassword" runat="server" TextMode="Password" Width="200" />
+                                            </asp:TableCell>
+                                        </asp:TableRow>
+                                        <asp:TableRow>
+                                            <asp:TableCell>
+                                                <asp:Label ID="Label3" runat="server" Text="Remember Me:" />
+                                            </asp:TableCell>
+                                            <asp:TableCell>
+                                                <asp:CheckBox ID="cbRemember" runat="server" />
+                                            </asp:TableCell>
+                                        </asp:TableRow>
+                                    </asp:Table>
+                                </asp:Panel>
+                                
+                                <asp:Panel ID="pnlWinkLogin" runat="server">
+                                    <asp:Table ID="Table4" runat="server">
+                                        <asp:TableRow>
+                                            <asp:TableCell>
+                                                <asp:Label ID="Label4" runat="server" Text="This site is secured by Wink.<br />Press the login button to be redirected to their site for validation.<br />When successfully validated, Wink will return you to Wink@Home to continue." />
+                                            </asp:TableCell>
+                                        </asp:TableRow>
+                                    </asp:Table>
+                                </asp:Panel>
+
                             </asp:TableCell>
                         </asp:TableRow>
                         <asp:TableRow>
                             <asp:TableCell>
-                                <asp:Label ID="Label2" runat="server" Text="Password:" />
-                            </asp:TableCell>
-                            <asp:TableCell>
-                                <asp:TextBox ID="tbPassword" runat="server" TextMode="Password" Width="200" />
-                            </asp:TableCell>
-                        </asp:TableRow>
-                        <asp:TableRow>
-                            <asp:TableCell>
-                                <asp:Label ID="Label3" runat="server" Text="Remember Me:" />
-                            </asp:TableCell>
-                            <asp:TableCell>
-                                <asp:CheckBox ID="cbRemember" runat="server" />
-                            </asp:TableCell>
-                        </asp:TableRow>
-                        <asp:TableRow>
-                            <asp:TableCell ColumnSpan="2">
-                                <asp:Button ID="btnLogin" runat="server" Text="Log In" OnClick="btnLogin_Click" />
+                                <asp:Button ID="btnLogin" runat="server" Text="Log In" OnClick="btnLogin_Click" CommandArgument="local" />
                             </asp:TableCell>
                         </asp:TableRow>
                     </asp:Table>

@@ -79,9 +79,9 @@
                 </asp:TableCell>
             </asp:TableRow>
             <asp:TableRow ID="rowData" BackColor="#eeeeee">
-                <asp:TableCell style="padding:10px;">
+                <asp:TableCell style="padding:10px;" >
                     <asp:DataList ID="dlRobots" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" OnItemDataBound="dlRobots_ItemDataBound" Width="100%">
-                        <ItemStyle Height="150" HorizontalAlign="Center" VerticalAlign="Top" />
+                        <ItemStyle Width="150" Height="150px" HorizontalAlign="Center" VerticalAlign="Top" />
                         <ItemTemplate>
 
                             <asp:HiddenField ID="hfRobotID" runat="server" Value='<%# ((Wink.Robot)((IDataItemContainer)Container).DataItem).id %>' />

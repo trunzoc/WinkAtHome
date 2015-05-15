@@ -73,7 +73,7 @@
             <asp:TableRow ID="rowData" BackColor="#eeeeee">
                 <asp:TableCell style="padding:10px;">
                     <asp:DataList ID="dlGroups" runat="server" RepeatColumns='<%# Convert.ToInt32(tbColumns.Text) %>' RepeatDirection="Horizontal" OnItemDataBound="dlGroups_ItemDataBound" Width="100%">
-                        <ItemStyle Width="200" Height="100px" HorizontalAlign="Center" />
+                        <ItemStyle Width="200" Height="100px" HorizontalAlign="Center" VerticalAlign="Top" />
                         <ItemTemplate>
 
                             <asp:HiddenField ID="hfMainCommand" runat="server" />
