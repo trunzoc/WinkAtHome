@@ -259,7 +259,7 @@ namespace WinkAtHome.Controls
                 }
 
                 //SETUP DEVICES DISPLAY
-                if (SensorsOnly) // Bind Sensors for SensorOnly view
+                if (SensorsOnly || device.issensor) // Bind Sensors for SensorOnly view
                 {
                     displaySensors(e.Item);
                 }

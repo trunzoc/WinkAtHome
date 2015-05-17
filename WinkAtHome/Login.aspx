@@ -102,6 +102,11 @@
                     </asp:Table>
                 </asp:TableCell>
             </asp:TableRow>
+            <asp:TableRow ID="rowFooter">
+                <asp:TableCell ColumnSpan="2" HorizontalAlign="Center">
+                    <asp:Label ID="Label8" runat="server" Font-Size="X-Small" Text="© 2015 Craig Trunzo. All rights reserved.  All images are the property of their respective owners." />
+                </asp:TableCell>
+            </asp:TableRow>
         </asp:Table>
     </div>
     </form>

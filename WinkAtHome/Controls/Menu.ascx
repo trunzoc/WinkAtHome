@@ -21,12 +21,12 @@
 
 <asp:Table ID="Table1" runat="server" Width="100%" CellPadding="5" CellSpacing="0">
     <asp:TableHeaderRow BackColor="#22b9ec">
-        <asp:TableHeaderCell HorizontalAlign="Left" Height="30">
+        <asp:TableHeaderCell HorizontalAlign="Left" Height="31">
             <asp:Label ID="Label1" runat="server" Text="&nbsp;WINK ITEMS" ForeColor="White" />
         </asp:TableHeaderCell>
     </asp:TableHeaderRow>
     <asp:TableRow>
-        <asp:TableCell>
+        <asp:TableCell Height="31">
             <telerik:RadMenu ID="RadMenu1" runat="server" Flow="Vertical" OnItemClick="RadMenu1_ItemClick" >
                 <Items>
                     <telerik:RadMenuItem Text="Devices" Value="devices">

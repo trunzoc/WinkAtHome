@@ -91,15 +91,32 @@ namespace WinkAtHome
             return newer;
         }
 
-        public static DateTime FromUnixTime(string unixTime)
+        public static DateTime FromUnixTime(string unixTime, bool ConvertToLocalTimezone = false)
         {
             try
             {
                 Double longTime;
                 bool converted = Double.TryParse(unixTime, out longTime);
-                var epoch = new DateTime(1970, 1, 1);
+                DateTime epoch = new DateTime(1970, 1, 1);
                 epoch = epoch.AddSeconds(longTime);
-                epoch = epoch.ToLocalTime();
+
+                if (ConvertToLocalTimezone)
+                {
+                    string strUsertimezone = SettingMgmt.getSetting("TimeZone-Adjuster");
+                    string strWinktimezone = ConfigurationManager.AppSettings["WinkServerTimeZoneAdjustment"];
+                    Int32 usertimezone = 0;
+                    Int32 winktimezone = 0;
+                    Int32.TryParse(strUsertimezone, out usertimezone);
+                    Int32.TryParse(strWinktimezone, out winktimezone);
+
+                    DateTime utcTime = epoch.ToUniversalTime();
+                    epoch = utcTime.AddHours(usertimezone-winktimezone);
+                    if (DateTime.Now.IsDaylightSavingTime())
+                        epoch = epoch.AddHours(1);
+                }
+                else
+                    epoch = epoch.ToLocalTime();
+
                 return epoch;
             }
             catch (Exception ex)
@@ -110,22 +127,17 @@ namespace WinkAtHome
         }
         public static DateTime getLocalTime()
         {
-            DateTime dtnow = DateTime.Now;
-            int timezone = -5;
+            Int32 timezone = 0;
 
-            if (HttpContext.Current.Session["timezone"] == null)
-            {
-                Int32.TryParse(SettingMgmt.getSetting("TimeZone-Adjuster"), out timezone);
-                HttpContext.Current.Session["timezone"] = timezone;
-            }
-            else
-                timezone = (Int32)HttpContext.Current.Session["timezone"];
+            string strtimezone = SettingMgmt.getSetting("TimeZone-Adjuster");
+            Int32.TryParse(strtimezone, out timezone);
 
-            dtnow.AddHours(timezone);
+            DateTime dtnow = DateTime.Now.ToUniversalTime().AddHours(timezone);
+            if (DateTime.Now.IsDaylightSavingTime())
+                dtnow = dtnow.AddHours(1);
 
             return dtnow;
         }
-
         public static string Encrypt(string toEncrypt)
         {
             try

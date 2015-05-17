@@ -25,7 +25,6 @@ namespace WinkAtHome
                 if (!IsPostBack)
                 {
                     rowInfo.Visible = Common.isLocalHost;
-                    lblVersion.Text = Common.currentVersion;
                     tbVersion.Text = Common.currentVersion;
                     tbDBPath.Text = Common.dbPath;
 

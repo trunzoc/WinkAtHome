@@ -137,7 +137,7 @@
                                     <asp:TableCell HorizontalAlign="Center" VerticalAlign="Top" Width="30">
                                         <asp:Table ID="Table2" runat="server" CellPadding="0" CellSpacing="0">
                                             <asp:TableRow Height="40" BackColor="#22b9ec">
-                                                <asp:TableCell Width="30">
+                                                <asp:TableCell Width="30" Height="41">
                                                     <asp:ImageButton ID="ibCollapse" runat="server" ImageUrl="~/Images/left.png" Height="25" OnClick="ibExpand_Click" CommandArgument="hide" />
                                                 </asp:TableCell>
                                             </asp:TableRow>
@@ -199,6 +199,11 @@
                        </asp:TableCell>
                         <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top" BorderColor="#22b9ec">
                                     <asp:ContentPlaceHolder ID="cphMain" runat="server" />
+                        </asp:TableCell>
+                    </asp:TableRow>
+                    <asp:TableRow ID="rowFooter">
+                        <asp:TableCell ColumnSpan="2" HorizontalAlign="Center">
+                            <asp:Label ID="Label8" runat="server" Font-Size="X-Small" Text="© 2015 Craig Trunzo. All rights reserved.  All images are the property of their respective owners." />
                         </asp:TableCell>
                     </asp:TableRow>
                     <asp:TableRow ID="rowBottomAds">
