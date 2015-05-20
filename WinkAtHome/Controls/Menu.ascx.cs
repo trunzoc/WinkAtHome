@@ -27,7 +27,7 @@ namespace WinkAtHome.Controls
                             if (byType != null)
                             {
                                 byType.Items.Clear();
-                                List<string> deviceTypes = Wink.Device.getDeviceTypes(true);
+                                List<string> deviceTypes = new WinkHelper.DeviceHelper().getDeviceTypes(true);
 
                                 if (deviceTypes != null)
                                 {
@@ -42,6 +42,13 @@ namespace WinkAtHome.Controls
                                         byType.Items.Add(deviceitem);
                                     }
                                 }
+                            }
+                        }
+                        else if (item.Value.ToLower().Contains("pubnub"))
+                        {
+                            if (SettingMgmt.hasPubNub)
+                            {
+                                item.Visible = true;
                             }
                         }
                     }

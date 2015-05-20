@@ -28,7 +28,7 @@
         </asp:TableRow>
         <asp:TableRow ID="rowPubNub">
             <asp:TableCell>
-                <ucP:ucPubNub ID="ucPubNub" runat="server" />
+                <ucP:ucPubNub ID="ucPubNub" runat="server" DisplayHeight="500" />
             </asp:TableCell>
         </asp:TableRow>
     </asp:Table>

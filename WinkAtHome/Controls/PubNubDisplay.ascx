@@ -14,29 +14,47 @@
                         <asp:ImageButton ID="ibSettings" runat="server" ImageUrl="~/Images/wrench.png" Height="30" ToolTip="Panel Settings" OnClick="ibSettings_Click" />
                         <asp:button id="btnShowSettings" runat="server" style="display:none;" />
                         <ajaxtoolkit:ModalPopupExtender ID="mpeSettings" runat="server" PopupControlID="pnlSettings" 
-                            TargetControlID="btnShowSettings" BackgroundCssClass="modalBackground" Y="100">
+                            TargetControlID="btnShowSettings" CancelControlID="imgInfoClose" BackgroundCssClass="modalBackground" Y="50">
                         </ajaxtoolkit:ModalPopupExtender>
                         <asp:Panel ID="pnlSettings" runat="server" BorderWidth="1"  style="display:none">
-                            <table cellpadding="5" cellspacing="5" style="background-color:#eeeeee;">
-                                <tr>
-                                    <td colspan="2" style="background-color:#22b9ec;">
-                                        <asp:Label ID="Label5" runat="server" Text="Panel Settings " ForeColor="White" Font-Bold="true"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <asp:Label ID="Label2" runat="server" Text="Show Panel: "  Font-Size="Small" />
-                                    </td>
-                                    <td>
+                            <asp:Table ID="Table9" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee" BorderWidth="1" Width="300">
+                                <asp:TableHeaderRow BackColor="#22b9ec">
+                                    <asp:TableCell ColumnSpan="2">
+                                        <asp:Table ID="Table10" runat="server" CellPadding="0" CellSpacing="0" Width="100%">
+                                            <asp:TableRow>
+                                                <asp:TableHeaderCell HorizontalAlign="Center">
+                                                    <asp:Label ID="Label7" runat="server" Text="Section Settings" ForeColor="White" />
+                                                </asp:TableHeaderCell>
+                                                <asp:TableHeaderCell Width="20" HorizontalAlign="Right">
+                                                    <asp:Image ID="imgInfoClose" runat="server" ImageUrl="~/Images/close.png" Width="20" />
+                                                </asp:TableHeaderCell>
+                                                <asp:TableCell Width="10"></asp:TableCell>
+                                            </asp:TableRow>
+                                        </asp:Table>
+                                    </asp:TableCell>
+                                </asp:TableHeaderRow>
+                                <asp:TableRow>
+                                    <asp:TableCell>
+                                        <asp:Label ID="Label1" runat="server" Text="Show Panel: "  Font-Size="Small" />
+                                    </asp:TableCell>
+                                    <asp:TableCell>
                                         <asp:CheckBox ID="cbShow" runat="server" Checked="true" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        <asp:Button ID="btnSettingsClose" runat="server" Text="Close" OnClick="btnSettingsClose_Click"  />
-                                    </td>
-                                </tr>
-                            </table>
+                                    </asp:TableCell>
+                                </asp:TableRow>
+                                <asp:TableRow>
+                                    <asp:TableCell>
+                                        <asp:Label ID="Label2" runat="server" Text="Log Length: "  Font-Size="Small" />
+                                    </asp:TableCell>
+                                    <asp:TableCell>
+                                        <asp:TextBox ID="tbLogLength" runat="server" />
+                                    </asp:TableCell>
+                                </asp:TableRow>
+                                <asp:TableRow BackColor="#22b9ec">
+                                    <asp:TableHeaderCell HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
+                                        <asp:LinkButton ID="ibSettingsClose" runat="server" Text="Save & Close" ForeColor="White" style="text-decoration: none;" OnClick="ibSettingsClose_Click" />
+                                    </asp:TableHeaderCell>
+                                </asp:TableRow>
+                            </asp:Table>
                         </asp:Panel>
                     </asp:TableCell>
                 </asp:TableHeaderRow>
@@ -48,12 +66,15 @@
             <asp:UpdatePanel ID="UpdatePanelPubNub" runat="server" ChildrenAsTriggers="false"
                 UpdateMode="Conditional">
                 <Triggers>
-                    <asp:AsyncPostBackTrigger ControlID="txtMessage" />
+                    <asp:AsyncPostBackTrigger ControlID="tmrCheckChanges" />
                 </Triggers>
                 <ContentTemplate>
+                    
+                    <asp:Timer ID="tmrCheckChanges" runat="server" Interval="5000" OnTick="tmrCheckChanges_Tick" />
+                    
                     <fieldset>
-                        <asp:TextBox ID="txtMessage" runat="server" ReadOnly="true" BackColor="Black" ForeColor="#22b9ec"
-                            Height="500px" TextMode="MultiLine" Wrap="true" AutoPostBack="false" Width="100%"></asp:TextBox>
+                        <asp:TextBox ID="txtMessage" runat="server" ReadOnly="true" BackColor="Black" ForeColor="#22b9ec" Font-Size="Smaller"
+                            Height="500" TextMode="MultiLine" Wrap="true" AutoPostBack="false" Width="100%" />
                     </fieldset>
                 </ContentTemplate>
             </asp:UpdatePanel>

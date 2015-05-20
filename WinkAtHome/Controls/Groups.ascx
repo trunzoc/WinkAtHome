@@ -25,15 +25,25 @@
                                 <asp:ImageButton ID="ibSettings" runat="server" ImageUrl="~/Images/wrench.png" Height="30" ToolTip="Panel Settings" OnClick="ibSettings_Click" />
                                 <asp:button id="btnShowSettings" runat="server" style="display:none;" />
                                 <ajaxtoolkit:ModalPopupExtender ID="mpeSettings" runat="server" PopupControlID="pnlSettings" 
-                                    TargetControlID="btnShowSettings" BackgroundCssClass="modalBackground" Y="100">
+                                    TargetControlID="btnShowSettings" CancelControlID="imgInfoClose" BackgroundCssClass="modalBackground" Y="50">
                                 </ajaxtoolkit:ModalPopupExtender>
                                 <asp:Panel ID="pnlSettings" runat="server" style="display:none">
-                                    <asp:Table ID="Table9" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee">
-                                        <asp:TableRow>
-                                            <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
-                                                <asp:Label ID="Label3" runat="server" Text="Section Settings " ForeColor="White" Font-Bold="true"/>
-                                            </asp:TableHeaderCell>
-                                        </asp:TableRow>
+                                    <asp:Table ID="Table9" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee" BorderWidth="1" Width="300">
+                                        <asp:TableHeaderRow BackColor="#22b9ec">
+                                            <asp:TableCell ColumnSpan="2">
+                                                <asp:Table ID="Table10" runat="server" CellPadding="0" CellSpacing="0" Width="100%">
+                                                    <asp:TableRow>
+                                                        <asp:TableHeaderCell HorizontalAlign="Center">
+                                                            <asp:Label ID="Label2" runat="server" Text="Section Settings" ForeColor="White" />
+                                                        </asp:TableHeaderCell>
+                                                        <asp:TableHeaderCell Width="20" HorizontalAlign="Right">
+                                                            <asp:Image ID="imgInfoClose" runat="server" ImageUrl="~/Images/close.png" Width="20" />
+                                                        </asp:TableHeaderCell>
+                                                        <asp:TableCell Width="10"></asp:TableCell>
+                                                    </asp:TableRow>
+                                                </asp:Table>
+                                            </asp:TableCell>
+                                        </asp:TableHeaderRow>
                                         <asp:TableRow>
                                             <asp:TableCell>
                                                 <asp:Label ID="Label7" runat="server" Text="Show Panel: "  Font-Size="Small" />
@@ -58,8 +68,8 @@
                                                 <asp:TextBox ID="tbColumns" runat="server" Text="5" Width="30px" />
                                             </asp:TableCell>
                                         </asp:TableRow>
-                                        <asp:TableRow>
-                                            <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
+                                        <asp:TableRow BackColor="#22b9ec">
+                                            <asp:TableHeaderCell HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
                                                 <asp:LinkButton ID="ibSettingsClose" runat="server" Text="Save & Close" ForeColor="White" style="text-decoration: none;" OnClick="ibSettingsClose_Click" />
                                             </asp:TableHeaderCell>
                                         </asp:TableRow>
@@ -108,15 +118,30 @@
                                         <asp:Label ID="lblName" runat="server" Text='<%# ((Wink.Group)((IDataItemContainer)Container).DataItem).displayName %>' Font-Size="small" />
                                     </asp:TableCell>
                                     <asp:TableCell VerticalAlign="Top" HorizontalAlign="Right" Width="23" style="padding-right:3px;">
-                                        <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip="Show Group data" OnClick="ibInfo_Click" />
+                                        <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip='<%# "Show Group data for " + ((Wink.Group)((IDataItemContainer)Container).DataItem).id %>' OnClick="ibInfo_Click" />
 
                                         <asp:button id="btnShowInfo" runat="server" style="display:none;" />
 
                                         <ajaxtoolkit:ModalPopupExtender ID="mpeInfo" runat="server" PopupControlID="pnlInfo"
-                                            TargetControlID="btnShowInfo" BackgroundCssClass="modalBackground" Y="100">
+                                            TargetControlID="btnShowInfo" CancelControlID="imgInfoClose" BackgroundCssClass="modalBackground" Y="50">
                                         </ajaxtoolkit:ModalPopupExtender>
                                         <asp:Panel ID="pnlInfo" runat="server" BorderWidth="1"  style="display:none">
-                                            <asp:Table ID="Table6" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee">
+                                            <asp:Table ID="Table6" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee" BorderWidth="1">
+                                                <asp:TableHeaderRow BackColor="#22b9ec">
+                                                    <asp:TableCell ColumnSpan="2">
+                                                        <asp:Table ID="Table7" runat="server" CellPadding="0" CellSpacing="0" Width="100%">
+                                                            <asp:TableRow>
+                                                                <asp:TableHeaderCell HorizontalAlign="Center">
+                                                                    <asp:Label ID="lblHeader" runat="server" Text="Group Information & Settings" ForeColor="White" />
+                                                                </asp:TableHeaderCell>
+                                                                <asp:TableHeaderCell Width="20" HorizontalAlign="Right">
+                                                                    <asp:Image ID="imgInfoClose" runat="server" ImageUrl="~/Images/close.png" Width="20" />
+                                                                </asp:TableHeaderCell>
+                                                                <asp:TableCell Width="10"></asp:TableCell>
+                                                            </asp:TableRow>
+                                                        </asp:Table>
+                                                    </asp:TableCell>
+                                                </asp:TableHeaderRow>
                                                 <asp:TableRow>
                                                     <asp:TableCell ColumnSpan="2">
                                                         <asp:DataList ID="dlProperties" runat="server" RepeatColumns="2" Width="100%" RepeatLayout="Table">
@@ -163,8 +188,8 @@
                                                         <asp:Label ID="lblPositionBad" runat="server" Text="Please enter a whole number between 1 and 1000" ForeColor="Red" Visible="false" />
                                                     </asp:TableCell>
                                                 </asp:TableRow>
-                                                <asp:TableRow>
-                                                    <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
+                                                <asp:TableRow BackColor="#22b9ec">
+                                                    <asp:TableHeaderCell HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
                                                         <asp:LinkButton ID="lbInfoClose" runat="server" Text="Save & Close" ForeColor="White" style="text-decoration: none;" OnClick="btnClose_Click" CommandArgument='<%# ((Wink.Group)((IDataItemContainer)Container).DataItem).id %>' />
                                                     </asp:TableHeaderCell>
                                                 </asp:TableRow>

@@ -19,6 +19,9 @@ namespace WinkAtHome
 
                 if (!IsPostBack)
                 {
+                    if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["EnvironmentName"]))
+                        ibVersion.Text += ConfigurationManager.AppSettings["EnvironmentName"];
+
                     pnlLocalLogin.Visible = Common.isLocalHost;
                     pnlWinkLogin.Visible = !Common.isLocalHost;
                     btnLogin.CommandArgument = Common.isLocalHost ? "local" : "wink";
@@ -30,17 +33,41 @@ namespace WinkAtHome
                         return;
                     }
 
-                    Wink wink = Wink.myWink;
+                    if (Session["_wink"] == null)
+                        Session["_wink"] = new Wink();
+
+                    Wink wink = (Wink)Session["_wink"];
 
                     if (Session["_winkToken"] == null || Request.QueryString["code"] != null)
                     {
-                        if (Request.QueryString["code"] != null)
+                        if (Request.QueryString["code"] != null && Request.QueryString["state"] != null && Session["userID"] != null)
                         {
-                            string tempToken = Request.QueryString["code"].ToString();
-                            if (wink.validateWinkCredentialsByAuthCode(tempToken))
+                            if (Request.QueryString["state"] == Session["userID"].ToString())
                             {
-                                Response.Redirect("~/Default.aspx", false);
-                                return;
+                                string tempToken = Request.QueryString["code"].ToString();
+                                if (new WinkHelper().validateWinkCredentialsByAuthCode(tempToken))
+                                {
+                                    bool remember = false;
+                                    if (Session["remember"] != null)
+                                        Boolean.TryParse(Session["remember"].ToString(), out remember);
+
+                                    HttpCookie aCookie = new HttpCookie("token");
+                                    aCookie.Value = Common.Encrypt(Session["_winkToken"].ToString());
+                                    if (remember)
+                                        aCookie.Expires = DateTime.Now.AddMonths(1);
+                                    else
+                                        aCookie.Expires = DateTime.Now.AddMinutes(10);
+
+                                    Response.Cookies.Add(aCookie);
+                                    new WinkHelper().reloadWink();
+
+                                    Response.Redirect("~/Default.aspx", false);
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                lblMessage.Text = "There was an Error validating.  Please try again" + "<br />Session userID: " + Session["userID"].ToString() + "<br />Winked userID: " + Request.QueryString["state"];
                             }
                         }
                         else if (Request.Cookies["token"] != null)
@@ -54,9 +81,10 @@ namespace WinkAtHome
 
                                 try
                                 {
-                                    if (Wink.myWink.validateWinkCredentialsByToken(strDecryptedToken))
+                                    if (new WinkHelper().validateWinkCredentialsByToken(strDecryptedToken))
                                     {
                                         Session["_winkToken"] = strDecryptedToken;
+                                        new WinkHelper().reloadWink();
 
                                         Response.Redirect("~/Default.aspx", false);
                                         return;
@@ -64,11 +92,6 @@ namespace WinkAtHome
                                 }
                                 catch { }
                             }
-                        }
-                        else if (!Common.isLocalHost)
-                        {
-                            string loginURL = "https://winkapi.quirky.com/oauth2/authorize?client_id=" + ConfigurationManager.AppSettings["APIClientID"] + "&redirect_uri=" + ConfigurationManager.AppSettings["LoginRedirect"];
-                            Response.Redirect(loginURL, false);
                         }
                     }
                 }
@@ -83,13 +106,16 @@ namespace WinkAtHome
         {
             try
             {
+                string strUserID = Guid.NewGuid().ToString();
+                Session["userID"] = strUserID;
+
                 Button btn = (Button)sender;
 
-                Wink wink = Wink.myWink;
+                Wink wink = (Wink)Session["_wink"];
 
                 if (btn.CommandArgument == "local")
                 {
-                    bool validated = wink.validateWinkCredentialsByUsername(tbUsername.Text, tbPassword.Text);
+                    bool validated = new WinkHelper().validateWinkCredentialsByUsername(tbUsername.Text, tbPassword.Text);
 
                     if (validated)
                     {
@@ -102,12 +128,17 @@ namespace WinkAtHome
 
                         Response.Cookies.Add(aCookie);
 
+                        new WinkHelper().reloadWink();
+
                         Response.Redirect("~/Default.aspx", false);
                     }
                 }
                 else if (btn.CommandArgument=="wink")
                 {
-                    string loginURL = "https://winkapi.quirky.com/oauth2/authorize?client_id=" + ConfigurationManager.AppSettings["APIClientID"] + "&redirect_uri=" + ConfigurationManager.AppSettings["LoginRedirect"];
+                    Session["remember"] = cbRemember.Checked;
+
+
+                    string loginURL = "https://winkapi.quirky.com/oauth2/authorize?client_id=" + ConfigurationManager.AppSettings["APIClientID"] + "&redirect_uri=" + ConfigurationManager.AppSettings["LoginRedirect"] + "&state=" + strUserID;
                     Response.Redirect(loginURL, false);
                 }
             }

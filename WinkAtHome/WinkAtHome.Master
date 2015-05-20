@@ -1,6 +1,7 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="WinkAtHome.master.cs" Inherits="WinkAtHome.WinkAtHome" %>
 <%@ Register Src="~/Controls/winkStatus.ascx" TagName="ucWinkStatus" TagPrefix="ucWS" %>
 <%@ Register Src="~/Controls/Menu.ascx" TagName="ucMenu" TagPrefix="ucM" %>
+<%@ Register Src="~/Controls/Footer.ascx" TagName="ucFooter" TagPrefix="ucF" %>
 
 <!DOCTYPE html>
 
@@ -86,41 +87,51 @@
                                     <td align="left" width="30">
                                         <asp:ImageButton ID="ibRefreshSettings" runat="server" ImageUrl="~/Images/wrench.png" Height="30" ToolTip="Refresh Settings" />
                                         <ajaxtoolkit:ModalPopupExtender ID="mpRefreshSettings" runat="server" PopupControlID="pnlRefreshSettings" 
-                                            TargetControlID="ibRefreshSettings" CancelControlID="btnClose" BackgroundCssClass="modalBackground" Y="100">
+                                            TargetControlID="ibRefreshSettings" CancelControlID="imgInfoClose" BackgroundCssClass="modalBackground" Y="50">
                                         </ajaxtoolkit:ModalPopupExtender>
                                         <asp:Panel ID="pnlRefreshSettings" runat="server" BorderWidth="1"  style="display:none">
-                                            <table cellpadding="5" cellspacing="5" style="background-color:#eeeeee;">
-                                                <tr>
-                                                    <td colspan="2" style="background-color:#22b9ec;">
-                                                        <asp:Label ID="Label5" runat="server" Text="Refresh Settings " ForeColor="White" Font-Bold="true"/>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
+                                            <asp:Table ID="Table3" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee" BorderWidth="1" Width="300">
+                                                <asp:TableHeaderRow BackColor="#22b9ec">
+                                                    <asp:TableCell ColumnSpan="2">
+                                                        <asp:Table ID="Table10" runat="server" CellPadding="0" CellSpacing="0" Width="100%">
+                                                            <asp:TableRow>
+                                                                <asp:TableHeaderCell HorizontalAlign="Center">
+                                                                    <asp:Label ID="Label9" runat="server" Text="Refresh Settings" ForeColor="White" />
+                                                                </asp:TableHeaderCell>
+                                                                <asp:TableHeaderCell Width="20" HorizontalAlign="Right">
+                                                                    <asp:Image ID="imgInfoClose" runat="server" ImageUrl="~/Images/close.png" Width="20" />
+                                                                </asp:TableHeaderCell>
+                                                                <asp:TableCell Width="10"></asp:TableCell>
+                                                            </asp:TableRow>
+                                                        </asp:Table>
+                                                    </asp:TableCell>
+                                                </asp:TableHeaderRow>
+                                                <asp:TableRow>
+                                                    <asp:TableCell>
                                                         <asp:Label ID="Label2" runat="server" Text="Auto-Refresh: "  Font-Size="Small" />
-                                                    </td>
-                                                    <td>
-                                                        <asp:RadioButtonList ID="rblenabled" runat="server"  Font-Size="Small" RepeatDirection="Horizontal" OnSelectedIndexChanged="rblenabled_SelectedIndexChanged" AutoPostBack="true">
+                                                    </asp:TableCell>
+                                                    <asp:TableCell>
+                                                        <asp:RadioButtonList ID="rblenabled" runat="server"  Font-Size="Small" RepeatDirection="Horizontal">
                                                             <asp:ListItem Text="Enabled" Value="true" Selected="True" />
                                                             <asp:ListItem Text="Disabled" Value="false" />
                                                         </asp:RadioButtonList>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
+                                                    </asp:TableCell>
+                                                </asp:TableRow>
+                                                <asp:TableRow>
+                                                    <asp:TableCell>
                                                         <asp:Label ID="Label1" runat="server" Font-Size="Small"  Text="Refresh Rate: "  />
-                                                    </td>
-                                                    <td>
-                                                        <asp:TextBox ID="tbTimer" runat="server" Font-Size="Small"  Text="5" OnTextChanged="tbTimer_TextChanged" Width="20px" AutoPostBack="true" />
+                                                    </asp:TableCell>
+                                                    <asp:TableCell>
+                                                        <asp:TextBox ID="tbTimer" runat="server" Font-Size="Small"  Text="5" Width="20px" />
                                                         <asp:Label ID="Label3" runat="server" Font-Size="Small"  Text=" minutes"  />
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td colspan="2">
-                                                        <asp:Button ID="btnClose" runat="server" Text="Close" />
-                                                    </td>
-                                                </tr>
-                                            </table>
+                                                    </asp:TableCell>
+                                                </asp:TableRow>
+                                                <asp:TableRow BackColor="#22b9ec">
+                                                    <asp:TableHeaderCell HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
+                                                        <asp:LinkButton ID="ibSettingsClose" runat="server" Text="Save & Close" ForeColor="White" style="text-decoration: none;" OnClick="ibSettingsClose_Click" />
+                                                    </asp:TableHeaderCell>
+                                                </asp:TableRow>
+                                            </asp:Table>                            
                                         </asp:Panel>
                                     </td>
                                 </tr>
@@ -157,11 +168,6 @@
                                         <asp:LinkButton ID="lbLogout" runat="server" Text="LOGOUT" ForeColor="White" OnClick="lbLogout_Click" style="text-decoration: none;" />
                                     </asp:TableHeaderCell>
                                 </asp:TableHeaderRow>
-                                <asp:TableRow ID="rowDonate">
-                                    <asp:TableCell ColumnSpan="2">
-                                        <iframe src="Donate.html" height="100" style="border-width:0px;" ></iframe>
-                                    </asp:TableCell>
-                                </asp:TableRow>
                                 <asp:TableRow ID="rowMenuAdds">
                                     <asp:TableCell ColumnSpan="2">
                                         <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
@@ -177,7 +183,7 @@
                                 </asp:TableRow>
                             </asp:Table>
 
-                            <asp:Table ID="tblCollapsed" runat="server" BackColor="#22b9ec" Width="40" Visible="false" CellPadding="0" CellSpacing="0">
+                            <asp:Table ID="tblCollapsed" runat="server" BackColor="#22b9ec" Width="40" Height="100%" Visible="false" CellPadding="0" CellSpacing="0">
                                 <asp:TableRow>
                                     <asp:TableCell HorizontalAlign="Center" style="padding-top:5px">
                                         <asp:ImageButton ID="ibExpand" runat="server" ImageUrl="~/Images/right.png" Height="25" OnClick="ibExpand_Click" CommandArgument="show" />
@@ -195,35 +201,30 @@
                                             style="-ms-writing-mode: tb-rl; -webkit-writing-mode: vertical-rl;-moz-writing-mode: vertical-rl;-ms-writing-mode: vertical-rl;writing-mode: vertical-rl;text-decoration:none;"/>
                                     </asp:TableHeaderCell>
                                 </asp:TableHeaderRow>
+                                <asp:TableHeaderRow>
+                                    <asp:TableHeaderCell BackColor="red" HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2" VerticalAlign="Bottom">
+                                        <asp:LinkButton ID="lbLogoutCollapsed" runat="server" Text="LOGOUT" ForeColor="White" Font-Size="X-Large" Font-Bold="true" Height="200" OnClick="lbLogout_Click" 
+                                            style="-ms-writing-mode: tb-rl; -webkit-writing-mode: vertical-rl;-moz-writing-mode: vertical-rl;-ms-writing-mode: vertical-rl;writing-mode: vertical-rl;text-decoration:none;"/>
+                                    </asp:TableHeaderCell>
+                                </asp:TableHeaderRow>
                             </asp:Table>                    
-                       </asp:TableCell>
+                        </asp:TableCell>
                         <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top" BorderColor="#22b9ec">
-                                    <asp:ContentPlaceHolder ID="cphMain" runat="server" />
+                            <asp:ContentPlaceHolder ID="cphMain" runat="server" />
                         </asp:TableCell>
                     </asp:TableRow>
-                    <asp:TableRow ID="rowFooter">
-                        <asp:TableCell ColumnSpan="2" HorizontalAlign="Center">
-                            <asp:Label ID="Label8" runat="server" Font-Size="X-Small" Text="© 2015 Craig Trunzo. All rights reserved.  All images are the property of their respective owners." />
-                        </asp:TableCell>
-                    </asp:TableRow>
-                    <asp:TableRow ID="rowBottomAds">
-                        <asp:TableCell ColumnSpan="2" HorizontalAlign="Center">
-                            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-                            <!-- WinkAtHome bottom Leaderboard -->
-                            <ins class="adsbygoogle"
-                                    style="display:inline-block;width:728px;height:90px"
-                                    data-ad-client="ca-pub-9030204945381170"
-                                    data-ad-slot="1047757646"></ins>
-                            <script>
-                                (adsbygoogle = window.adsbygoogle || []).push({});
-                            </script>
+                    <asp:TableRow>
+                        <asp:TableCell></asp:TableCell>
+                        <asp:TableCell>
+                            <ucF:ucFooter ID="ucFooter" runat="server" />
                         </asp:TableCell>
                     </asp:TableRow>
                 </asp:Table>
 
+
                 <asp:Button ID="btnUpdates" runat="server" Text="Button" style="display:none;" />
                 <ajaxtoolkit:ModalPopupExtender ID="mpeUpdate" runat="server" PopupControlID="pnlUpdate" 
-                    TargetControlID="btnUpdates" BackgroundCssClass="modalBackground" Y="100">
+                    TargetControlID="btnUpdates" CancelControlID="imgInfoClose" BackgroundCssClass="modalBackground" Y="50">
                 </ajaxtoolkit:ModalPopupExtender>
                 <asp:Panel ID="pnlUpdate" runat="server" style="display:none">
                     <asp:Table ID="Table9" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee">

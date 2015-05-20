@@ -16,8 +16,8 @@ namespace WinkAtHome
             {
                 Common.prepareDatabase();
 
-                if (Session["_winkToken"] == null)
-                    Response.Redirect("~/login.aspx", false);
+                if (Session["_winkToken"] == null || Session["_wink"] == null)
+                    Response.Redirect("~/Login.aspx");
                 else
                 {
                     string startpage = SettingMgmt.getSetting("StartPage");

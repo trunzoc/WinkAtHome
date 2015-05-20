@@ -1,5 +1,6 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="WinkAtHome.Login" %>
 <%@ Register Src="~/Controls/winkStatus.ascx" TagName="ucWinkStatus" TagPrefix="ucWS" %>
+<%@ Register Src="~/Controls/Footer.ascx" TagName="ucFooter" TagPrefix="ucF" %>
 
 <!DOCTYPE html>
 
@@ -26,6 +27,10 @@
                             <td align="left" width="170px">
                                 <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/WinkatHome.png" Height="75px" />
                             </td>
+                            <td align="left" width="100">
+                                <asp:Label ID="ibVersion" runat="server" Font-Size="Smaller" Text="" ForeColor="White" />
+                            </td>
+                            <td>
                         </tr>
                     </table>
                 </asp:TableCell>
@@ -71,14 +76,6 @@
                                                 <asp:TextBox ID="tbPassword" runat="server" TextMode="Password" Width="200" />
                                             </asp:TableCell>
                                         </asp:TableRow>
-                                        <asp:TableRow>
-                                            <asp:TableCell>
-                                                <asp:Label ID="Label3" runat="server" Text="Remember Me:" />
-                                            </asp:TableCell>
-                                            <asp:TableCell>
-                                                <asp:CheckBox ID="cbRemember" runat="server" />
-                                            </asp:TableCell>
-                                        </asp:TableRow>
                                     </asp:Table>
                                 </asp:Panel>
                                 
@@ -86,7 +83,7 @@
                                     <asp:Table ID="Table4" runat="server">
                                         <asp:TableRow>
                                             <asp:TableCell>
-                                                <asp:Label ID="Label4" runat="server" Text="This site is secured by Wink.<br />Press the login button to be redirected to their site for validation.<br />When successfully validated, Wink will return you to Wink@Home to continue." />
+                                                <asp:Label ID="Label4" runat="server" Text="This site is secured by Wink. Press the login button to be redirected to their site for validation.<br /><br />When successfully validated, Wink will return you to Wink@Home to continue." />
                                             </asp:TableCell>
                                         </asp:TableRow>
                                     </asp:Table>
@@ -96,7 +93,23 @@
                         </asp:TableRow>
                         <asp:TableRow>
                             <asp:TableCell>
+                                <hr />
+                            </asp:TableCell>
+                        </asp:TableRow>
+                        <asp:TableRow>
+                            <asp:TableCell>
+                                <asp:Label ID="Label3" runat="server" Text="Remember Me For 30 Days:" />
+                                <asp:CheckBox ID="cbRemember" runat="server" />
+                            </asp:TableCell>
+                        </asp:TableRow>
+                        <asp:TableRow>
+                            <asp:TableCell>
                                 <asp:Button ID="btnLogin" runat="server" Text="Log In" OnClick="btnLogin_Click" CommandArgument="local" />
+                            </asp:TableCell>
+                        </asp:TableRow>
+                        <asp:TableRow>
+                            <asp:TableCell>
+                                <asp:Label ID="lblMessage" runat="server" Text="" />
                             </asp:TableCell>
                         </asp:TableRow>
                     </asp:Table>
@@ -104,7 +117,7 @@
             </asp:TableRow>
             <asp:TableRow ID="rowFooter">
                 <asp:TableCell ColumnSpan="2" HorizontalAlign="Center">
-                    <asp:Label ID="Label8" runat="server" Font-Size="X-Small" Text="© 2015 Craig Trunzo. All rights reserved.  All images are the property of their respective owners." />
+                    <ucF:ucFooter ID="ucFooter" runat="server" />
                 </asp:TableCell>
             </asp:TableRow>
         </asp:Table>

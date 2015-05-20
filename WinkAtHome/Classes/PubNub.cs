@@ -30,9 +30,10 @@ public class PubNub
     public string publishKey { get { return SettingMgmt.getSetting("PubNub-PublishKey"); } }
     public string subscriberKey { get { return SettingMgmt.getSetting("PubNub-SubscribeKey"); } }
     public string secretKey { get { return SettingMgmt.getSetting("PubNub-SecretKey"); } }
-    public bool hasPubNub { get { return !(String.IsNullOrWhiteSpace(publishKey) || String.IsNullOrWhiteSpace(subscriberKey) || String.IsNullOrWhiteSpace(secretKey)); } }
 
     private Pubnub pubnub;
+    WinkHelper.SubscriptionHelper subHelper = new WinkHelper.SubscriptionHelper();
+    WinkHelper.DeviceHelper deviceHelper = new WinkHelper.DeviceHelper();
 
     private static string channel = "";
     private static bool ssl = true;
@@ -71,9 +72,9 @@ public class PubNub
     {
         try
         {
-            if (hasPubNub)
+            if (SettingMgmt.hasPubNub)
             {
-                channel = Wink.myWink.getSubscriptionTopics();
+                channel = new WinkHelper.SubscriptionHelper().getSubscriptionTopics();
 
                 if (channel != null)
                 {
@@ -114,44 +115,48 @@ public class PubNub
         }
     }
 
-    private void AddToPubnubResultContainer(string result)
+    private void AddToPubnubResultContainer(string message)
     {
         try
         {
-            _recordQueue.Enqueue(result);
+            _recordQueue.Enqueue(message);
         }
         catch (Exception ex)
         {
             throw; //EventLog.WriteEntry("WinkAtHome.PubNub.AddToPubnubResultContainer", ex.Message, EventLogEntryType.Error);
         }
     }
-    private void AddToPubnubDeviceContainer(JObject result)
-    {
-        try
-        {
-            _deviceQueue.Enqueue(result);
-        }
-        catch (Exception ex)
-        {
-            throw; //EventLog.WriteEntry("WinkAtHome.PubNub.AddToPubnubResultContainer", ex.Message, EventLogEntryType.Error);
-        }
-    }
+
     protected void DisplayUserCallbackMessage(string result)
     {
         try
         {
-            AddToPubnubResultContainer("REGULAR CALLBACK: " + Common.getLocalTime().ToString());
-            AddToPubnubResultContainer(result);
-            AddToPubnubResultContainer(""); 
-            
-            string strResult = "{\"data\": " + result.Remove(result.LastIndexOf("},")) + "}]}";
-            JObject json = JObject.Parse(strResult);
-            AddToPubnubDeviceContainer(json);
+            string strTest = "{\"data\": " + result + "}";
+            JObject jsonTest = JObject.Parse(strTest);
+            JToken jtName = jsonTest.Last.Last.Last;
+            //JToken jtTimestamp = jtName.Previous;
 
-            //Wink mywink = (Wink)HttpContext.Current.Session["myWink"];
-            //mywink.hasDeviceChanges = true;
-            //mywink.updateDevice(json);
+            string subName = jtName.ToString();
 
+             Wink.Subscription sub = subHelper.getSubscriptionByName(subName);
+
+            if (sub != null)
+            {
+                switch (sub.type.ToLower())
+                {
+                    case "device":
+                        Wink.Device device = deviceHelper.getDeviceByID(sub.objectID);
+                        string header = "DEVICE ACTION" + (device != null ? " (" + device.name + "): " : ": ");
+                        AddToPubnubResultContainer(header + Common.getLocalTime().ToString() + "\r\n" + result + "\r\n");
+
+                        JObject json = JObject.Parse("{\"data\": " + result.Remove(result.LastIndexOf("},")) + "}]}");
+                        _deviceQueue.Enqueue(json);
+                        break;
+                    default:
+                        AddToPubnubResultContainer("CALLBACK ACTION: " + Common.getLocalTime().ToString() + "\r\n" + result + "\r\n");
+                        break;
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -163,9 +168,7 @@ public class PubNub
     {
         try
         {
-            AddToPubnubResultContainer("CONNECT CALLBACK: " + Common.getLocalTime().ToString());
-            AddToPubnubResultContainer(result);
-            AddToPubnubResultContainer("");
+            AddToPubnubResultContainer("CONNECT CALLBACK: " + Common.getLocalTime().ToString() + "\r\n" + result + "\r\n");
         }
         catch (Exception ex)
         {
@@ -176,9 +179,7 @@ public class PubNub
     {
         try
         {
-            AddToPubnubResultContainer("DISCONNECT CALLBACK: " + Common.getLocalTime().ToString());
-            AddToPubnubResultContainer(result);
-            AddToPubnubResultContainer("");
+            AddToPubnubResultContainer("DISCONNECT CALLBACK: " + Common.getLocalTime().ToString() + "\r\n" + result + "\r\n");
         }
         catch (Exception ex)
         {
@@ -192,11 +193,14 @@ public class PubNub
     {
         try
         {
-            if (result.StatusCode != 111)
+            if (!(result.StatusCode >= 111 && result.StatusCode <= 113))
             {
-                AddToPubnubResultContainer("ERROR CALLBACK: " + Common.getLocalTime().ToString());
-                AddToPubnubResultContainer(result.Description);
-                AddToPubnubResultContainer("");
+                string error = "ERROR CALLBACK: " + Common.getLocalTime().ToString() + "\r\n";
+                error += string.IsNullOrWhiteSpace(result.Channel) ? "" : "Channel: " + result.Channel + "\r\n";
+                error += string.IsNullOrWhiteSpace(result.Message) ? "" : "Message: " + result.Message + "\r\n";
+                error += string.IsNullOrWhiteSpace(result.Description) ? "" : "Description: " + result.Description + "\r\n";
+
+                AddToPubnubResultContainer(error);
             }
 
             switch (result.StatusCode)

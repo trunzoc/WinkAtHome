@@ -159,12 +159,14 @@ namespace WinkAtHome
         {
             try
             {
+                Wink myWink = (Wink)Session["_wink"];
+
                 Button btn = (Button)sender;
                 string cmdarg = btn.CommandArgument;
 
                 if (cmdarg == "devices")
                 {
-                    JObject json = Wink.Device.getDeviceJSON();
+                    JObject json = new WinkHelper.DeviceHelper().DeviceGetJSON();
                     if (json != null)
                         tbEdit.Text = json.ToString();
                     else
@@ -173,7 +175,7 @@ namespace WinkAtHome
                 }
                 else if (cmdarg == "robots")
                 {
-                    JObject json = Wink.Robot.getRobotJSON();
+                    JObject json = new WinkHelper.RobotHelper().RobotGetJSON();
                     if (json != null)
                         tbEdit.Text = json.ToString();
                     else

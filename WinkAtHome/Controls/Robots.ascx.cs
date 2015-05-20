@@ -12,11 +12,18 @@ namespace WinkAtHome.Controls
 {
     public partial class Robots : System.Web.UI.UserControl
     {
+        Wink myWink;
+        WinkHelper.RobotHelper robotHelper = new WinkHelper.RobotHelper();
+
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
                 hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Robots-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
+
+                if (myWink == null)
+                    myWink = (Wink)Session["_wink"];
+                
                 if (!IsPostBack)
                 {
 
@@ -71,10 +78,10 @@ namespace WinkAtHome.Controls
 
                 if (SettingMgmt.getSetting("Hide-Empty-Robots").ToLower() == "true")
                 {
-                    robots = Wink.myWink.Robots.Where(p => !p.isempty).ToList();
+                    robots = myWink.Robots.Where(p => !p.isempty).ToList();
                 }
                 else
-                    robots = Wink.myWink.Robots;
+                    robots = myWink.Robots;
 
                 robots = robots.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
 
@@ -157,7 +164,7 @@ namespace WinkAtHome.Controls
                         Int32.TryParse(alertTimeout, out timeout);
 
                         DateTime lastTrigger = lastalert;
-                        DateTime dateAlert = DateTime.Now.AddMinutes(timeout * -1);
+                        DateTime dateAlert = Common.getLocalTime().AddMinutes(timeout * -1);
 
                         if (lastTrigger > dateAlert)
                         {
@@ -183,8 +190,9 @@ namespace WinkAtHome.Controls
 
                 bool newstate = !Convert.ToBoolean(ib.CommandName);
 
-                Wink.Robot.changeRobotState(robotID, newstate);
-                Response.Redirect(Request.RawUrl);
+                new WinkHelper.RobotHelper().RobotChangeState(robotID, newstate);
+                BindData();
+                //Response.Redirect(Request.RawUrl);
             }
             catch (Exception ex)
             {
@@ -219,7 +227,7 @@ namespace WinkAtHome.Controls
                 Label lblPositionBad = (Label)ib.NamingContainer.FindControl("lblPositionBad");
                 ModalPopupExtender mpeInfo = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeInfo");
 
-                Wink.Robot item = Wink.Robot.getRobotByID(ib.CommandArgument);
+                Wink.Robot item = robotHelper.getRobotByID(ib.CommandArgument);
 
                 bool savePosSuccess = false;
                 bool saveNameSuccess = false;
@@ -250,7 +258,7 @@ namespace WinkAtHome.Controls
                             foreach (string ID in existingList)
                             {
                                 int position = existingList.IndexOf(ID) + 1;
-                                Wink.Robot.setRobotPosition(ID, position);
+                                robotHelper.setRobotPosition(ID, position);
                             }
 
                             lblPositionBad.Visible = false;
@@ -267,7 +275,7 @@ namespace WinkAtHome.Controls
                     //SAVE DISPLAY NAME
                     try
                     {
-                        Wink.Robot.setRobotDisplayName(item.id, tbDisplayName.Text);
+                        robotHelper.setRobotDisplayName(item.id, tbDisplayName.Text);
                         saveNameSuccess = true;
                     }
                     catch (Exception ex)

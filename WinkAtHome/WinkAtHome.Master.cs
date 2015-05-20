@@ -14,25 +14,41 @@ using System.Net;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
+using System.Configuration;
 
 namespace WinkAtHome
 {
     public partial class WinkAtHome : System.Web.UI.MasterPage
     {
+        Wink myWink;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
                 Common.prepareDatabase();
 
-                if (Session["_winkToken"] == null)
-                {
+                if (Session["_winkToken"] == null || Session["_wink"] == null)
                     Response.Redirect("~/Login.aspx");
-                }
 
+                if (myWink == null)
+                    myWink = (Wink)Session["_wink"];
+                
                 if (!IsPostBack)
                 {
+
+                    //Response.Write("SessionID: " + Session.SessionID + "<br />");
+                    //Response.Write("Token: " + myWink.Token + "<br />");
+                    //Response.Write("User: " + myWink.winkUser.email + "<br />");
+                    //if (Session["userID"] != null)
+                    //    Response.Write("UserID: " + Session["userID"].ToString() + "<br />");
+
                     ibVersion.Text = Common.currentVersion;
+                    if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["EnvironmentName"]))
+                    {
+                        ibVersion.Text += "\r\n" + ConfigurationManager.AppSettings["EnvironmentName"];
+                    }
+
                     if (Common.isLocalHost)
                     {
                         bool hasUpdate = Common.checkForUpdate();
@@ -50,7 +66,6 @@ namespace WinkAtHome
 
                     if (Common.isLocalHost)
                     {
-                        rowBottomAds.Visible = false;
                         rowMenuAdds.Visible = false;
                     }
 
@@ -90,11 +105,12 @@ namespace WinkAtHome
 
 
                     //SET PUBNUB
-                    //PubNub pubnub = PubNub.myPubNub;
-                    //if (pubnub.hasPubNub)
-                    //{
-                    //    pubnub.Open();
-                    //}
+                    if (SettingMgmt.hasPubNub)
+                    {
+                        PubNub pubnub = PubNub.myPubNub;
+                        pubnub.Open();
+                        tmrCheckChanges.Enabled = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -117,30 +133,14 @@ namespace WinkAtHome
             }
 
         }
-        protected void tbTimer_TextChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
-                SettingMgmt.saveSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), tbTimer.Text);
-            }
-            catch (Exception ex)
-            {
-                throw; //EventLog.WriteEntry("WinkAtHome.Master.tbTimer_TextChanged", ex.Message, EventLogEntryType.Error);
-            }
-        }
 
-        protected void rblenabled_SelectedIndexChanged(object sender, EventArgs e)
+        protected void ibSettingsClose_Click(object sender, EventArgs e)
         {
-            try
-            {
-                tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
-                SettingMgmt.saveSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), rblenabled.SelectedValue);
-            }
-            catch (Exception ex)
-            {
-                throw; //EventLog.WriteEntry("WinkAtHome.Master.rblenabled_SelectedIndexChanged", ex.Message, EventLogEntryType.Error);
-            }
+            tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
+            SettingMgmt.saveSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), rblenabled.SelectedValue);
+                
+            tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
+            SettingMgmt.saveSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), tbTimer.Text);
         }
 
         public void lbLogout_Click(object sender, EventArgs e)
@@ -156,7 +156,7 @@ namespace WinkAtHome
 
                 Session.Abandon();
 
-                Wink.myWink.clearWink();
+                new WinkHelper().clearWink();
                 SettingMgmt.Settings = null;
 
                 Response.Redirect("~/Login.aspx");
@@ -220,7 +220,7 @@ namespace WinkAtHome
 
                 if (modalshowing == "false")
                 {
-                    Wink.myWink.reloadWink();
+                    new WinkHelper().reloadWink();
                     Response.Redirect(Request.RawUrl);
                 }
             }
@@ -230,6 +230,19 @@ namespace WinkAtHome
             }
         }
 
+        protected void ibUpdateClose_Click(object sender, EventArgs e)
+        {
+            Session["modalshowing"] = "false";
+
+            mpeUpdate.Hide();
+        }
+
+        protected void ibVersion_Click(object sender, EventArgs e)
+        {
+            Session["modalshowing"] = "true";
+
+            mpeUpdate.Show();
+        }
         protected void tmrCheckChanges_Tick(object sender, EventArgs e)
         {
             try
@@ -243,13 +256,13 @@ namespace WinkAtHome
                     JObject currentRecord;
                     while (PubNub.myPubNub.DeviceQueue.TryDequeue(out currentRecord))
                     {
-                        Wink.myWink.hasDeviceChanges = true;
-                        Wink.Device.updateDevice(currentRecord);
+                        myWink.DeviceHasChanges = true;
+                        new WinkHelper.DeviceHelper().DeviceUpdate(currentRecord);
                     }
 
-                    if (Wink.myWink.hasDeviceChanges)
+                    if (myWink.DeviceHasChanges)
                     {
-                        Wink.myWink.hasDeviceChanges = false;
+                        myWink.DeviceHasChanges = false;
 
                         //UPDATE DEVICES
                         UserControl ucDevices = (UserControl)cphMain.FindControl("ucDevices");
@@ -273,14 +286,6 @@ namespace WinkAtHome
                             upData.Update();
                         }
 
-                        //UPDATE PUBNUB PANEL
-                        UserControl ucPubNub = (UserControl)cphMain.FindControl("ucPubNub");
-                        if (ucPubNub != null)
-                        {
-                            var control = ucPubNub as Controls.PubNubDisplay;
-                            control.UpdateResultView();
-                        }
-
                         UpdatePanel1.Update();
                     }
                 }
@@ -290,20 +295,5 @@ namespace WinkAtHome
                 throw; //EventLog.WriteEntry("WinkAtHome.Master.tmrCheckChanges_Tick", ex.Message, EventLogEntryType.Error);
             }
         }
-
-        protected void ibUpdateClose_Click(object sender, EventArgs e)
-        {
-            Session["modalshowing"] = "false";
-
-            mpeUpdate.Hide();
-        }
-
-        protected void ibVersion_Click(object sender, EventArgs e)
-        {
-            Session["modalshowing"] = "true";
-
-            mpeUpdate.Show();
-        }
-
     }
 }

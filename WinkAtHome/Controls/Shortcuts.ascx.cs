@@ -12,10 +12,15 @@ namespace WinkAtHome.Controls
 {
     public partial class Shortcuts : System.Web.UI.UserControl
     {
+        Wink myWink;
+        WinkHelper.ShortcutHelper shortcutHelper = new WinkHelper.ShortcutHelper();
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
+                if (myWink == null)
+                    myWink = (Wink)Session["_wink"];
+
                 hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Shortcuts-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
                 if (!IsPostBack)
                 {
@@ -49,7 +54,7 @@ namespace WinkAtHome.Controls
                 dlShortcuts.DataSource = null;
                 dlShortcuts.DataBind();
 
-                dlShortcuts.DataSource = Wink.myWink.Shortcuts.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
+                dlShortcuts.DataSource = myWink.Shortcuts.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
                 dlShortcuts.DataBind();
             }
             catch (Exception ex)
@@ -109,8 +114,9 @@ namespace WinkAtHome.Controls
                 DataListItem li = (DataListItem)ib.NamingContainer;
                 string shortcutID = ib.CommandArgument;
 
-                Wink.Shortcut.activateShortcut(shortcutID);
-                Response.Redirect(Request.RawUrl);
+                new WinkHelper.ShortcutHelper().ShortcutActivate(shortcutID);
+                //BindData();
+                Response.Redirect(Request.RawUrl, false);
             }
             catch (Exception ex)
             {
@@ -166,7 +172,7 @@ namespace WinkAtHome.Controls
                 Label lblPositionBad = (Label)ib.NamingContainer.FindControl("lblPositionBad");
                 ModalPopupExtender mpeInfo = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeInfo");
 
-                Wink.Shortcut item = Wink.Shortcut.getShortcutByID(ib.CommandArgument);
+                Wink.Shortcut item = shortcutHelper.getShortcutByID(ib.CommandArgument);
 
                 bool savePosSuccess = false;
                 bool saveNameSuccess = false;
@@ -197,7 +203,7 @@ namespace WinkAtHome.Controls
                             foreach (string ID in existingList)
                             {
                                 int position = existingList.IndexOf(ID) + 1;
-                                Wink.Shortcut.setShortcutPosition(ID, position);
+                                shortcutHelper.setShortcutPosition(ID, position);
                             }
 
                             lblPositionBad.Visible = false;
@@ -214,7 +220,7 @@ namespace WinkAtHome.Controls
                     //SAVE DISPLAY NAME
                     try
                     {
-                        Wink.Shortcut.setShortcutDisplayName(item.id, tbDisplayName.Text);
+                        shortcutHelper.setShortcutDisplayName(item.id, tbDisplayName.Text);
                         saveNameSuccess = true;
                     }
                     catch (Exception ex)

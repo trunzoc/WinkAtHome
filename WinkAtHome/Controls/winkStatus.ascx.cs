@@ -15,7 +15,7 @@ namespace WinkAtHome.Controls
             try
             {
 
-                Dictionary<string, string>[] dictStatuses = Wink.winkGetServerStatus();
+                Dictionary<string, string>[] dictStatuses = new WinkHelper().winkGetServerStatus();
 
                 if (dictStatuses != null)
                 {

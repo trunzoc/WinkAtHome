@@ -17,7 +17,7 @@
         }
     </script>
 
-    <asp:Table ID="Table1" runat="server" Width="100%" BorderWidth="0" CellPadding="0" CellSpacing="0">
+    <asp:Table ID="Table1" runat="server" Width="800" BorderWidth="0" CellPadding="0" CellSpacing="0">
         <asp:TableHeaderRow>
             <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Left" style="padding:10px;">
                 <asp:Label ID="lblHeader" runat="server" Text="Settings" ForeColor="White" />
@@ -50,6 +50,17 @@
                             </td>
                         </tr>
                     </ItemTemplate>
+                    <AlternatingItemTemplate>
+                        <tr style="background-color:#dddddd">
+                            <td>
+                                <asp:Label ID="lblKey" runat="server" Text='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).key %>' />
+                            </td>
+                            <td width="255">
+                                <asp:TextBox ID="tbValue" runat="server" Text='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).value %>' Width="250" />
+                                <asp:HiddenField ID="hfValue" runat="server" Value='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).value %>' />
+                            </td>
+                        </tr>
+                    </AlternatingItemTemplate>
                     <FooterTemplate>
                         </table>
                     </FooterTemplate>
@@ -77,12 +88,23 @@
                             <td>
                                 <asp:Label ID="lblKey" runat="server" Text='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).key %>' />
                             </td>
-                            <td>
+                            <td width="255">
                                 <asp:TextBox ID="tbValue" runat="server" Text='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).value %>' Width="250" />
                                 <asp:HiddenField ID="hfValue" runat="server" Value='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).value %>' />
                             </td>
                         </tr>
                     </ItemTemplate>
+                    <AlternatingItemTemplate>
+                        <tr style="background-color:#dddddd">
+                            <td>
+                                <asp:Label ID="lblKey" runat="server" Text='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).key %>' />
+                            </td>
+                            <td width="255">
+                                <asp:TextBox ID="tbValue" runat="server" Text='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).value %>' Width="250" />
+                                <asp:HiddenField ID="hfValue" runat="server" Value='<%# ((WinkAtHome.SettingMgmt.Setting)Container.DataItem).value %>' />
+                            </td>
+                        </tr>
+                    </AlternatingItemTemplate>
                     <FooterTemplate>
                         </table>
                     </FooterTemplate>

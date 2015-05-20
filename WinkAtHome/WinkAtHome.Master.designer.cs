@@ -175,13 +175,40 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.Panel pnlRefreshSettings;
         
         /// <summary>
-        /// Label5 control.
+        /// Table3 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label5;
+        protected global::System.Web.UI.WebControls.Table Table3;
+        
+        /// <summary>
+        /// Table10 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Table Table10;
+        
+        /// <summary>
+        /// Label9 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label9;
+        
+        /// <summary>
+        /// imgInfoClose control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgInfoClose;
         
         /// <summary>
         /// Label2 control.
@@ -229,13 +256,13 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.Label Label3;
         
         /// <summary>
-        /// btnClose control.
+        /// ibSettingsClose control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnClose;
+        protected global::System.Web.UI.WebControls.LinkButton ibSettingsClose;
         
         /// <summary>
         /// cellMenu control.
@@ -301,15 +328,6 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.LinkButton lbLogout;
         
         /// <summary>
-        /// rowDonate control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TableRow rowDonate;
-        
-        /// <summary>
         /// rowMenuAdds control.
         /// </summary>
         /// <remarks>
@@ -355,6 +373,15 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.LinkButton lbSettings;
         
         /// <summary>
+        /// lbLogoutCollapsed control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton lbLogoutCollapsed;
+        
+        /// <summary>
         /// cphMain control.
         /// </summary>
         /// <remarks>
@@ -364,31 +391,13 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphMain;
         
         /// <summary>
-        /// rowFooter control.
+        /// ucFooter control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TableRow rowFooter;
-        
-        /// <summary>
-        /// Label8 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label8;
-        
-        /// <summary>
-        /// rowBottomAds control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TableRow rowBottomAds;
+        protected global::WinkAtHome.Controls.Footer ucFooter;
         
         /// <summary>
         /// btnUpdates control.

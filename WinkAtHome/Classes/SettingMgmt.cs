@@ -13,6 +13,14 @@ namespace WinkAtHome
 {
     public class SettingMgmt
     {
+        public static bool hasPubNub 
+        { 
+            get 
+            { 
+                return !(String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-PublishKey")) || String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-SubscribeKey")) || String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-SecretKey"))); 
+            }
+        }
+
         public class stringbool : Tuple<string, bool>
         {
             public stringbool(string value, bool isEncrypted)
@@ -55,6 +63,8 @@ namespace WinkAtHome
         {
             try
             {
+                Wink myWink = (Wink)HttpContext.Current.Session["_wink"];
+
                 if (HttpContext.Current.Session["_settings"] == null || forceReset)
                 {
                     List<Setting> settings = new List<Setting>();
@@ -66,13 +76,13 @@ namespace WinkAtHome
                         //LEGACY CORRECTIONS
                         using (SQLiteCommand command = new SQLiteCommand(connection))
                         {
-                            command.CommandText = "DELETE FROM Settings WHERE Name='winkPassword' or Name='winkUsername' or Name='winkClientID' or Name='winkClientSecret'";
+                            command.CommandText = "DELETE FROM Settings WHERE Name='winkPassword' or Name='winkUsername' or Name='winkClientID' or Name='winkClientSecret' or Name='PubNub-Log-Length'";
                             command.ExecuteNonQuery();
 
-                            if (Wink.myWink.winkUser != null)
+                            if (myWink.winkUser != null)
                             {
                                 command.CommandText = "UPDATE Settings SET UserID=@UserID WHERE UserID='single'";
-                                command.Parameters.Add(new SQLiteParameter("@UserID", Wink.myWink.winkUser.userID));
+                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                                 command.ExecuteNonQuery();
                             }
                         }
@@ -86,7 +96,7 @@ namespace WinkAtHome
                         basicSettings.Add("Hide-Empty-Robots", (new stringbool("false", false)));
                         basicSettings.Add("Hide-Empty-Groups", (new stringbool("false", false)));
                         basicSettings.Add("Robot-Alert-Minutes-Since-Last-Trigger", (new stringbool("60", false)));
-                        basicSettings.Add("Show-Pubnub-Log-In-Monitor", (new stringbool("true", false)));
+                        basicSettings.Add("Show-Pubnub-Log-In-Monitor", (new stringbool("false", false)));
                         basicSettings.Add("TimeZone-Adjuster", (new stringbool("-5", false)));
 
                         foreach (KeyValuePair<string, stringbool> pair in basicSettings)
@@ -117,7 +127,7 @@ namespace WinkAtHome
                         {
                             //PROCESS SETTINGS
                             command.CommandText = "select * from Settings WHERE UserID = @UserID";
-                            command.Parameters.Add(new SQLiteParameter("@UserID", Wink.myWink.winkUser.userID));
+                            command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
 
                             SQLiteDataReader reader = command.ExecuteReader();
                             while (reader.Read())
@@ -162,6 +172,8 @@ namespace WinkAtHome
         {
             try
             {
+                Wink myWink = (Wink)HttpContext.Current.Session["_wink"];
+
                 Setting setting = Settings.SingleOrDefault(s => s.key == key);
                 string newValue = (setting != null && setting.isEncrypted) ? Common.Encrypt(value) : value;
                 using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
@@ -171,7 +183,7 @@ namespace WinkAtHome
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "UPDATE Settings SET Value=@value WHERE UserID = @UserID AND name = @name;";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", Wink.myWink.winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.Parameters.Add(new SQLiteParameter("@name", key));
                         command.Parameters.Add(new SQLiteParameter("@value", newValue));
                         command.ExecuteNonQuery();
@@ -214,6 +226,8 @@ namespace WinkAtHome
         {
             try
             {
+                Wink myWink = (Wink)HttpContext.Current.Session["_wink"];
+
                 using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
                 {
                     connection.Open();
@@ -221,7 +235,7 @@ namespace WinkAtHome
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText = "delete from Settings where UserID = @UserID AND defaultvalue is null";
-                        command.Parameters.Add(new SQLiteParameter("@UserID", Wink.myWink.winkUser.userID));
+                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
                         command.ExecuteNonQuery();
 
                         command.CommandText = "update Settings set value = null WHERE UserID = @UserID";

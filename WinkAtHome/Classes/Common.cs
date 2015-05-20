@@ -242,100 +242,40 @@ namespace WinkAtHome
                     //PREPARE SETTINGS TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        bool newtable = false;
-
-                        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='Settings';";
-                        SQLiteDataAdapter da = new SQLiteDataAdapter(command);
-                        DataTable dtTable = new DataTable();
-                        da.Fill(dtTable);
-
-                        if (dtTable.Rows.Count > 0)
-                        {
-                            command.CommandText = "PRAGMA table_info(Settings);";
-                            DataTable dt = new DataTable();
-                            da.Fill(dt);
-                            DataRow[] foundRows;
-                            foundRows = dt.Select("name = 'UserID'");
-
-                            if (foundRows.Length == 0)
-                            {
-                                command.CommandText = "ALTER TABLE Settings RENAME TO SettingsOld;";
-                                command.ExecuteNonQuery();
-
-                                foundRows = dt.Select("name = 'IsRequired'");
-                                if (foundRows.Length == 0)
-                                {
-                                    command.CommandText = "ALTER TABLE SettingsOld ADD COLUMN IsRequired BOOL DEFAULT false;";
-                                    command.ExecuteNonQuery();
-                                }
-
-                                newtable = true;
-                            }
-                        }
-
                         command.CommandText = "CREATE TABLE IF NOT EXISTS Settings(UserID VARCHAR NOT NULL, Name VARCHAR NOT NULL ON CONFLICT REPLACE, Value VARCHAR, DefaultValue VARCHAR, IsEncrypted BOOL DEFAULT false, IsRequired BOOL DEFAULT false, PRIMARY KEY (UserID, Name));";
                         command.ExecuteNonQuery();
-
-                        if (newtable)
-                        {
-                            command.CommandText = "INSERT INTO Settings (UserID, name, value, defaultvalue, isencrypted, isrequired) SELECT 'single',name, value, defaultvalue, isencrypted, isrequired FROM SettingsOld;";
-                            command.ExecuteNonQuery();
-
-                            command.CommandText = "DROP TABLE SettingsOld;";
-                            command.ExecuteNonQuery();
-                        }
                     }
 
                     //PREPARE DEVICES TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        bool newtable = false;
-
-                        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='Devices';";
-                        SQLiteDataAdapter da = new SQLiteDataAdapter(command);
-                        DataTable dtTable = new DataTable();
-                        da.Fill(dtTable);
-
-                        if (dtTable.Rows.Count > 0)
-                        {
-                            command.CommandText = "PRAGMA table_info(Devices);";
-                            DataTable dt = new DataTable();
-                            da.Fill(dt);
-                            DataRow[] foundRows;
-
-                            foundRows = dt.Select("name = 'UserID'");
-                            if (foundRows.Length == 0)
-                            {
-                                command.CommandText = "ALTER TABLE Devices RENAME TO DevicesOld;";
-                                command.ExecuteNonQuery();
-
-                                foundRows = dt.Select("name = 'Name'");
-                                if (foundRows.Length == 0)
-                                {
-                                    command.CommandText = "ALTER TABLE DevicesOld ADD COLUMN Name VARCHAR;";
-                                    command.ExecuteNonQuery();
-                                }
-
-                                foundRows = dt.Select("name = 'subscriptionCapable'");
-                                if (foundRows.Length == 0)
-                                {
-                                    command.CommandText = "ALTER TABLE DevicesOld ADD COLUMN subscriptionCapable BOOLEAN NOT NULL DEFAULT 0;";
-                                    command.ExecuteNonQuery();
-                                }
-
-                                newtable = true;
-                            }
-                        }
-
-                        command.CommandText = "CREATE TABLE IF NOT EXISTS Devices(UserID VARCHAR NOT NULL, DeviceID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, DeviceID));";
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS Devices(UserID VARCHAR NOT NULL, DeviceID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001,  Mfg VARCHAR,  Model VARCHAR,  ModelName VARCHAR, PRIMARY KEY (UserID, DeviceID));";
                         command.ExecuteNonQuery();
 
-                        if (newtable)
-                        {
-                            command.CommandText = "INSERT INTO Devices (UserID,DeviceID,DisplayName,SubscriptionTopic,SubscriptionExpires,Position,Name,subscriptionCapable) SELECT 'single', DeviceID,DisplayName,SubscriptionTopic,SubscriptionExpires,Position,Name,subscriptionCapable FROM DevicesOld;";
-                            command.ExecuteNonQuery();
+                        command.CommandText = "PRAGMA table_info(Devices);";
+                        SQLiteDataAdapter da = new SQLiteDataAdapter(command);
+                        DataTable dt = new DataTable();
+                        da.Fill(dt);
+                        DataRow[] foundRows;
 
-                            command.CommandText = "DROP TABLE DevicesOld;";
+                        foundRows = dt.Select("name = 'Mfg'");
+                        if (foundRows.Length == 0)
+                        {
+                            command.CommandText = "ALTER TABLE Devices ADD COLUMN Mfg VARCHAR;";
+                            command.ExecuteNonQuery();
+                        }
+
+                        foundRows = dt.Select("name = 'Model'");
+                        if (foundRows.Length == 0)
+                        {
+                            command.CommandText = "ALTER TABLE Devices ADD COLUMN Model VARCHAR;";
+                            command.ExecuteNonQuery();
+                        }
+
+                        foundRows = dt.Select("name = 'ModelName'");
+                        if (foundRows.Length == 0)
+                        {
+                            command.CommandText = "ALTER TABLE Devices ADD COLUMN ModelName VARCHAR;";
                             command.ExecuteNonQuery();
                         }
                     }
@@ -345,122 +285,22 @@ namespace WinkAtHome
                     //PREPARE ROBOT TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        bool newtable = false;
-
-                        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='Robots';";
-                        SQLiteDataAdapter da = new SQLiteDataAdapter(command);
-                        DataTable dtTable = new DataTable();
-                        da.Fill(dtTable);
-
-                        if (dtTable.Rows.Count > 0)
-                        {
-                            command.CommandText = "PRAGMA table_info(Robots);";
-                            DataTable dt = new DataTable();
-                            da.Fill(dt);
-                            DataRow[] foundRows;
-
-                            foundRows = dt.Select("name = 'UserID'");
-                            if (foundRows.Length == 0)
-                            {
-                                command.CommandText = "ALTER TABLE Robots RENAME TO RobotsOld;";
-                                command.ExecuteNonQuery();
-
-
-                                newtable = true;
-                            }
-                        }
-
                         command.CommandText = "CREATE TABLE IF NOT EXISTS Robots(UserID VARCHAR NOT NULL, RobotID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, RobotID));";
                         command.ExecuteNonQuery();
-
-                        if (newtable)
-                        {
-                            command.CommandText = "INSERT INTO Robots (UserID,name,RobotID,Name,DisplayName,SubscriptionTopic,SubscriptionExpires,subscriptionCapable,Position) SELECT 'single',name,RobotID,Name,DisplayName,SubscriptionTopic,SubscriptionExpires,subscriptionCapable,Position FROM RobotsOld;";
-                            command.ExecuteNonQuery();
-
-                            command.CommandText = "DROP TABLE RobotsOld;";
-                            command.ExecuteNonQuery();
-                        }
                     }
 
                     //PREPARE GROUP TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        bool newtable = false;
-
-                        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='Groups';";
-                        SQLiteDataAdapter da = new SQLiteDataAdapter(command);
-                        DataTable dtTable = new DataTable();
-                        da.Fill(dtTable);
-
-                        if (dtTable.Rows.Count > 0)
-                        {
-                            command.CommandText = "PRAGMA table_info(Groups);";
-                            DataTable dt = new DataTable();
-                            da.Fill(dt);
-                            DataRow[] foundRows;
-
-                            foundRows = dt.Select("name = 'UserID'");
-                            if (foundRows.Length == 0)
-                            {
-                                command.CommandText = "ALTER TABLE Groups RENAME TO GroupsOld;";
-                                command.ExecuteNonQuery();
-
-                                newtable = true;
-
-                            }
-                        }
                         command.CommandText = "CREATE TABLE IF NOT EXISTS Groups(UserID VARCHAR NOT NULL, GroupID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, GroupID));";
                         command.ExecuteNonQuery();
-
-                        if (newtable)
-                        {
-                            command.CommandText = "INSERT INTO Groups (UserID,GroupID,Name,DisplayName,SubscriptionTopic,SubscriptionExpires,subscriptionCapable,Position) SELECT 'single',GroupID,Name,DisplayName,SubscriptionTopic,SubscriptionExpires,subscriptionCapable,Position FROM GroupsOld;";
-                            command.ExecuteNonQuery();
-
-                            command.CommandText = "DROP TABLE GroupsOld;";
-                            command.ExecuteNonQuery();
-                        }
                     }
 
                     //PREPARE SHORTCUT TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        bool newtable = false;
-
-                        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='Shortcuts';";
-                        SQLiteDataAdapter da = new SQLiteDataAdapter(command);
-                        DataTable dtTable = new DataTable();
-                        da.Fill(dtTable);
-
-                        if (dtTable.Rows.Count > 0)
-                        {
-                            command.CommandText = "PRAGMA table_info(Shortcuts);";
-                            DataTable dt = new DataTable();
-                            da.Fill(dt);
-                            DataRow[] foundRows;
-
-                            foundRows = dt.Select("name = 'UserID'");
-                            if (foundRows.Length == 0)
-                            {
-                                command.CommandText = "ALTER TABLE Shortcuts RENAME TO ShortcutsOld;";
-                                command.ExecuteNonQuery();
-
-                                newtable = true;
-                            }
-                        }
-
                         command.CommandText = "CREATE TABLE IF NOT EXISTS Shortcuts(UserID VARCHAR NOT NULL, ShortcutID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, ShortcutID));";
                         command.ExecuteNonQuery();
-
-                        if (newtable)
-                        {
-                            command.CommandText = "INSERT INTO Shortcuts (UserID,ShortcutID,Name,DisplayName,SubscriptionTopic,SubscriptionExpires,subscriptionCapable,Position) SELECT 'single',ShortcutID,Name,DisplayName,SubscriptionTopic,SubscriptionExpires,subscriptionCapable,Position FROM ShortcutsOld;";
-                            command.ExecuteNonQuery();
-
-                            command.CommandText = "DROP TABLE ShortcutsOld;";
-                            command.ExecuteNonQuery();
-                        }
                     }
 
                     //PREPARE USER TABLE
@@ -468,19 +308,6 @@ namespace WinkAtHome
                     {
                         command.CommandText = "CREATE TABLE IF NOT EXISTS Users(UserID VARCHAR PRIMARY KEY NOT NULL, Email VARCHAR NOT NULL ON CONFLICT REPLACE, Last_Login DATETIME);";
                         command.ExecuteNonQuery();
-
-                        command.CommandText = "PRAGMA table_info(Users);";
-                        DataTable dt = new DataTable();
-                        SQLiteDataAdapter da = new SQLiteDataAdapter(command);
-                        da.Fill(dt);
-                        DataRow[] foundRows;
-
-                        foundRows = dt.Select("name = 'Last_Login'");
-                        if (foundRows.Length == 0)
-                        {
-                            command.CommandText = "ALTER TABLE Users ADD COLUMN Last_Login DATETIME;";
-                            command.ExecuteNonQuery();
-                        }
                     }
                     connection.Close();
                     connection.Dispose();

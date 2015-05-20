@@ -12,11 +12,18 @@ namespace WinkAtHome
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            string strShowPubNub = SettingMgmt.getSetting("Show-Pubnub-Log-In-Monitor");
-            if (strShowPubNub.ToLower() == "true" && PubNub.myPubNub.hasPubNub)
-                rowPubNub.Visible = true;
-            else
-                rowPubNub.Visible = false;
+            if (!IsPostBack)
+            {
+                bool showPubNub = false;
+
+                string strShowPubNub = SettingMgmt.getSetting("Show-Pubnub-Log-In-Monitor");
+                if (!string.IsNullOrWhiteSpace(strShowPubNub))
+                {
+                    if (strShowPubNub.ToLower() == "true" && SettingMgmt.hasPubNub)
+                        showPubNub = true;
+                }
+                rowPubNub.Visible = showPubNub;
+            }
         }
     }
 }
