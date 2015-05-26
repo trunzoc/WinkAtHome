@@ -40,31 +40,31 @@ namespace WinkAtHome {
         protected global::Telerik.Web.UI.RadAjaxManager RadAjaxManager1;
         
         /// <summary>
-        /// upPubNubTimer control.
+        /// upPubNub control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel upPubNubTimer;
+        protected global::System.Web.UI.UpdatePanel upPubNub;
         
         /// <summary>
-        /// tmrCheckChanges control.
+        /// tmrPubNub control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.Timer tmrCheckChanges;
+        protected global::System.Web.UI.Timer tmrPubNub;
         
         /// <summary>
-        /// UpdatePanel1 control.
+        /// upRefresh control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel UpdatePanel1;
+        protected global::System.Web.UI.UpdatePanel upRefresh;
         
         /// <summary>
         /// Table1 control.
@@ -121,15 +121,6 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.Label Label4;
         
         /// <summary>
-        /// tmrRefresh control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.Timer tmrRefresh;
-        
-        /// <summary>
         /// lblRefreshed control.
         /// </summary>
         /// <remarks>
@@ -137,6 +128,15 @@ namespace WinkAtHome {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblRefreshed;
+        
+        /// <summary>
+        /// tmrRefresh control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.Timer tmrRefresh;
         
         /// <summary>
         /// ibRefresh control.

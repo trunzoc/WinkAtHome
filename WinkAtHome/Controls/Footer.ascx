@@ -15,13 +15,16 @@
         <asp:TableCell HorizontalAlign="Center">
             <asp:Table ID="Table2" runat="server">
                 <asp:TableRow>
-                    <asp:TableCell HorizontalAlign="Center">
-                        <asp:Label ID="Label1" runat="server" Text="Help Support The Developer" Font-Size="Small" />
+                    <asp:TableCell HorizontalAlign="Center" ColumnSpan="2">
+                        <asp:Label ID="Label1" runat="server" Text="Help Support The Developer" Font-Size="Small" Font-Bold="true" />
                     </asp:TableCell>
                 </asp:TableRow>
                 <asp:TableRow>
                     <asp:TableCell HorizontalAlign="Center">
-                        <iframe src="Donate.html" height="90" width="100" style="border-width:0px;" ></iframe>
+                        <asp:ImageButton ID="ibPayPal" runat="server" Height="30" ImageUrl="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" OnClientClick="javascript:window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5NLDWXRPQXSN6', '_blank');" AlternateText="PayPal - The safer, easier way to pay online!" />
+                    </asp:TableCell>
+                    <asp:TableCell VerticalAlign="Top">
+                        <asp:ImageButton ID="ibYouTube" runat="server" Height="80" ImageUrl="http://www.youtube.com/yt/brand/media/image/YouTube-logo-full_color.png" OnClientClick="javascript:window.open('https://www.youtube.com/user/trunzoc/videos', '_blank');" AlternateText="My YouTube Channel" />
                     </asp:TableCell>
                 </asp:TableRow>
             </asp:Table>
