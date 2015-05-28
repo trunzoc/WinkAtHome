@@ -18,7 +18,7 @@ namespace WinkAtHome.Controls
 {
     public partial class Devices : System.Web.UI.UserControl
     {
-        Wink myWink;
+        Wink myWink = HttpContext.Current.Session["_wink"] == null ? new Wink() : (Wink)HttpContext.Current.Session["_wink"];
         WinkHelper.DeviceHelper deviceHelper = new WinkHelper.DeviceHelper();
         
         private string dbPath = Common.dbPath;
@@ -75,13 +75,10 @@ namespace WinkAtHome.Controls
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Devices-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString() + "-CO" + ControllableOnly.ToString() + "-SO" + SensorsOnly.ToString() + "-Type" + typeToShow;
-
-            if (myWink == null)
-                myWink = (Wink)Session["_wink"];
-
             if (!IsPostBack)
             {
+                hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Devices-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString() + "-CO" + ControllableOnly.ToString() + "-SO" + SensorsOnly.ToString() + "-Type" + typeToShow;
+                
                 if (Request.QueryString["devicetype"] != null)
                 {
                     string type = Request.QueryString["devicetype"].ToLower();
@@ -140,7 +137,7 @@ namespace WinkAtHome.Controls
             {
                 TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
                 lblHeader.Text = "Devices: " + textInfo.ToTitleCase(typeToShow.Replace("_", " "));
-                devices = myWink.Devices.Where(p => p.menu_type == typeToShow).ToList();
+                devices = myWink.Devices.Where(p => p.menu_type.ToLower() == typeToShow.ToLower()).ToList();
             }
             else
             {
@@ -708,8 +705,8 @@ namespace WinkAtHome.Controls
                 statuslvl.current_status = "1";
             }
 
-            //BindData();
-            Response.Redirect(Request.RawUrl, false);
+            BindData();
+            //Response.Redirect(Request.RawUrl, false);
         }
 
         protected void rsBrightness_ValueChanged(object sender, EventArgs e)
@@ -1080,7 +1077,7 @@ namespace WinkAtHome.Controls
 
             mpeSettings.Hide();
 
-            DataBind();
+            BindData();
             upData.Update();
 
             //Response.Redirect(Request.RawUrl);

@@ -14,15 +14,14 @@ namespace WinkAtHome
         {
             if (!IsPostBack)
             {
-                bool showPubNub = false;
-
-                string strShowPubNub = SettingMgmt.getSetting("Show-Pubnub-Log-In-Monitor");
-                if (!string.IsNullOrWhiteSpace(strShowPubNub))
+                bool showSubscriptions = false;
+                string strShowSubscriptions = SettingMgmt.getSetting("Show-Subscription-Log-In-Monitor");
+                if (!string.IsNullOrWhiteSpace(strShowSubscriptions))
                 {
-                    if (strShowPubNub.ToLower() == "true" && SettingMgmt.hasPubNub)
-                        showPubNub = true;
+                    if (strShowSubscriptions.ToLower() == "true")
+                        showSubscriptions = true;
                 }
-                rowPubNub.Visible = showPubNub;
+                rowSubscriptions.Visible = showSubscriptions;
             }
         }
     }

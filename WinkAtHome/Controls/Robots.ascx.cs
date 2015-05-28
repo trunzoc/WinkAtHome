@@ -12,20 +12,16 @@ namespace WinkAtHome.Controls
 {
     public partial class Robots : System.Web.UI.UserControl
     {
-        Wink myWink;
+        Wink myWink = HttpContext.Current.Session["_wink"] == null ? new Wink() : (Wink)HttpContext.Current.Session["_wink"];
         WinkHelper.RobotHelper robotHelper = new WinkHelper.RobotHelper();
 
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
-                hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Robots-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
-
-                if (myWink == null)
-                    myWink = (Wink)Session["_wink"];
-                
                 if (!IsPostBack)
                 {
+                    hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Robots-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
 
                     string columns = SettingMgmt.getSetting(hfSettingBase.Value + "-Columns");
                     if (columns != null)
@@ -67,7 +63,7 @@ namespace WinkAtHome.Controls
             }
         }
 
-        private void BindData()
+        internal void BindData()
         {
             try
             {

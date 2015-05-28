@@ -13,18 +13,16 @@ namespace WinkAtHome.Controls
 {
     public partial class Groups : System.Web.UI.UserControl
     {
-        Wink myWink;
+        Wink myWink = HttpContext.Current.Session["_wink"] == null ? new Wink() : (Wink)HttpContext.Current.Session["_wink"];
         WinkHelper.GroupHelper groupHelper = new WinkHelper.GroupHelper();
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Groups-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
-
-            if (myWink == null)
-                myWink = (Wink)Session["_wink"];
 
             if (!IsPostBack)
             {
+                hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Groups-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
+
                 string columns = SettingMgmt.getSetting(hfSettingBase.Value + "-Columns");
                 if (columns != null)
                     tbColumns.Text = columns;
@@ -50,24 +48,31 @@ namespace WinkAtHome.Controls
             }
         }
 
-        private void BindData()
+        public void BindData()
         {
-            dlGroups.DataSource = null;
-            dlGroups.DataBind();
-
-            List<Wink.Group> groups;
-
-            if (SettingMgmt.getSetting("Hide-Empty-Groups").ToLower() == "true")
+            try
             {
-                groups = myWink.Groups.Where(p => !p.isempty).ToList();
+                dlGroups.DataSource = null;
+                dlGroups.DataBind();
+
+                List<Wink.Group> groups;
+
+                if (SettingMgmt.getSetting("Hide-Empty-Groups").ToLower() == "true")
+                {
+                    groups = myWink.Groups.Where(p => !p.isempty).ToList();
+                }
+                else
+                    groups = myWink.Groups;
+
+                groups = groups.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
+
+                dlGroups.DataSource = groups;
+                dlGroups.DataBind();
             }
-            else
-                groups = myWink.Groups;
-
-            groups = groups.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
-
-            dlGroups.DataSource = groups;
-            dlGroups.DataBind();
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         protected void dlGroups_ItemDataBound(object sender, DataListItemEventArgs e)
@@ -208,7 +213,7 @@ namespace WinkAtHome.Controls
             Wink.Group.GroupStatus status = group.status.Single(p => p.name == maincommand);
             status.current_status = newstate == "true" ? "1" : "0";
 
-            Wink.Group.GroupStatus statuslvl = group.status.SingleOrDefault(p => p.name == levelcommand);
+            Wink.Group.GroupStatus statuslvl = group.status.FirstOrDefault(p => p.name == levelcommand);
             if (statuslvl != null)
                 statuslvl.current_status = newlevel;
 
@@ -217,17 +222,22 @@ namespace WinkAtHome.Controls
                 Wink.Device device = new WinkHelper.DeviceHelper().getDeviceByID(member.id);
                 if (device != null)
                 {
-                    Wink.Device.DeviceStatus devstatp = device.status.SingleOrDefault(p => p.name == maincommand);
+                    Wink.Device.DeviceStatus devstatp = device.status.FirstOrDefault(p => p.name == maincommand);
                     if (devstatp != null)
                         devstatp.current_status = newstate;
 
-                    Wink.Device.DeviceStatus devstatd = device.status.SingleOrDefault(p => p.name == levelcommand);
+                    Wink.Device.DeviceStatus devstatd = device.status.FirstOrDefault(p => p.name == levelcommand);
                     if (devstatd != null)
                         devstatd.current_status = newlevel;
                 }
             }
-            //BindData();
-            Response.Redirect(Request.RawUrl, false);
+            BindData();
+            var master = Page.Master as WinkAtHome;
+            if (master != null)
+            {
+                master.updateAllMasterPanels(true);
+            }
+            //Response.Redirect(Request.RawUrl, false);
         }
 
         protected void ibSettings_Click(object sender, ImageClickEventArgs e)

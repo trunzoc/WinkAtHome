@@ -139,7 +139,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td align="left" width="150">
+                        <td align="left" width="200">
                             <asp:Label ID="Label2" runat="server" Text="App Version" />
                         </td>
                         <td align="left">
@@ -152,6 +152,14 @@
                         </td>
                         <td align="left">
                             <asp:TextBox ID="tbDBPath" runat="server" ReadOnly="true" Width="100%" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left">
+                            <asp:Label ID="Label4" runat="server" Text="Current Access Token" />
+                        </td>
+                        <td align="left">
+                            <asp:TextBox ID="tbAccessToken" runat="server" ReadOnly="true" Width="100%" />
                         </td>
                     </tr>
                 </table>

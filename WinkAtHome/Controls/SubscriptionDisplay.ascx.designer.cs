@@ -10,7 +10,7 @@
 namespace WinkAtHome.Controls {
     
     
-    public partial class PubNubDisplay {
+    public partial class SubscriptionDisplay {
         
         /// <summary>
         /// hfSettingBase control.
@@ -20,6 +20,15 @@ namespace WinkAtHome.Controls {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.HiddenField hfSettingBase;
+        
+        /// <summary>
+        /// hfLogLength control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfLogLength;
         
         /// <summary>
         /// Table1 control.
@@ -47,6 +56,33 @@ namespace WinkAtHome.Controls {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblHeader;
+        
+        /// <summary>
+        /// ibPause control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ImageButton ibPause;
+        
+        /// <summary>
+        /// ibErase control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ImageButton ibErase;
+        
+        /// <summary>
+        /// ibReconnect control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ImageButton ibReconnect;
         
         /// <summary>
         /// ibSettings control.
@@ -175,22 +211,13 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.TableRow rowData;
         
         /// <summary>
-        /// UpdatePanelPubNub control.
+        /// upData control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel UpdatePanelPubNub;
-        
-        /// <summary>
-        /// tmrCheckChanges control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.Timer tmrCheckChanges;
+        protected global::System.Web.UI.UpdatePanel upData;
         
         /// <summary>
         /// txtMessage control.

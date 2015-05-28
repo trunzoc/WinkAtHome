@@ -33,16 +33,20 @@
         <telerik:RadAjaxManager ID="RadAjaxManager1" runat="server">
         </telerik:RadAjaxManager>
 
-        <asp:UpdatePanel ID="upPubNubTimer" runat="server" UpdateMode="Always" >
+        <asp:UpdatePanel ID="upSubscriptions" runat="server" UpdateMode="Always" >
             <Triggers>
-                <asp:AsyncPostBackTrigger ControlID="tmrCheckChanges" />
+                <asp:AsyncPostBackTrigger ControlID="tmrSubscriptions" />
             </Triggers>
             <ContentTemplate>
-                <asp:Timer ID="tmrCheckChanges" runat="server" Interval="5000" OnTick="tmrCheckChanges_Tick" />
+                <asp:Timer ID="tmrSubscriptions" runat="server" Interval="5000" OnTick="tmrSubscriptions_Tick" />
             </ContentTemplate>
         </asp:UpdatePanel>
 
-        <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="conditional" ChildrenAsTriggers="true">
+        <asp:UpdatePanel ID="upRefresh" runat="server" UpdateMode="conditional">
+            <Triggers>
+                <asp:PostBackTrigger ControlID="tmrRefresh" />
+                <asp:PostBackTrigger ControlID="ibRefresh" />
+            </Triggers>
             <ContentTemplate>
 
                 <asp:Table ID="Table1" runat="server" CellPadding="0" CellSpacing="0" Width="100%">
@@ -70,18 +74,14 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td align="right">
-                                                    <asp:Timer ID="tmrRefresh" runat="server" OnTick="tmrRefresh_Tick" Interval="300000" />
-                                               </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="2">
+                                                <td>
                                                     <asp:Label ID="lblRefreshed" runat="server" Text="Last refreshed: " ForeColor="White" Font-Size="Small" />
                                                 </td>
                                             </tr>
                                         </table>
                                     </td>
                                     <td width="50">
+                                        <asp:Timer ID="tmrRefresh" runat="server" OnTick="tmrRefresh_Tick" Interval="300000" />
                                         <asp:ImageButton ID="ibRefresh" runat="server" ImageUrl="~/Images/refresh.png" Height="50px" OnClick="tmrRefresh_Tick" />
                                     </td>
                                     <td align="left" width="30">
@@ -168,19 +168,6 @@
                                         <asp:LinkButton ID="lbLogout" runat="server" Text="LOGOUT" ForeColor="White" OnClick="lbLogout_Click" style="text-decoration: none;" />
                                     </asp:TableHeaderCell>
                                 </asp:TableHeaderRow>
-                                <asp:TableRow ID="rowMenuAdds">
-                                    <asp:TableCell ColumnSpan="2">
-                                        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-                                        <!-- WinkAtHome Menu -->
-                                        <ins class="adsbygoogle"
-                                             style="display:inline-block;width:300px;height:250px"
-                                             data-ad-client="ca-pub-9030204945381170"
-                                             data-ad-slot="1966087641"></ins>
-                                        <script>
-                                            (adsbygoogle = window.adsbygoogle || []).push({});
-                                        </script>
-                                    </asp:TableCell>
-                                </asp:TableRow>
                             </asp:Table>
 
                             <asp:Table ID="tblCollapsed" runat="server" BackColor="#22b9ec" Width="40" Height="100%" Visible="false" CellPadding="0" CellSpacing="0">
@@ -214,8 +201,7 @@
                         </asp:TableCell>
                     </asp:TableRow>
                     <asp:TableRow>
-                        <asp:TableCell></asp:TableCell>
-                        <asp:TableCell>
+                        <asp:TableCell ColumnSpan="2" HorizontalAlign="Center" style="padding-top:30px">
                             <ucF:ucFooter ID="ucFooter" runat="server" />
                         </asp:TableCell>
                     </asp:TableRow>
@@ -268,7 +254,6 @@
                         </asp:TableRow>
                     </asp:Table>                            
                 </asp:Panel>
-
             </ContentTemplate>
         </asp:UpdatePanel>
     </div>

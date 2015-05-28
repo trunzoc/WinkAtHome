@@ -30,19 +30,6 @@
             </asp:Table>
         </asp:TableCell>
     </asp:TableRow>
-    <asp:TableRow ID="rowBottomAds">
-        <asp:TableCell>
-            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-            <!-- WinkAtHome bottom Leaderboard -->
-            <ins class="adsbygoogle"
-                    style="display:inline-block;width:728px;height:90px"
-                    data-ad-client="ca-pub-9030204945381170"
-                    data-ad-slot="1047757646"></ins>
-            <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </asp:TableCell>
-    </asp:TableRow>
     <asp:TableRow ID="rowTracking">
         <asp:TableCell>
             <script>

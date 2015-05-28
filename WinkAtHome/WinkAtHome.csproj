@@ -54,9 +54,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLs\AjaxControlToolkit.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1-beta3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SQLite.Designer">
       <HintPath>DLLs\SQLite.Designer.dll</HintPath>
@@ -66,17 +65,30 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\System.Data.SQLite.Core.1.0.96.0\lib\net45\System.Data.SQLite.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Web.ApplicationServices" />
-    <Reference Include="System.Web.DynamicData" />
-    <Reference Include="System.Web.Entity" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Activation" />
+    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Web" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.3\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.XML" />
@@ -89,24 +101,33 @@
   <ItemGroup>
     <Content Include="Control.aspx" />
     <Content Include="Controls\Devices.ascx" />
+    <Content Include="Controls\Footer.ascx" />
     <Content Include="Controls\Groups.ascx" />
     <Content Include="Controls\Menu.ascx" />
-    <Content Include="Controls\PubNubDisplay.ascx" />
+    <Content Include="Controls\SubscriptionDisplay.ascx" />
     <Content Include="Controls\Robots.ascx" />
     <Content Include="Controls\Shortcuts.ascx" />
     <Content Include="Controls\winkStatus.ascx" />
+    <Content Include="DBAdmin.aspx" />
     <Content Include="Default.aspx" />
-    <Content Include="Donate.html" />
+    <Content Include="DLLs\SQLite.Designer.dll" />
+    <Content Include="DLLs\SQLite.Designer.pdb" />
+    <Content Include="DLLs\SQLite.Designer.xml" />
+    <Content Include="Global.asax" />
     <Content Include="Images\alert.png" />
+    <Content Include="Images\arrows.png" />
     <Content Include="Images\Battery\Battery0.png" />
     <Content Include="Images\Battery\Battery100.png" />
     <Content Include="Images\Battery\Battery25.png" />
     <Content Include="Images\Battery\Battery50.png" />
     <Content Include="Images\Battery\Battery75.png" />
+    <Content Include="Images\close.png" />
     <Content Include="Images\Devices\creefalse.png" />
     <Content Include="Images\Devices\creetrue.png" />
     <Content Include="Images\Devices\gefalse.png" />
     <Content Include="Images\Devices\getrue.png" />
+    <Content Include="Images\Devices\nimbusfalse.png" />
+    <Content Include="Images\Devices\nimbustrue.png" />
     <Content Include="Images\Devices\outletsfalse.png" />
     <Content Include="Images\Devices\outletstrue.png" />
     <Content Include="Images\Devices\powerstripsfalse.png" />
@@ -116,8 +137,11 @@
     <Content Include="Images\Devices\sprinklersfalse.png" />
     <Content Include="Images\Devices\sprinklerstrue.png" />
     <Content Include="Images\dots.png" />
+    <Content Include="Images\erase.png" />
     <Content Include="Images\left.png" />
     <Content Include="Images\minus.png" />
+    <Content Include="Images\pause.png" />
+    <Content Include="Images\play.png" />
     <Content Include="Images\plus.png" />
     <Content Include="Images\right.png" />
     <Content Include="Images\Robots\robotfalse.png" />
@@ -151,10 +175,10 @@
     <Content Include="Images\Sensors\wink_relaystrue.png" />
     <Content Include="Images\Thermostats\thermbackbig.png" />
     <Content Include="Images\update.png" />
+    <Content Include="Images\YouTube.png" />
     <Content Include="Monitor.aspx" />
     <Content Include="Devices.aspx" />
     <Content Include="DLLs\AjaxControlToolkit.dll" />
-    <Content Include="DLLs\Newtonsoft.Json.dll" />
     <Content Include="DLLs\Telerik.Web.UI.dll" />
     <Content Include="favicon.ico" />
     <Content Include="Groups.aspx" />
@@ -201,6 +225,7 @@
     <Content Include="Images\WinkAtHomeIcon.png" />
     <Content Include="Images\WinkHouse.png" />
     <Content Include="Images\wrench.png" />
+    <Content Include="SubscriptionLog.aspx" />
     <Content Include="Robots.aspx" />
     <Content Include="Login.aspx" />
     <Content Include="Settings.aspx" />
@@ -211,8 +236,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Common.cs" />
-    <Compile Include="Classes\PubNub.cs" />
     <Compile Include="Classes\SettingMgmt.cs" />
+    <Compile Include="Classes\WinkEvent.cs" />
     <Compile Include="Control.aspx.cs">
       <DependentUpon>Control.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -226,6 +251,13 @@
     </Compile>
     <Compile Include="Controls\Devices.ascx.designer.cs">
       <DependentUpon>Devices.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Footer.ascx.cs">
+      <DependentUpon>Footer.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Footer.ascx.designer.cs">
+      <DependentUpon>Footer.ascx</DependentUpon>
     </Compile>
     <Compile Include="Controls\Groups.ascx.cs">
       <DependentUpon>Groups.ascx</DependentUpon>
@@ -241,12 +273,12 @@
     <Compile Include="Controls\Menu.ascx.designer.cs">
       <DependentUpon>Menu.ascx</DependentUpon>
     </Compile>
-    <Compile Include="Controls\PubNubDisplay.ascx.cs">
-      <DependentUpon>PubNubDisplay.ascx</DependentUpon>
+    <Compile Include="Controls\SubscriptionDisplay.ascx.cs">
+      <DependentUpon>SubscriptionDisplay.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Controls\PubNubDisplay.ascx.designer.cs">
-      <DependentUpon>PubNubDisplay.ascx</DependentUpon>
+    <Compile Include="Controls\SubscriptionDisplay.ascx.designer.cs">
+      <DependentUpon>SubscriptionDisplay.ascx</DependentUpon>
     </Compile>
     <Compile Include="Controls\Robots.ascx.cs">
       <DependentUpon>Robots.ascx</DependentUpon>
@@ -269,12 +301,22 @@
     <Compile Include="Controls\winkStatus.ascx.designer.cs">
       <DependentUpon>winkStatus.ascx</DependentUpon>
     </Compile>
+    <Compile Include="DBAdmin.aspx.cs">
+      <DependentUpon>DBAdmin.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DBAdmin.aspx.designer.cs">
+      <DependentUpon>DBAdmin.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Monitor.aspx.cs">
       <DependentUpon>Monitor.aspx</DependentUpon>
@@ -298,13 +340,13 @@
       <DependentUpon>Groups.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PubNub\ClientNetworkStatus.cs" />
-    <Compile Include="PubNub\LoggingMethod.cs" />
-    <Compile Include="PubNub\MD5.cs" />
-    <Compile Include="PubNub\Pubnub.cs" />
-    <Compile Include="PubNub\PubnubCore.cs" />
-    <Compile Include="PubNub\PubnubWin.cs" />
-    <Compile Include="PubNub\ReconnectState.cs" />
+    <Compile Include="SubscriptionLog.aspx.cs">
+      <DependentUpon>SubscriptionLog.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SubscriptionLog.aspx.designer.cs">
+      <DependentUpon>SubscriptionLog.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Robots.aspx.cs">
       <DependentUpon>Robots.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -344,10 +386,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+    <Content Include="DLLs\System.Data.SQLite.dll.config" />
     <None Include="Properties\PublishProfiles\Publish Local.pubxml" />
-    <None Include="Properties\PublishProfiles\SmarterASP.NET - Prod.pubxml" />
-    <None Include="Properties\PublishProfiles\SmarterASP.NET - Test -Files.pubxml" />
-    <None Include="Properties\PublishProfiles\SmarterASP.NET - Test.pubxml" />
+    <None Include="Properties\PublishProfiles\SmarterASP.NET - 3 - Prod.pubxml" />
+    <None Include="Properties\PublishProfiles\SmarterASP.NET - 2 - Test.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -355,13 +397,13 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <Content Include="WinkAtHome.Master" />
+    <None Include="Web.Prod.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
-    <None Include="Web.SmarterASP.NET-Prod.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
-    <None Include="Web.SmarterASP.Net-Test.config">
+    <None Include="Web.Test.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
@@ -405,52 +447,61 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'LocalRelease|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <LangVersion>default</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Optimize>true</Optimize>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'SmarterASP.Net-Test|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <LangVersion>default</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <includesetaclproviderondestination>False</includesetaclproviderondestination>
+    <Optimize>true</Optimize>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'SmarterASP.Net-Test|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <LangVersion>default</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <includesetaclproviderondestination>False</includesetaclproviderondestination>
+    <Optimize>true</Optimize>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SmarterASP.NET-Prod|AnyCPU'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Prod|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <LangVersion>default</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <includesetaclproviderondestination>False</includesetaclproviderondestination>
+    <Optimize>true</Optimize>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SmarterASP.NET-Prod|x86'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Prod|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <LangVersion>default</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <includesetaclproviderondestination>False</includesetaclproviderondestination>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />

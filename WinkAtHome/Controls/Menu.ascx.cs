@@ -44,13 +44,6 @@ namespace WinkAtHome.Controls
                                 }
                             }
                         }
-                        else if (item.Value.ToLower().Contains("pubnub"))
-                        {
-                            if (SettingMgmt.hasPubNub)
-                            {
-                                item.Visible = true;
-                            }
-                        }
                     }
 
                     //SELECT REFERRING MENU ITEM

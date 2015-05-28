@@ -1,6 +1,7 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="PubNubDisplay.ascx.cs" Inherits="WinkAtHome.Controls.PubNubDisplay" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="SubscriptionDisplay.ascx.cs" Inherits="WinkAtHome.Controls.SubscriptionDisplay" %>
 
 <asp:HiddenField ID="hfSettingBase" runat="server" />
+<asp:HiddenField ID="hfLogLength" runat="server" />
 
 <asp:Table ID="Table1" runat="server" BorderColor="#22b9ec" BorderWidth="1" Width="100%" BackColor="#22b9ec"  CellPadding="0" CellSpacing="0">
     <asp:TableRow>
@@ -8,8 +9,17 @@
             <asp:Table ID="Table7" runat="server" Width="100%">
                 <asp:TableHeaderRow>
                     <asp:TableHeaderCell HorizontalAlign="Left" style="padding:10px;">
-                        <asp:Label ID="lblHeader" runat="server" Text="PubNub Subscription Feed" ForeColor="White" />
+                        <asp:Label ID="lblHeader" runat="server" Text="Subscription Feed" ForeColor="White" />
                     </asp:TableHeaderCell>
+                    <asp:TableCell Width="40">
+                        <asp:ImageButton ID="ibPause" runat="server" ImageUrl="~/Images/pause.png" Height="27" ToolTip="Pause Subscription Messages" OnClick="ibPause_Click" />
+                    </asp:TableCell>
+                    <asp:TableCell Width="40">
+                        <asp:ImageButton ID="ibErase" runat="server" ImageUrl="~/Images/erase.png" Height="27" ToolTip="Clear Subscription Messages" OnClick="ibErase_Click" />
+                    </asp:TableCell>
+                    <asp:TableCell Width="40">
+                        <asp:ImageButton ID="ibReconnect" runat="server" ImageUrl="~/Images/arrows.png" Height="27" ToolTip="Reconnect to Subscription Service" OnClick="ibReconnect_Click" />
+                    </asp:TableCell>
                     <asp:TableCell Width="40">
                         <asp:ImageButton ID="ibSettings" runat="server" ImageUrl="~/Images/wrench.png" Height="30" ToolTip="Panel Settings" OnClick="ibSettings_Click" />
                         <asp:button id="btnShowSettings" runat="server" style="display:none;" />
@@ -43,7 +53,7 @@
                                 </asp:TableRow>
                                 <asp:TableRow>
                                     <asp:TableCell>
-                                        <asp:Label ID="Label2" runat="server" Text="Log Length: "  Font-Size="Small" />
+                                        <asp:Label ID="Label2" runat="server" Text="Records To Show: "  Font-Size="Small" />
                                     </asp:TableCell>
                                     <asp:TableCell>
                                         <asp:TextBox ID="tbLogLength" runat="server" />
@@ -63,19 +73,10 @@
     </asp:TableRow>
     <asp:TableRow ID="rowData" BackColor="#eeeeee">
         <asp:TableCell style="padding:10px;">
-            <asp:UpdatePanel ID="UpdatePanelPubNub" runat="server" ChildrenAsTriggers="false"
-                UpdateMode="Conditional">
-                <Triggers>
-                    <asp:AsyncPostBackTrigger ControlID="tmrCheckChanges" />
-                </Triggers>
+            <asp:UpdatePanel ID="upData" runat="server" ChildrenAsTriggers="false" UpdateMode="Conditional">
                 <ContentTemplate>
-                    
-                    <asp:Timer ID="tmrCheckChanges" runat="server" Interval="5000" OnTick="tmrCheckChanges_Tick" />
-                    
-                    <fieldset>
-                        <asp:TextBox ID="txtMessage" runat="server" ReadOnly="true" BackColor="Black" ForeColor="#22b9ec" Font-Size="Smaller"
-                            Height="500" TextMode="MultiLine" Wrap="true" AutoPostBack="false" Width="100%" />
-                    </fieldset>
+                    <asp:TextBox ID="txtMessage" runat="server" ReadOnly="true" BackColor="Black" ForeColor="#22b9ec" Font-Size="Smaller"
+                        Height="500" TextMode="MultiLine" Wrap="true" AutoPostBack="false" Width="100%" />
                 </ContentTemplate>
             </asp:UpdatePanel>
         </asp:TableCell>

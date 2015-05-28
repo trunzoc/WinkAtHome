@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
@@ -13,14 +14,6 @@ namespace WinkAtHome
 {
     public class SettingMgmt
     {
-        public static bool hasPubNub 
-        { 
-            get 
-            { 
-                return !(String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-PublishKey")) || String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-SubscribeKey")) || String.IsNullOrWhiteSpace(SettingMgmt.getSetting("PubNub-SecretKey"))); 
-            }
-        }
-
         public class stringbool : Tuple<string, bool>
         {
             public stringbool(string value, bool isEncrypted)
@@ -76,7 +69,9 @@ namespace WinkAtHome
                         //LEGACY CORRECTIONS
                         using (SQLiteCommand command = new SQLiteCommand(connection))
                         {
-                            command.CommandText = "DELETE FROM Settings WHERE Name='winkPassword' or Name='winkUsername' or Name='winkClientID' or Name='winkClientSecret' or Name='PubNub-Log-Length'";
+                            command.CommandText = "DELETE FROM Settings WHERE Name='winkPassword' or Name='winkUsername' or Name='winkClientID' or Name='winkClientSecret'"
+                                + "or Name='PubNub-Log-Length' or Name='PubNub-PublishKey' or Name='PubNub-SubscribeKey' or Name='PubNub-SecretKey' or Name='PubNub-Enabled'"
+                                + "or Name='Show-Pubnub-Log-In-Monitor'";
                             command.ExecuteNonQuery();
 
                             if (myWink.winkUser != null)
@@ -89,14 +84,11 @@ namespace WinkAtHome
 
                         //INSERT DEFAULT SETTINGS
                         Dictionary<string, stringbool> basicSettings = new Dictionary<string, stringbool>();
-                        basicSettings.Add("PubNub-PublishKey", (new stringbool(null, true)));
-                        basicSettings.Add("PubNub-SubscribeKey", (new stringbool(null, true)));
-                        basicSettings.Add("PubNub-SecretKey", (new stringbool(null, true)));
                         basicSettings.Add("StartPage", (new stringbool("Control.aspx", false)));
                         basicSettings.Add("Hide-Empty-Robots", (new stringbool("false", false)));
                         basicSettings.Add("Hide-Empty-Groups", (new stringbool("false", false)));
                         basicSettings.Add("Robot-Alert-Minutes-Since-Last-Trigger", (new stringbool("60", false)));
-                        basicSettings.Add("Show-Pubnub-Log-In-Monitor", (new stringbool("false", false)));
+                        basicSettings.Add("Show-Subscription-Log-In-Monitor", (new stringbool("false", false)));
                         basicSettings.Add("TimeZone-Adjuster", (new stringbool("-5", false)));
 
                         foreach (KeyValuePair<string, stringbool> pair in basicSettings)
@@ -174,7 +166,7 @@ namespace WinkAtHome
             {
                 Wink myWink = (Wink)HttpContext.Current.Session["_wink"];
 
-                Setting setting = Settings.SingleOrDefault(s => s.key == key);
+                Setting setting = Settings.FirstOrDefault(s => s.key == key);
                 string newValue = (setting != null && setting.isEncrypted) ? Common.Encrypt(value) : value;
                 using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
                 {

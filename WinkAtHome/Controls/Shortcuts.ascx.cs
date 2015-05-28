@@ -12,18 +12,16 @@ namespace WinkAtHome.Controls
 {
     public partial class Shortcuts : System.Web.UI.UserControl
     {
-        Wink myWink;
+        Wink myWink = HttpContext.Current.Session["_wink"] == null ? new Wink() : (Wink)HttpContext.Current.Session["_wink"];
         WinkHelper.ShortcutHelper shortcutHelper = new WinkHelper.ShortcutHelper();
+
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
-                if (myWink == null)
-                    myWink = (Wink)Session["_wink"];
-
-                hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Shortcuts-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
                 if (!IsPostBack)
                 {
+                    hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Shortcuts-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
 
                     string columns = SettingMgmt.getSetting(hfSettingBase.Value + "-Columns");
                     if (columns != null)
@@ -47,7 +45,7 @@ namespace WinkAtHome.Controls
             }
         }
 
-        private void BindData()
+        internal void BindData()
         {
             try
             {
@@ -115,8 +113,12 @@ namespace WinkAtHome.Controls
                 string shortcutID = ib.CommandArgument;
 
                 new WinkHelper.ShortcutHelper().ShortcutActivate(shortcutID);
-                //BindData();
-                Response.Redirect(Request.RawUrl, false);
+                BindData();
+                var master = Page.Master as WinkAtHome;
+                if (master != null)
+                {
+                    master.updateAllMasterPanels(true,true);
+                }
             }
             catch (Exception ex)
             {

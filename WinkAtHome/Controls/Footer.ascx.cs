@@ -15,7 +15,6 @@ namespace WinkAtHome.Controls
             bool showLocal = true;//(Common.isLocalHost)
 
             rowEmailSupport.Visible = showLocal;
-            rowBottomAds.Visible = showLocal;
             rowTracking.Visible = showLocal;
         }
     }

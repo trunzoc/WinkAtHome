@@ -7,7 +7,6 @@ using System.Web.UI.WebControls;
 using Telerik.Web.UI;
 using System.Reflection;
 using System.Collections.Concurrent;
-using PubNubMessaging.Core;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Net;
@@ -20,29 +19,22 @@ namespace WinkAtHome
 {
     public partial class WinkAtHome : System.Web.UI.MasterPage
     {
-        Wink myWink;
+        Wink myWink = HttpContext.Current.Session["_wink"] == null ? new Wink() : (Wink)HttpContext.Current.Session["_wink"];
+        List<WinkEvent> deviceEvents = new List<WinkEvent>();
+        List<WinkEvent> groupEvents = new List<WinkEvent>();
+        List<WinkEvent> shortcutEvents = new List<WinkEvent>();
+        List<WinkEvent> robotEvents = new List<WinkEvent>();
+        List<string> subscriptionMessages = new List<string>();
 
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
-                Common.prepareDatabase();
-
                 if (Session["_winkToken"] == null || Session["_wink"] == null)
                     Response.Redirect("~/Login.aspx");
 
-                if (myWink == null)
-                    myWink = (Wink)Session["_wink"];
-                
                 if (!IsPostBack)
                 {
-
-                    //Response.Write("SessionID: " + Session.SessionID + "<br />");
-                    //Response.Write("Token: " + myWink.Token + "<br />");
-                    //Response.Write("User: " + myWink.winkUser.email + "<br />");
-                    //if (Session["userID"] != null)
-                    //    Response.Write("UserID: " + Session["userID"].ToString() + "<br />");
-
                     ibVersion.Text = Common.currentVersion;
                     if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["EnvironmentName"]))
                     {
@@ -64,11 +56,6 @@ namespace WinkAtHome
                         }
                     }
 
-                    if (Common.isLocalHost)
-                    {
-                        rowMenuAdds.Visible = false;
-                    }
-
                     lblRefreshed.Text = Common.getLocalTime().ToString();
 
                     //SET PAGE OPTIONS
@@ -79,12 +66,12 @@ namespace WinkAtHome
                         tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
                     }
 
-                    string timerenabled = SettingMgmt.getSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
-                    if (timerenabled != null)
-                    {
-                        rblenabled.SelectedValue = timerenabled;
-                        tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
-                    }
+                    //string timerenabled = SettingMgmt.getSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""));
+                    //if (timerenabled != null)
+                    //{
+                    //    rblenabled.SelectedValue = timerenabled;
+                    //    tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
+                    //}
 
                     string menustate = SettingMgmt.getSetting("Menu-Default-State");
                     if (menustate != null)
@@ -102,15 +89,6 @@ namespace WinkAtHome
 
                         cellMenu.BackColor = tblExpand.Visible ? System.Drawing.ColorTranslator.FromHtml("#eeeeee") : System.Drawing.ColorTranslator.FromHtml("#22b9ec");
                     }
-
-
-                    //SET PUBNUB
-                    if (SettingMgmt.hasPubNub)
-                    {
-                        PubNub pubnub = PubNub.myPubNub;
-                        pubnub.Open();
-                        tmrCheckChanges.Enabled = true;
-                    }
                 }
             }
             catch (Exception ex)
@@ -119,30 +97,14 @@ namespace WinkAtHome
             }
         }
 
-        protected void tmrRefresh_Tick(object sender, EventArgs e)
-        {
-            try
-            {
-                tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
-
-                reload();
-            }
-            catch (Exception ex)
-            {
-                throw; //EventLog.WriteEntry("WinkAtHome.Master.tmrRefresh_Tick", ex.Message, EventLogEntryType.Error);
-            }
-
-        }
-
         protected void ibSettingsClose_Click(object sender, EventArgs e)
         {
-            tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
-            SettingMgmt.saveSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), rblenabled.SelectedValue);
+            //tmrRefresh.Enabled = Convert.ToBoolean(rblenabled.SelectedValue);
+            //SettingMgmt.saveSetting("RefreshEnabled-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), rblenabled.SelectedValue);
                 
             tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
             SettingMgmt.saveSetting("RefreshTimer-" + Request.RawUrl.Replace("/", "").Replace(".aspx", ""), tbTimer.Text);
         }
-
         public void lbLogout_Click(object sender, EventArgs e)
         {
             try
@@ -166,7 +128,6 @@ namespace WinkAtHome
                 throw; //EventLog.WriteEntry("WinkAtHome.Master.lbLogout_Click", ex.Message, EventLogEntryType.Error);
             }
         }
-
         protected void ibExpand_Click(object sender, EventArgs e)
         {
             try
@@ -210,10 +171,25 @@ namespace WinkAtHome
                 throw; //EventLog.WriteEntry("WinkAtHome.Master.ibExpand_Click", ex.Message, EventLogEntryType.Error);
             }
         }
-        public void reload()
+        protected void ibUpdateClose_Click(object sender, EventArgs e)
+        {
+            Session["modalshowing"] = "false";
+
+            mpeUpdate.Hide();
+        }
+        protected void ibVersion_Click(object sender, EventArgs e)
+        {
+            Session["modalshowing"] = "true";
+
+            mpeUpdate.Show();
+        }
+
+        protected void tmrRefresh_Tick(object sender, EventArgs e)
         {
             try
             {
+                tmrRefresh.Interval = Convert.ToInt32(tbTimer.Text) * 60000;
+
                 string modalshowing = "false";
                 if (Session["modalshowing"] != null)
                     modalshowing = Session["modalshowing"].ToString();
@@ -226,24 +202,12 @@ namespace WinkAtHome
             }
             catch (Exception ex)
             {
-                throw; //EventLog.WriteEntry("WinkAtHome.Master.reload", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.Master.tmrRefresh_Tick", ex.Message, EventLogEntryType.Error);
             }
+
         }
 
-        protected void ibUpdateClose_Click(object sender, EventArgs e)
-        {
-            Session["modalshowing"] = "false";
-
-            mpeUpdate.Hide();
-        }
-
-        protected void ibVersion_Click(object sender, EventArgs e)
-        {
-            Session["modalshowing"] = "true";
-
-            mpeUpdate.Show();
-        }
-        protected void tmrCheckChanges_Tick(object sender, EventArgs e)
+        protected void tmrSubscriptions_Tick(object sender, EventArgs e)
         {
             try
             {
@@ -253,46 +217,209 @@ namespace WinkAtHome
 
                 if (modalshowing == "false")
                 {
-                    JObject currentRecord;
-                    while (PubNub.myPubNub.DeviceQueue.TryDequeue(out currentRecord))
+                    //SORT OBJECT TYPES
+                    if (WinkEventService.MessageQueue.Count > 0)
+                    {
+                        Dictionary<Guid, WinkEvent> events = WinkEventService.MessageQueue.Where(q => q.Value.userID == myWink.winkUser.userID).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                        if (events.Count > 0)
+                        {
+                            foreach (KeyValuePair<Guid, WinkEvent> pair in events)
+                            {
+                                WinkEvent winkevent;
+                                WinkEventService.MessageQueue.TryRemove(pair.Key, out winkevent);
+                                if (winkevent != null)
+                                {
+                                    winkevent.messageReceived = Common.getLocalTime(winkevent.messageReceived);
+                                    if (winkevent.objectType.ToLower().Contains("action:"))
+                                    {
+                                        subscriptionMessages.Add(winkevent.objectType + ": " + winkevent.messageReceived.ToString() + Environment.NewLine + winkevent.json);
+                                    }
+                                    else
+                                    {
+                                        switch (winkevent.objectType)
+                                        {
+                                            case "group":
+                                                groupEvents.Add(winkevent);
+                                                break;
+                                            case "shortcut":
+                                                shortcutEvents.Add(winkevent);
+                                                break;
+                                            case "robot":
+                                                robotEvents.Add(winkevent);
+                                                break;
+                                            default:
+                                                deviceEvents.Add(winkevent);
+                                                break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    foreach (WinkEvent winkevent in deviceEvents)
                     {
                         myWink.DeviceHasChanges = true;
-                        new WinkHelper.DeviceHelper().DeviceUpdate(currentRecord);
+                        Wink.Device device = myWink.Devices.SingleOrDefault(d => d.id == winkevent.objectID);
+                        
+                        subscriptionMessages.Add("DEVICE ACTION (" + device.name + "): " + winkevent.messageReceived.ToString() + Environment.NewLine + winkevent.json);
+
+                        string deviceResult = winkevent.json;
+                        deviceResult = "{\"data\": [" + deviceResult + "]}";
+                        JObject currentJSON = JObject.Parse(deviceResult);
+                        new WinkHelper.DeviceHelper().DeviceUpdate(currentJSON);
+                        break;
                     }
+                    //while (mySubscriptions.ShortcutQueue.TryDequeue(out currentJSON))
+                    //{
+                    //    myWink.ShortcutHasChanges = true;
+                    //    new WinkHelper.ShortcutHelper().ShortcutUpdate(currentJSON);
+                    //}
+                    //while (mySubscriptions.GroupQueue.TryDequeue(out currentJSON))
+                    //{
+                    //    myWink.GroupHasChanges = true;
+                    //    new WinkHelper.GroupHelper().GroupUpdate(currentJSON);
+                    //}
+                    //while (mySubscriptions.RobotQueue.TryDequeue(out currentJSON))
+                    //{
+                    //    myWink.RobotHasChanges = true;
+                    //    new WinkHelper.RobotHelper().RobotUpdate(currentJSON);
+                    //}
 
-                    if (myWink.DeviceHasChanges)
-                    {
-                        myWink.DeviceHasChanges = false;
+                    //if (mySubscriptions.MessageQueue.Count > 0)
+                    //{
+                    //}
 
-                        //UPDATE DEVICES
-                        UserControl ucDevices = (UserControl)cphMain.FindControl("ucDevices");
-                        if (ucDevices != null)
-                        {
-                            var control = ucDevices as Controls.Devices;
-                            control.BindData();
-
-                            UpdatePanel upData = (UpdatePanel)control.FindControl("upData");
-                            upData.Update();
-                        }
-
-                        //UPDATE SENSORS
-                        UserControl ucSensors = (UserControl)cphMain.FindControl("ucSensors");
-                        if (ucSensors != null)
-                        {
-                            var control = ucSensors as Controls.Devices;
-                            control.BindData();
-
-                            UpdatePanel upData = (UpdatePanel)control.FindControl("upData");
-                            upData.Update();
-                        }
-
-                        UpdatePanel1.Update();
-                    }
+                    updateAllMasterPanels();
                 }
             }
             catch (Exception ex)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Master.tmrCheckChanges_Tick", ex.Message, EventLogEntryType.Error);
+            }
+        }
+
+        public void updateAllMasterPanels(bool updateDevices = false, bool updateGroups = false, bool updateRobots = false, bool updateShortcuts = false)
+        {
+            try
+            {
+                //UPDATE DEVICES
+                if (myWink.DeviceHasChanges || updateDevices)
+                {
+                    myWink.DeviceHasChanges = false;
+
+                    //UPDATE DEVICES PANEL
+                    UserControl ucDevices = (UserControl)cphMain.FindControl("ucDevices");
+                    if (ucDevices != null)
+                    {
+                        var control = ucDevices as Controls.Devices;
+                        control.BindData();
+
+                        UpdatePanel upData = (UpdatePanel)control.FindControl("upData");
+                        upData.Update();
+                    }
+
+                    //UPDATE SENSORS PANEL
+                    UserControl ucSensors = (UserControl)cphMain.FindControl("ucSensors");
+                    if (ucSensors != null)
+                    {
+                        var control = ucSensors as Controls.Devices;
+                        control.BindData();
+
+                        UpdatePanel upData = (UpdatePanel)control.FindControl("upData");
+                        upData.Update();
+                    }
+                }
+
+                //UPDATE GROUPS
+                if (myWink.GroupHasChanges || updateGroups)
+                {
+                    myWink.GroupHasChanges = false;
+
+                    UserControl ucGroups = (UserControl)cphMain.FindControl("ucGroups");
+                    if (ucGroups != null)
+                    {
+                        var control = ucGroups as Controls.Groups;
+                        //control.BindData();
+
+                        UpdatePanel upData = (UpdatePanel)control.FindControl("upData");
+                        upData.Update();
+                    }
+                }
+
+                //UPDATE ROBOTS
+                if (myWink.RobotHasChanges || updateRobots)
+                {
+                    myWink.RobotHasChanges = false;
+
+                    UserControl ucRobots = (UserControl)cphMain.FindControl("ucRobots");
+                    if (ucRobots != null)
+                    {
+                        var control = ucRobots as Controls.Robots;
+                        control.BindData();
+
+                        UpdatePanel upData = (UpdatePanel)control.FindControl("upData");
+                        upData.Update();
+                    }
+                }
+
+                //UPDATE SHORTCUTS
+                if (myWink.ShortcutHasChanges || updateShortcuts)
+                {
+                    myWink.ShortcutHasChanges = false;
+
+                    UserControl ucShortcuts = (UserControl)cphMain.FindControl("ucShortcuts");
+                    if (ucShortcuts != null)
+                    {
+                        var control = ucShortcuts as Controls.Shortcuts;
+                        control.BindData();
+
+                        UpdatePanel upData = (UpdatePanel)control.FindControl("upData");
+                        upData.Update();
+                    }
+                }
+
+                //UPDATE SUBSCRIPTION MESSAGES
+                UserControl ucSubscription = (UserControl)cphMain.FindControl("ucSubscription");
+                if (ucSubscription != null)
+                {
+                    TextBox txtMessage = (TextBox)ucSubscription.FindControl("txtMessage");
+                    HiddenField hfLogLength = (HiddenField)ucSubscription.FindControl("hfLogLength");
+                    if (subscriptionMessages.Count > 0 || txtMessage.Text.Length == 0)
+                    {
+                        List<string> sessionList = (List<string>)Session["_subscriptionLog"];
+
+                        foreach (string message in subscriptionMessages)
+                        {
+                            sessionList.Insert(0, message + Environment.NewLine + Environment.NewLine);
+                        }
+
+                        if (sessionList.Count > 500)
+                            sessionList.RemoveRange(500, sessionList.Count - 500);
+
+                        Session["_subscriptionLog"] = sessionList;
+
+                        //DRAW MESSAGES
+                        string length = hfLogLength.Value;
+                        int LogLength = 50;
+                        int.TryParse(length, out LogLength);
+
+                        if (sessionList.Count > LogLength)
+                            txtMessage.Text = String.Join("", sessionList.GetRange(0, LogLength)) + "...(truncated)";
+                        else
+                            txtMessage.Text = String.Join("", sessionList);
+
+                        UpdatePanel upData = (UpdatePanel)ucSubscription.FindControl("upData");
+                        upData.Update();
+                    }
+                }
+
+                upRefresh.Update();
+                lblRefreshed.Text = Common.getLocalTime().ToString();
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
     }

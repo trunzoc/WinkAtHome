@@ -17,7 +17,7 @@ public class WinkHelper
 {
     Wink myWink = HttpContext.Current.Session["_wink"] == null ? new Wink() : (Wink)HttpContext.Current.Session["_wink"];
 
-#region Public Functions
+#region public Functions
     public bool validateWinkCredentialsByUsername(string username, string password)
     {
         try
@@ -86,8 +86,8 @@ public class WinkHelper
     public void reloadWink(bool clearFirst = true)
     {
         new WinkHelper.DeviceHelper().winkGetDevices(null, true);
-        new WinkHelper.ShortcutHelper().winkGetShortcuts(true);
-        new WinkHelper.GroupHelper().winkGetGroups(true);
+        new WinkHelper.ShortcutHelper().winkGetShortcuts(null, true);
+        new WinkHelper.GroupHelper().winkGetGroups(null, true);
         new WinkHelper.RobotHelper().winkGetRobots(null, true);
     }
     public Dictionary<string, string>[] winkGetServerStatus()
@@ -182,7 +182,7 @@ public class WinkHelper
                         //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"gang_id\": \"6776\", \"name\": \"zTest Gang\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545678, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"1d8877fe2c53439330ef7e72548c6fa38e111420|gang-6776|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"desired_state\": {}, \"manufacturer_device_model\": \"wink_project_one\", \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"hub_id\": \"132595\", \"local_id\": null, \"radio_type\": null, \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428545678.122422 }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
 
                         //Spotter
-                        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"last_event\":{\"brightness_occurred_at\":1428961404.2836313,\"loudness_occurred_at\":1427547964.9292188,\"vibration_occurred_at\":1428879300.9600453},\"sensor_threshold_events\":[],\"sensor_pod_id\":\"40794\",\"name\":\"zTest Spotter\",\"locale\":\"en_us\",\"units\":{\"temperature\":\"f\"},\"created_at\":1422657639,\"hidden_at\":null,\"capabilities\":{\"sensor_types\":[{\"type\":\"percentage\",\"field\":\"battery\"},{\"type\":\"percentage\",\"field\":\"brightness\"},{\"type\":\"boolean\",\"field\":\"external_power\"},{\"type\":\"integer_percentage\",\"field\":\"humidity\"},{\"type\":\"percentage\",\"field\":\"loudness\"},{\"type\":\"float\",\"field\":\"temperature\"},{\"type\":\"boolean\",\"field\":\"vibration\"}]},\"subscription\":{\"pubnub\":{\"subscribe_key\":\"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\":\"959bda140ade2f77ded3fd968bfac2242489175e|sensor_pod-40794|user-186645\"}},\"user_ids\":[\"186645\"],\"triggers\":[],\"desired_state\":{},\"manufacturer_device_model\":\"quirky_ge_spotter\",\"manufacturer_device_id\":null,\"device_manufacturer\":\"quirky_ge\",\"model_name\":\"Spotter\",\"upc_id\":\"25\",\"gang_id\":null,\"hub_id\":null,\"local_id\":null,\"radio_type\":null,\"last_reading\":{\"connection\":true,\"connection_updated_at\":1428969581.0099306,\"agent_session_id\":null,\"agent_session_id_updated_at\":1425384214.8524168,\"battery\":0.98,\"battery_updated_at\":1428969581.0099251,\"brightness\":1.0,\"brightness_updated_at\":1428969581.0098875,\"external_power\":true,\"external_power_updated_at\":1428969581.0098965,\"humidity\":35,\"humidity_updated_at\":1428969581.0099025,\"loudness\":0.0,\"loudness_updated_at\":1428969581.0099192,\"temperature\":19.0,\"temperature_updated_at\":1428969581.0099139,\"vibration\":false,\"vibration_updated_at\":1428969581.0099082,\"brightness_true\":\"N/A\",\"brightness_true_updated_at\":1428961404.2836313,\"loudness_true\":\"N/A\",\"loudness_true_updated_at\":1427547964.9292188,\"vibration_true\":\"N/A\",\"vibration_true_updated_at\":1428879300.9600453},\"lat_lng\":[0.0,0.0],\"location\":\"\",\"mac_address\":\"0c2a690656b3\",\"serial\":\"ABAB00029469\",\"uuid\":\"005f5493-2ab6-46fa-ab7d-f2932c37dd4a\"},");
+                        //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"last_event\":{\"brightness_occurred_at\":1428961404.2836313,\"loudness_occurred_at\":1427547964.9292188,\"vibration_occurred_at\":1428879300.9600453},\"sensor_threshold_events\":[],\"sensor_pod_id\":\"40794\",\"name\":\"zTest Spotter\",\"locale\":\"en_us\",\"units\":{\"temperature\":\"f\"},\"created_at\":1422657639,\"hidden_at\":null,\"capabilities\":{\"sensor_types\":[{\"type\":\"percentage\",\"field\":\"battery\"},{\"type\":\"percentage\",\"field\":\"brightness\"},{\"type\":\"boolean\",\"field\":\"external_power\"},{\"type\":\"integer_percentage\",\"field\":\"humidity\"},{\"type\":\"percentage\",\"field\":\"loudness\"},{\"type\":\"float\",\"field\":\"temperature\"},{\"type\":\"boolean\",\"field\":\"vibration\"}]},\"subscription\":{\"pubnub\":{\"subscribe_key\":\"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\":\"959bda140ade2f77ded3fd968bfac2242489175e|sensor_pod-40794|user-186645\"}},\"user_ids\":[\"186645\"],\"triggers\":[],\"desired_state\":{},\"manufacturer_device_model\":\"quirky_ge_spotter\",\"manufacturer_device_id\":null,\"device_manufacturer\":\"quirky_ge\",\"model_name\":\"Spotter\",\"upc_id\":\"25\",\"gang_id\":null,\"hub_id\":null,\"local_id\":null,\"radio_type\":null,\"last_reading\":{\"connection\":true,\"connection_updated_at\":1428969581.0099306,\"agent_session_id\":null,\"agent_session_id_updated_at\":1425384214.8524168,\"battery\":0.98,\"battery_updated_at\":1428969581.0099251,\"brightness\":1.0,\"brightness_updated_at\":1428969581.0098875,\"external_power\":true,\"external_power_updated_at\":1428969581.0098965,\"humidity\":35,\"humidity_updated_at\":1428969581.0099025,\"loudness\":0.0,\"loudness_updated_at\":1428969581.0099192,\"temperature\":19.0,\"temperature_updated_at\":1428969581.0099139,\"vibration\":false,\"vibration_updated_at\":1428969581.0099082,\"brightness_true\":\"N/A\",\"brightness_true_updated_at\":1428961404.2836313,\"loudness_true\":\"N/A\",\"loudness_true_updated_at\":1427547964.9292188,\"vibration_true\":\"N/A\",\"vibration_true_updated_at\":1428879300.9600453},\"lat_lng\":[0.0,0.0],\"location\":\"\",\"mac_address\":\"0c2a690656b3\",\"serial\":\"ABAB00029469\",\"uuid\":\"005f5493-2ab6-46fa-ab7d-f2932c37dd4a\"},");
 
                         //Rachio Iro
                         //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"sprinkler_id\": \"1483\",\"name\": \"Sprinkler\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1429295028,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"ecbd8151da8524635b2dfd777c4f55f33a042285|sprinkler-1483|user-186645\"}},\"user_ids\": [\"186645\"],\"desired_state\": {\"master_valve\": false,\"rain_sensor\": false,\"schedule_enabled\": false,\"run_zone_indices\": [],\"run_zone_durations\": []},\"manufacturer_device_model\": \"rachio_iro\",\"manufacturer_device_id\": \"b26d4e70-f4df-481a-9149-c9bac4c3a09e\",\"device_manufacturer\": \"rachio\",\"model_name\": \"Iro\",\"upc_id\": \"152\",\"linked_service_id\": \"100792\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1429477160.725,\"master_valve\": false,\"master_valve_updated_at\": 1429477160.725,\"rain_sensor\": false,\"rain_sensor_updated_at\": 1429477160.725,\"schedule_enabled\": false,\"schedule_enabled_updated_at\": 1429477160.725,\"run_zone_indices\": [],\"run_zone_indices_updated_at\": 1429361044.5683227,\"run_zone_durations\": [],\"run_zone_durations_updated_at\": 1429361044.5683227,\"desired_master_valve\": false,\"desired_master_valve_updated_at\": 1429361044.6298194,\"desired_rain_sensor\": false,\"desired_rain_sensor_updated_at\": 1429361042.534966,\"desired_schedule_enabled\": false,\"desired_schedule_enabled_updated_at\": 1429361044.6298397,\"desired_run_zone_indices\": [],\"desired_run_zone_indices_updated_at\": 1429361042.5349822,\"desired_run_zone_durations\": [],\"desired_run_zone_durations_updated_at\": 1429361042.5349896},\"lat_lng\": [41.38983,-81.42602],\"location\": \"\",\"zones\": [{\"name\": \"Top Driveway\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6298468,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6298535,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6298602,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6298668,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.629873,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6298814},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 0,\"zone_id\": \"12501\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Driveway Bottom\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6298881,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6298945,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299007,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299071,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299136,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6299202},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 1,\"zone_id\": \"12502\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Tree Lawn\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6299269,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6299338,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299408,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299474,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299543,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.629961},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 2,\"zone_id\": \"12503\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Right\",\"desired_state\": {\"enabled\": false,\"enabled_updated_at\": 1429361044.6299675,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6299734,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299799,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299863,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299949,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6300077},\"last_reading\": {\"enabled\": false,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 3,\"zone_id\": \"12504\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Mailbox\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6300216,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6300349,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6300464,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.630054,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6300609,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6300678},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 4,\"zone_id\": \"12505\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Center\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6300743,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6300812,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6300881,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6300948,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301012,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301079},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 5,\"zone_id\": \"12506\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Left\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6301141,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6301203,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6301262,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6301327,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301389,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301456},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 6,\"zone_id\": \"12507\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Zone 8\",\"desired_state\": {\"enabled\": false,\"enabled_updated_at\": 1429361044.630152,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6301584,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6301646,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6301739,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301811,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301878},\"last_reading\": {\"enabled\": false,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 7,\"zone_id\": \"12508\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"}]},");
@@ -192,6 +192,11 @@ public class WinkHelper
 
                         //T
                         //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"last_event\" : { \"brightness_occurred_at\" : null, \"loudness_occurred_at\" : null, \"vibration_occurred_at\" : null }, \"sensor_pod_id\" : \"53479\", \"name\" : \"Bedroom Sensor\", \"locale\" : \"en_us\", \"units\" : {}, \"created_at\" : 1427985576, \"hidden_at\" : null, \"capabilities\" : { \"sensor_types\" : [{ \"field\" : \"motion\", \"type\" : \"boolean\" } ] }, \"triggers\" : [], \"desired_state\" : {}, \"manufacturer_device_model\" : \"ecolink_pir_zwavve2\", \"manufacturer_device_id\" : null, \"device_manufacturer\" : \"Ecolink\", \"model_name\" : \"Motion Sensor\", \"upc_id\" : \"173\", \"gang_id\" : null, \"hub_id\" : \"45262\", \"local_id\" : \"19\", \"radio_type\" : \"zwave\", \"last_reading\" : { \"connection\" : true, \"connection_updated_at\" : 1431625783.7867568, \"agent_session_id\" : \"FALSE\", \"agent_session_id_updated_at\" : 1431625783.7867672, \"motion\" : true, \"motion_updated_at\" : 1431625783.7867749, \"motion_true\" : \"N/A\", \"motion_true_updated_at\" : 1431625783.7867839, \"agent_session_id_changed_at\" : 1431625783.7867672, \"motion_changed_at\" : 1431625783.7867749 }, \"lat_lng\" : [ 39.024424, -77.038657 ], \"location\" : \"\", \"uuid\" : \"e9eaeaf1-2ce4-46d4-adb6-6f3f560a0594\" }, { \"last_event\" : { \"brightness_occurred_at\" : null, \"loudness_occurred_at\" : null, \"vibration_occurred_at\" : null }, \"sensor_pod_id\" : \"53481\", \"name\" : \"Bar sensor\", \"locale\" : \"en_us\", \"units\" : {}, \"created_at\" : 1427985745, \"hidden_at\" : null, \"capabilities\" : { \"sensor_types\" : [{ \"field\" : \"motion\", \"type\" : \"boolean\" } ] }, \"triggers\" : [], \"desired_state\" : {}, \"manufacturer_device_model\" : \"ecolink_pir_zwavve2\", \"manufacturer_device_id\" : null, \"device_manufacturer\" : \"Ecolink\", \"model_name\" : \"Motion Sensor\", \"upc_id\" : \"173\", \"gang_id\" : null, \"hub_id\" : \"45262\", \"local_id\" : \"21\", \"radio_type\" : \"zwave\", \"last_reading\" : { \"connection\" : true, \"connection_updated_at\" : 1431626950.371877, \"agent_session_id\" : \"FALSE\", \"agent_session_id_updated_at\" : 1431626950.3718965, \"motion\" : false, \"motion_updated_at\" : 1431626950.3719103, \"motion_true\" : \"N/A\", \"motion_true_updated_at\" : 1431626950.3719225, \"agent_session_id_changed_at\" : 1431626950.3718965, \"motion_changed_at\" : 1431626950.3719103 }, \"lat_lng\" : [ 39.024424, -77.038657 ], \"location\" : \"\", \"uuid\" : \"6e4fb2d0-0c36-4a20-8da4-dd2250e55d6a\" }, { \"last_event\" : { \"brightness_occurred_at\" : null, \"loudness_occurred_at\" : null, \"vibration_occurred_at\" : null }, \"sensor_pod_id\" : \"60402\", \"name\" : \"Basement Door\", \"locale\" : \"en_us\", \"units\" : {}, \"created_at\" : 1430514447, \"hidden_at\" : null, \"capabilities\" : { \"sensor_types\" : [{ \"field\" : \"opened\", \"type\" : \"boolean\" }, { \"field\" : \"battery\", \"type\" : \"percentage\" }, { \"field\" : \"tamper_detected\", \"type\" : \"boolean\" } ], \"polling_interval\" : 4200, \"home_security_device\" : true, \"offline_notification\" : true }, \"triggers\" : [], \"desired_state\" : {}, \"manufacturer_device_model\" : \"quirky_ge_tripper\", \"manufacturer_device_id\" : null, \"device_manufacturer\" : \"quirky_ge\", \"model_name\" : \"Tripper\", \"upc_id\" : \"184\", \"gang_id\" : null, \"hub_id\" : \"45262\", \"local_id\" : \"34\", \"radio_type\" : \"zigbee\", \"last_reading\" : { \"connection\" : true, \"connection_updated_at\" : 1431626601.5417626, \"agent_session_id\" : null, \"agent_session_id_updated_at\" : 1430514451.8775995, \"firmware_version\" : \"1.8b00 / 5.1b21\", \"firmware_version_updated_at\" : 1431626601.5417826, \"firmware_date_code\" : \"20150120\", \"firmware_date_code_updated_at\" : 1431626601.5417743, \"opened\" : false, \"opened_updated_at\" : 1431626601.541836, \"battery\" : 1.0, \"battery_updated_at\" : 1431626601.5418434, \"tamper_detected\" : false, \"tamper_detected_updated_at\" : 1431626601.5418506, \"tamper_detected_true\" : null, \"tamper_detected_true_updated_at\" : null, \"battery_voltage\" : 29, \"battery_voltage_updated_at\" : 1431626601.54179, \"battery_alarm_mask\" : 15, \"battery_alarm_mask_updated_at\" : 1431626601.5417976, \"battery_voltage_min_threshold\" : 24, \"battery_voltage_min_threshold_updated_at\" : 1431626601.5418057, \"battery_voltage_threshold_1\" : 24, \"battery_voltage_threshold_1_updated_at\" : 1431626601.5418136, \"battery_voltage_threshold_2\" : 24, \"battery_voltage_threshold_2_updated_at\" : 1431626601.5418212, \"battery_voltage_threshold_3\" : 25, \"battery_voltage_threshold_3_updated_at\" : 1431626601.5418289, \"opened_changed_at\" : 1431626601.541836, \"battery_voltage_changed_at\" : 1431549393.1340518 }, \"lat_lng\" : [ 39.024242, -77.038966 ], \"location\" : \"\", \"uuid\" : \"52d5f095-6fc1-4256-8f4e-ce3c1d8b9215\" }, { \"last_event\" : { \"brightness_occurred_at\" : null, \"loudness_occurred_at\" : null, \"vibration_occurred_at\" : null }, \"sensor_pod_id\" : \"60965\", \"name\" : \"Front door\", \"locale\" : \"en_us\", \"units\" : {}, \"created_at\" : 1430666191, \"hidden_at\" : null, \"capabilities\" : { \"sensor_types\" : [{ \"field\" : \"opened\", \"type\" : \"boolean\" }, { \"field\" : \"battery\", \"type\" : \"percentage\" }, { \"field\" : \"tamper_detected\", \"type\" : \"boolean\" } ], \"polling_interval\" : 4200, \"home_security_device\" : true, \"offline_notification\" : true }, \"triggers\" : [], \"desired_state\" : {}, \"manufacturer_device_model\" : \"quirky_ge_tripper\", \"manufacturer_device_id\" : null, \"device_manufacturer\" : \"quirky_ge\", \"model_name\" : \"Tripper\", \"upc_id\" : \"184\", \"gang_id\" : null, \"hub_id\" : \"45262\", \"local_id\" : \"35\", \"radio_type\" : \"zigbee\", \"last_reading\" : { \"connection\" : true, \"connection_updated_at\" : 1431619864.8199573, \"agent_session_id\" : null, \"agent_session_id_updated_at\" : 1430666193.5535953, \"firmware_version\" : \"1.8b00 / 5.1b21\", \"firmware_version_updated_at\" : 1431619864.8199759, \"firmware_date_code\" : \"20150120\", \"firmware_date_code_updated_at\" : 1431619864.8199678, \"opened\" : true, \"opened_updated_at\" : 1431619864.8200295, \"battery\" : 1.0, \"battery_updated_at\" : 1431619864.8200362, \"tamper_detected\" : false, \"tamper_detected_updated_at\" : 1431619864.8200431, \"tamper_detected_true\" : \"N/A\", \"tamper_detected_true_updated_at\" : 1430666193.5537961, \"battery_voltage\" : 28, \"battery_voltage_updated_at\" : 1431619864.819983, \"battery_alarm_mask\" : 15, \"battery_alarm_mask_updated_at\" : 1431619864.8199911, \"battery_voltage_min_threshold\" : 24, \"battery_voltage_min_threshold_updated_at\" : 1431619864.819999, \"battery_voltage_threshold_1\" : 24, \"battery_voltage_threshold_1_updated_at\" : 1431619864.8200069, \"battery_voltage_threshold_2\" : 24, \"battery_voltage_threshold_2_updated_at\" : 1431619864.820015, \"battery_voltage_threshold_3\" : 25, \"battery_voltage_threshold_3_updated_at\" : 1431619864.8200226, \"opened_changed_at\" : 1431569313.1120057, \"battery_voltage_changed_at\" : 1431535108.6598671 }, \"lat_lng\" : [ 39.024228, -77.038927 ], \"location\" : \"\", \"uuid\" : \"d396485b-4125-4e0b-8891-c847618b0d0c\" },");
+                        //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{  \"light_bulb_id\": \"642148\",  \"name\": \"Patio\",  \"locale\": \"en_us\",  \"units\": {},  \"created_at\": 1432238565,  \"hidden_at\": null,  \"capabilities\": {},  \"triggers\": [],  \"desired_state\": {    \"powered\": true,    \"brightness\": 1.0  },  \"manufacturer_device_model\": \"lutron_p_pkg1_w_wh_d\",  \"manufacturer_device_id\": null,  \"device_manufacturer\": \"lutron\",  \"model_name\": \"Caseta Wireless Dimmer & Pico\",  \"upc_id\": \"3\",  \"gang_id\": null,  \"hub_id\": \"45262\",  \"local_id\": \"39\",  \"radio_type\": \"lutron\",  \"linked_service_id\": null,  \"last_reading\": {    \"connection\": true,    \"connection_updated_at\": 1432238566.2925382,    \"powered\": null,    \"powered_updated_at\": null,    \"brightness\": null,    \"brightness_updated_at\": null,    \"desired_powered\": true,    \"desired_powered_updated_at\": 1432309700.7329776,    \"desired_brightness\": 1.0,    \"desired_brightness_updated_at\": 1432309700.73299,    \"connection_changed_at\": 1432238566.2925382,    \"desired_powered_changed_at\": 1432309700.7329776,    \"desired_brightness_changed_at\": 1432309700.73299  },  \"lat_lng\": [    39.024314,    -77.038935  ],  \"location\": \"\",  \"order\": 0},");
+
+                        //NIMBUS
+                        //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1430176862.4790323 }, \"dials\": [ { \"name\": \"Time\", \"value\": 57874.0, \"position\": 122.2833333333333, \"label\": \"4:04 PM\", \"labels\": [ \"4:04 PM\", \"New York\" ], \"brightness\": 25, \"channel_configuration\": { \"locale\": \"en_US\", \"timezone\": \"America/New_York\", \"channel_id\": \"1\", \"object_type\": null, \"object_id\": null }, \"dial_configuration\": { \"max_position\": 720, \"max_value\": 86400, \"min_position\": 0, \"scale_type\": \"linear\", \"min_value\": 0, \"rotation\": \"cw\", \"num_ticks\": 12 }, \"dial_index\": 0, \"dial_id\": \"36845\", \"refreshed_at\": 1432065874, \"parent_object_type\": \"cloud_clock\", \"parent_object_id\": \"9099\" }, { \"name\": \"Weather\", \"value\": 6.07, \"position\": 32.778, \"label\": \"74 °F\", \"labels\": [ \"74 >f\", \"Partly Cloudy\" ], \"brightness\": 25, \"channel_configuration\": { \"location\": \"10001\", \"locale\": \"en_US\", \"lat_lng\": [ 40.75185393893581, -74.005638816321976 ], \"units\": { \"temperature\": \"f\" }, \"reading_type\": \"weather_conditions\", \"channel_id\": \"2\", \"object_type\": null, \"object_id\": null }, \"dial_configuration\": { \"max_position\": 135, \"max_value\": 25, \"min_position\": -135, \"scale_type\": \"linear\", \"min_value\": -25, \"rotation\": \"cw\", \"num_ticks\": 12 }, \"dial_index\": 1, \"dial_id\": \"36846\", \"refreshed_at\": 1432065517, \"parent_object_type\": \"cloud_clock\", \"parent_object_id\": \"9099\" }, { \"name\": \"Email\", \"value\": 0.0, \"position\": 0.0, \"label\": \"AM Light Rain\", \"labels\": [ \"AM Light Rain\" ], \"brightness\": 25, \"channel_configuration\": { \"channel_id\": \"10\", \"object_type\": null, \"object_id\": null }, \"dial_configuration\": { \"max_position\": 360, \"max_value\": 360, \"min_position\": 0, \"scale_type\": \"linear\", \"min_value\": 0, \"rotation\": \"cw\", \"num_ticks\": 12 }, \"dial_index\": 2, \"dial_id\": \"36847\", \"refreshed_at\": 1418962052, \"parent_object_type\": \"cloud_clock\", \"parent_object_id\": \"9099\" }, { \"name\": \"Email\", \"value\": 0.0, \"position\": 0.0, \"label\": \"LAComputerCompany@apple2.subscribermail.com\", \"labels\": [ \"LAComputerCompany@apple2.subscribermail.com\" ], \"brightness\": 25, \"channel_configuration\": { \"channel_id\": \"10\", \"object_type\": null, \"object_id\": null }, \"dial_configuration\": { \"max_position\": 360, \"max_value\": 360, \"min_position\": 0, \"scale_type\": \"linear\", \"min_value\": 0, \"rotation\": \"cw\", \"num_ticks\": 12 }, \"dial_index\": 3, \"dial_id\": \"36848\", \"refreshed_at\": 1418962244, \"parent_object_type\": \"cloud_clock\", \"parent_object_id\": \"9099\" } ], \"alarms\": [ { \"next_at\": null, \"enabled\": false, \"recurrence\": \"DTSTART;TZID=America/New_York:20141217T155400\", \"alarm_id\": \"5170\", \"name\": null, \"media_id\": \"1\" } ], \"cloud_clock_id\": \"9099\", \"name\": \"Nimbus\", \"locale\": \"en_us\", \"units\": { \"temperature\": \"f\" }, \"created_at\": 1418762984, \"hidden_at\": null, \"capabilities\": {}, \"triggers\": [], \"device_manufacturer\": \"quirky_ge\", \"model_name\": \"Nimbus\", \"upc_id\": \"21\", \"lat_lng\": [ 0.0, 0.0 ], \"location\": \"\", \"mac_address\": \"0c2a6904f569\", \"serial\": \"ADAA00025756\"},");
+                                
                     }
                 }
 #endif
@@ -215,7 +220,7 @@ public class WinkHelper
 #region token
     public class TokenHelper : WinkHelper
     {
-        internal string winkGetTokenByUsername(string Username = null, string Password = null, bool forceRefresh = false, string forceClientID = null, string forceClientSecret = null)
+        public string winkGetTokenByUsername(string Username = null, string Password = null, bool forceRefresh = false, string forceClientID = null, string forceClientSecret = null)
         {
             try
             {
@@ -249,7 +254,7 @@ public class WinkHelper
 
             return null;
         }
-        internal string winkGetTokenByAuthToken(string AuthToken, bool forceRefresh = false, string forceClientID = null, string forceClientSecret = null)
+        public string winkGetTokenByAuthToken(string AuthToken, bool forceRefresh = false, string forceClientID = null, string forceClientSecret = null)
         {
             try
             {
@@ -287,7 +292,12 @@ public class WinkHelper
 #region user
     public class UserHelper : WinkHelper
     {
-        internal Wink.User winkGetUser(bool forceRefresh = false)
+        public string userID()
+        {
+            string userid = myWink.winkUser.userID;
+            return userid;
+        }
+        public Wink.User winkGetUser(bool forceRefresh = false)
         {
             try
             {
@@ -354,22 +364,121 @@ public class WinkHelper
 #region Subscriptions
     public class SubscriptionHelper: WinkHelper
     {
-        public Wink.Subscription getSubscriptionByName(string Subscription_Name)
+        public string getSubscriptionChannels()
         {
-            Wink.Subscription sub = myWink.Subscriptions.SingleOrDefault(s => s.name.ToLower() == Subscription_Name.ToLower());
-            return sub;
-        }
-        public string getSubscriptionTopics()
-        {
-            var listNames = myWink.Subscriptions.Select(s => s.name).ToList();
+            List<String> listChannels = new List<string>();
 
-            if (listNames.Count > 0)
+            if (myWink.Devices != null && myWink.Devices.Count > 0)
             {
-                string strTopics = String.Join(",", listNames);
+                List<String> deviceChannels = myWink.Devices.Select(d => d.subscriptionChannel).ToList();
+                listChannels.AddRange(deviceChannels);
+            }
+            if (myWink.Shortcuts != null && myWink.Shortcuts.Count > 0)
+            {
+                List<String> shortcutChannels = myWink.Shortcuts.Select(s => s.subscriptionChannel).ToList();
+                listChannels.AddRange(shortcutChannels);
+            }
+            if (myWink.Groups != null && myWink.Groups.Count > 0)
+            {
+                List<String> groupChannels = myWink.Groups.Select(s => s.subscriptionChannel).ToList();
+                listChannels.AddRange(groupChannels);
+            }
+
+            listChannels.RemoveAll(l => l == "");
+
+            if (listChannels.Count > 0)
+            {
+                string strTopics = String.Join(",", listChannels.Distinct());
                 return strTopics;
             }
 
             return null;
+        }
+        
+        public Object getObjectBySubscriptionByChannel(string SubscriptionChannel)
+        {
+            Object device = myWink.Devices.FirstOrDefault(d => d.subscriptionChannel == SubscriptionChannel);
+            if (device != null)
+                return device;
+            else
+            {
+                Object group = myWink.Groups.FirstOrDefault(d => d.subscriptionChannel == SubscriptionChannel);
+                if (group != null)
+                    return group;
+                else
+                {
+                    Object robot = myWink.Robots.FirstOrDefault(d => d.subscriptionChannel == SubscriptionChannel);
+                    if (robot != null)
+                        return robot;
+                    else
+                    {
+                        Object shortcut = myWink.Shortcuts.FirstOrDefault(d => d.subscriptionChannel == SubscriptionChannel);
+                        if (shortcut != null)
+                            return shortcut;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public void refreshSubscriptions(string type = "all")
+        {
+            try
+            {
+                if (type == "all" || type == "devices")
+                {
+                    foreach (Wink.Device device in myWink.Devices)
+                    {
+                        string APIURL = ConfigurationManager.AppSettings["winkRootURL"] + device.type + "/" + device.id + "/subscriptions";
+                        string callbackURL = ConfigurationManager.AppSettings["SubscriptionCallbackURL"] + myWink.winkUser.userID + "/" + device.type + "/" + device.id;
+                        string sendCommand = "{\"callback\":\"" + callbackURL + "\"}";//,\"secret\":\"" + "MDkyZmZmZWMtNDM1Yi00MjI4LThhM2UtZjI4OGFjNWExNjU3" + "\"}";
+                        JObject subJSON = winkCallAPI(APIURL, "POST", sendCommand);
+                        if (subJSON != null)
+                        {
+                            string subCapable = string.Empty;
+
+                            if (subJSON.ToString().Contains("404"))
+                            {
+                                subCapable = "0";
+                                device.subscriptionCapable = false;
+                            }
+                            else if (subJSON["data"] != null)
+                            {
+                                subCapable = "1";
+                                device.subscriptionCapable = true;
+
+                                if (subJSON["data"]["topic"] != null)
+                                    device.subscriptionChannel = subJSON["data"]["topic"].ToString();
+
+                                if (subJSON["data"]["expires_at"] != null)
+                                    device.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
+                            }
+
+                            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
+                            {
+                                connection.Open();
+                                using (SQLiteCommand command = new SQLiteCommand(connection))
+                                {
+                                    command.CommandText = "UPDATE Devices SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable=@subscriptionCapable WHERE UserID=@UserID AND DeviceID = @ID;";
+                                    command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
+                                    command.Parameters.Add(new SQLiteParameter("@ID", device.id));
+                                    command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", device.subscriptionChannel));
+                                    command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", device.subscriptionExpires));
+                                    command.Parameters.Add(new SQLiteParameter("@subscriptionCapable", subCapable));
+                                    command.ExecuteNonQuery();
+
+                                    command.CommandText = "INSERT OR IGNORE INTO Devices(UserID,DeviceID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID, @ID,@subscriptionTopic,@subscriptionExpires,@subscriptionCapable)";
+                                    command.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 #endregion
@@ -379,12 +488,12 @@ public class WinkHelper
     {
         public Wink.Device getDeviceByID(string deviceID)
         {
-            Wink.Device device = myWink.Devices.SingleOrDefault(Device => Device.id.Equals(deviceID));
+            Wink.Device device = myWink.Devices.FirstOrDefault(Device => Device.id.Equals(deviceID));
             return device;
         }
         public Wink.Device getDeviceByName(string deviceName)
         {
-            Wink.Device device = myWink.Devices.SingleOrDefault(Device => Device.name.ToLower().Equals(deviceName.ToLower()));
+            Wink.Device device = myWink.Devices.FirstOrDefault(Device => Device.name.ToLower().Equals(deviceName.ToLower()));
             return device;
         }
         public List<Wink.Device> getDevicesByHubID(string hubID)
@@ -427,7 +536,7 @@ public class WinkHelper
                     }
                 }
 
-                Wink.Device device = myWink.Devices.SingleOrDefault(d => d.id == DeviceID);
+                Wink.Device device = myWink.Devices.FirstOrDefault(d => d.id == DeviceID);
                 device.displayName = DisplayName;
 
                 return DisplayName;
@@ -479,7 +588,7 @@ public class WinkHelper
         {
             winkGetDevices(json);
         }
-        internal void DeviceSendCommand(string deviceID, string command)
+        public void DeviceSendCommand(string deviceID, string command)
         {
             try
             {
@@ -551,7 +660,7 @@ public class WinkHelper
             return device;
         }
 
-        internal List<Wink.Device> winkGetDevices(JObject jsonObject = null, bool forceRefresh = false)
+        public List<Wink.Device> winkGetDevices(JObject jsonObject = null, bool forceRefresh = false)
         {
             try
             {
@@ -569,8 +678,9 @@ public class WinkHelper
                     else if (jsonObject != null)
                     {
                         json = jsonObject;
-                        string strDeviceID = string.Empty;
-                        strDeviceID = jsonObject["data"].First["object_id"].ToString();
+                        string jsonstring = json.ToString();
+                        string strDeviceID = jsonstring.Substring(jsonstring.IndexOf("object_id\": \"") + 13);
+                        strDeviceID = strDeviceID.Remove(strDeviceID.IndexOf("\""));
                         devices = myWink.Devices.Where(d => d.id == strDeviceID).ToList();
                     }
 
@@ -661,22 +771,6 @@ public class WinkHelper
                                     getLast_Readings(device, readings);
                                 }
 
-
-                                //FIX THE BROKEN API TEMPORARY FIX
-                                if (device.type == "light_bulbs" || device.type == "binary_switches" || device.type == "unknown_devices")
-                                {
-                                    device.issensor = false;
-                                    device.iscontrollable = true;
-                                    device.desired_states.Add("powered");
-
-                                    if (device.type == "light_bulbs")
-                                    {
-                                        device.isvariable = true;
-                                        device.desired_states.Add("brightness");
-                                    }
-                                }
-                                //END BROKEN API FIX
-
                                 #region NON-SENSOR DEVICE-SPECIFIC CONFIGURATIONS
                                 //DEVICE EXCEPTIONS
 
@@ -713,6 +807,26 @@ public class WinkHelper
                                         outletdevice.status.Add(connstatus);
 
                                         devices.Add(outletdevice);
+
+                                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
+                                        {
+                                            connection.Open();
+
+                                            using (SQLiteCommand command = new SQLiteCommand(connection))
+                                            {
+                                                command.CommandText = "UPDATE Devices SET name=@name, Mfg=@Mfg, Model=@Model, ModelName=@ModelName WHERE UserID=@UserID AND DeviceID = @ID;";
+                                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
+                                                command.Parameters.Add(new SQLiteParameter("@ID", outletdevice.id));
+                                                command.Parameters.Add(new SQLiteParameter("@name", outletdevice.name));
+                                                command.Parameters.Add(new SQLiteParameter("@Mfg", outletdevice.manufacturer));
+                                                command.Parameters.Add(new SQLiteParameter("@Model", outletdevice.model));
+                                                command.Parameters.Add(new SQLiteParameter("@ModelName", outletdevice.model_name));
+                                                command.ExecuteNonQuery();
+
+                                                command.CommandText = "INSERT OR IGNORE INTO Devices (UserID, DeviceID, name, Mfg, Model, ModelName) VALUES (@UserID, @ID, @name, @Mfg, @Model, @ModelName);";
+                                                command.ExecuteNonQuery();
+                                            }
+                                        }
                                     }
                                 }
 
@@ -726,7 +840,7 @@ public class WinkHelper
                                 //Relay Switches
                                 if (device.type == "binary_switches" && device.radio_type == "project_one")
                                 {
-                                    Wink.Device.DeviceStatus status = device.status.SingleOrDefault(s => s.name == "powering_mode");
+                                    Wink.Device.DeviceStatus status = device.status.FirstOrDefault(s => s.name == "powering_mode");
                                     if (status.current_status == "none")
                                     {
                                         device.iscontrollable = false;
@@ -753,6 +867,17 @@ public class WinkHelper
                                     device.type = "lock_pins";
                                     device.issensor = false;
                                     device.menu_type = "locks";
+                                    foreach (Wink.Device.DeviceStatus status in device.status)
+                                        status.id = device.id;
+                                }
+
+                                //NIMBUS
+                                if (device.model != null && device.model.ToLower() == "nimbus")
+                                {
+                                    device.id = data["cloud_clock_id"] != null ? data["cloud_clock_id"].ToString() : "error: key_id";
+                                    device.type = "cloud_clocks";
+                                    device.menu_type = "nimbus";
+                                    device.issensor = false;
                                     foreach (Wink.Device.DeviceStatus status in device.status)
                                         status.id = device.id;
                                 }
@@ -794,7 +919,7 @@ public class WinkHelper
                                         device.status.Add(tankstatus);
                                     }
 
-                                    Wink.Device.DeviceStatus stat = device.status.SingleOrDefault(p => p.name == "remaining");
+                                    Wink.Device.DeviceStatus stat = device.status.FirstOrDefault(p => p.name == "remaining");
                                     if (stat != null)
                                     {
                                         Double converted = Convert.ToDouble(stat.current_status) * 100;
@@ -834,15 +959,15 @@ public class WinkHelper
 
                                     string strStatuses = string.Empty;
 
-                                    Wink.Device.DeviceStatus costat = device.status.SingleOrDefault(p => p.name == "co_detected");
+                                    Wink.Device.DeviceStatus costat = device.status.FirstOrDefault(p => p.name == "co_detected");
                                     if (costat != null)
                                         strStatuses += costat.current_status;
 
-                                    Wink.Device.DeviceStatus smstat = device.status.SingleOrDefault(p => p.name == "smoke_detected");
+                                    Wink.Device.DeviceStatus smstat = device.status.FirstOrDefault(p => p.name == "smoke_detected");
                                     if (smstat != null)
                                         strStatuses += smstat.current_status;
 
-                                    Wink.Device.DeviceStatus teststat = device.status.SingleOrDefault(p => p.name == "test_activated");
+                                    Wink.Device.DeviceStatus teststat = device.status.FirstOrDefault(p => p.name == "test_activated");
                                     if (teststat != null && teststat.current_status.ToLower() == "true")
                                         strStatuses += "test";
 
@@ -917,7 +1042,7 @@ public class WinkHelper
                                     {
                                         foreach (string capability in capabilities)
                                         {
-                                            Wink.Device.DeviceStatus status = device.status.SingleOrDefault(s => s.name == capability);
+                                            Wink.Device.DeviceStatus status = device.status.FirstOrDefault(s => s.name == capability);
                                             if (status != null)
                                             {
                                                 string strValue = status.current_status;
@@ -1006,88 +1131,16 @@ public class WinkHelper
 
                                 device.position = Convert.ToInt32(row["Position"].ToString());
 
-                                device.subscriptionCapable = Convert.ToBoolean(row["subscriptionCapable"].ToString());
-
-                                device.subscriptionTopic = row["SubscriptionTopic"].ToString();
+                                if (!string.IsNullOrWhiteSpace(row["DisplayName"].ToString()))
+                                    device.displayName = row["DisplayName"].ToString();
 
                                 DateTime expires = new DateTime();
                                 string date = row["SubscriptionExpires"].ToString();
                                 DateTime.TryParse(date, out expires);
                                 device.subscriptionExpires = Convert.ToDateTime(expires);
-
-                                if (!string.IsNullOrWhiteSpace(row["DisplayName"].ToString()))
-                                    device.displayName = row["DisplayName"].ToString();
+                                device.subscriptionCapable = Convert.ToBoolean(row["subscriptionCapable"].ToString());
+                                device.subscriptionChannel = row["SubscriptionTopic"].ToString();
                             }
-                        }
-                    }
-                }
-                #endregion
-
-                #region PUBNUB SUBSCRIPTIONS
-                if (SettingMgmt.hasPubNub)
-                {
-                    foreach (Wink.Device device in myWink.Devices)
-                    {
-                        if ((string.IsNullOrWhiteSpace(device.subscriptionTopic) || DateTime.Now > device.subscriptionExpires) && (device.subscriptionCapable || firstRun))
-                        {
-                            string URL = ConfigurationManager.AppSettings["winkRootURL"] + device.type + "/" + device.id + "/subscriptions";
-                            string sendCommand = "{\"publisher_key\":\"" + PubNub.myPubNub.publishKey + "\",\"subscriber_key\":\"" + PubNub.myPubNub.subscriberKey + "\"}";
-                            JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
-                            if (subJSON != null)
-                            {
-                                string subCapable = string.Empty;
-
-                                if (subJSON.ToString().Contains("404") && !firstRun)
-                                {
-                                    subCapable = "0";
-                                    device.subscriptionCapable = false;
-                                }
-                                else if (subJSON["data"] != null)
-                                {
-                                    subCapable = "1";
-                                    device.subscriptionCapable = true;
-
-                                    if (subJSON["data"]["topic"] != null)
-                                        device.subscriptionTopic = subJSON["data"]["topic"].ToString();
-
-                                    if (subJSON["data"]["expires_at"] != null)
-                                        device.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
-                                }
-
-                                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
-                                {
-                                    connection.Open();
-                                    using (SQLiteCommand command = new SQLiteCommand(connection))
-                                    {
-                                        command.CommandText = "UPDATE Devices SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable=@subscriptionCapable WHERE UserID=@UserID AND DeviceID = @ID;";
-                                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
-                                        command.Parameters.Add(new SQLiteParameter("@ID", device.id));
-                                        command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", device.subscriptionTopic));
-                                        command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", device.subscriptionExpires));
-                                        command.Parameters.Add(new SQLiteParameter("@subscriptionCapable", subCapable));
-                                        command.ExecuteNonQuery();
-
-                                        command.CommandText = "INSERT OR IGNORE INTO Devices(UserID,DeviceID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID, @ID,@subscriptionTopic,@subscriptionExpires,@subscriptionCapable)";
-                                        command.ExecuteNonQuery();
-                                    }
-                                }
-                            }
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(device.subscriptionTopic))
-                        {
-                            Wink.Subscription sub = new WinkHelper.SubscriptionHelper().getSubscriptionByName(device.subscriptionTopic);
-                            if (sub == null)
-                                sub = new Wink.Subscription();
-                            else
-                                myWink.Subscriptions.Remove(sub);
-
-                            sub.type = "device";
-                            sub.objectID = device.id;
-                            sub.name = device.subscriptionTopic;
-                            sub.expires = device.subscriptionExpires;
-
-                            myWink.Subscriptions.Add(sub);
                         }
                     }
                 }
@@ -1096,11 +1149,14 @@ public class WinkHelper
                 #region FINAL PROCESSING
                 foreach (Wink.Device device in myWink.Devices)
                 {
-                    Wink.Device hubDevice = myWink.Devices.SingleOrDefault(h => h.id == device.hub_id);
+                    Wink.Device hubDevice = myWink.Devices.FirstOrDefault(h => h.id == device.hub_id);
                     if (hubDevice != null)
                         device.hub_name = hubDevice.displayName;
                 }
                 #endregion
+
+                if (firstRun)
+                    new WinkHelper.SubscriptionHelper().refreshSubscriptions("devices");
 
                 return myWink.Devices;
             }
@@ -1117,12 +1173,12 @@ public class WinkHelper
     {
         public Wink.Shortcut getShortcutByID(string ShortcutID)
         {
-            Wink.Shortcut shortcut = myWink.Shortcuts.SingleOrDefault(s => s.id.Equals(ShortcutID));
+            Wink.Shortcut shortcut = myWink.Shortcuts.FirstOrDefault(s => s.id.Equals(ShortcutID));
             return shortcut;
         }
         public Wink.Shortcut getShortcutByName(string shortcutName)
         {
-            Wink.Shortcut shortcut = myWink.Shortcuts.SingleOrDefault(s => s.name.ToLower().Equals(shortcutName.ToLower()));
+            Wink.Shortcut shortcut = myWink.Shortcuts.FirstOrDefault(s => s.name.ToLower().Equals(shortcutName.ToLower()));
             return shortcut;
         }
         public string setShortcutDisplayName(string ShortcutID, string DisplayName)
@@ -1145,7 +1201,7 @@ public class WinkHelper
                         command.ExecuteNonQuery();
                     }
                 }
-                Wink.Shortcut shortcut = myWink.Shortcuts.SingleOrDefault(d => d.id == ShortcutID);
+                Wink.Shortcut shortcut = myWink.Shortcuts.FirstOrDefault(d => d.id == ShortcutID);
                 shortcut.displayName = DisplayName;
 
                 return DisplayName;
@@ -1185,7 +1241,7 @@ public class WinkHelper
                 return -1;
             }
         }
-        internal void ShortcutActivate(string shortcutID)
+        public void ShortcutActivate(string shortcutID)
         {
             try
             {
@@ -1208,7 +1264,7 @@ public class WinkHelper
                             {
                                 foreach (KeyValuePair<string, string> entry in member.actions)
                                 {
-                                    Wink.Group.GroupStatus status = group.status.SingleOrDefault(n => n.name == entry.Key);
+                                    Wink.Group.GroupStatus status = group.status.FirstOrDefault(n => n.name == entry.Key);
                                     if (status != null)
                                         status.current_status = entry.Value;
                                 }
@@ -1232,7 +1288,7 @@ public class WinkHelper
                         {
                             foreach (KeyValuePair<string, string> entry in member.actions)
                             {
-                                Wink.Device.DeviceStatus status = device.status.SingleOrDefault(p => p.name == entry.Key);
+                                Wink.Device.DeviceStatus status = device.status.FirstOrDefault(p => p.name == entry.Key);
                                 if (status != null)
                                     status.current_status = entry.Value;
                             }
@@ -1245,74 +1301,102 @@ public class WinkHelper
                 throw;
             }
         }
-        internal List<Wink.Shortcut> winkGetShortcuts(bool forceRefresh = false)
+        public void ShortcutUpdate(JObject json)
+        {
+            winkGetShortcuts(json);
+        }
+        public List<Wink.Shortcut> winkGetShortcuts(JObject jsonObject = null, bool forceRefresh = false)
         {
             try
             {
-                bool firstRun = false;
-                if (myWink.Shortcuts == null || forceRefresh)
+                if (myWink.Shortcuts == null || myWink.Shortcuts.Count == 0 || jsonObject != null || forceRefresh)
                 {
-                    firstRun = true;
+                    List<Wink.Shortcut> shortcuts = new List<Wink.Shortcut>();
+                    JObject json = null;
 
-                    JObject json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetShortcutsURL"]);
-                    List<Wink.Shortcut> Shortcuts = new List<Wink.Shortcut>();
-
-                    foreach (JObject data in json["data"])
+                    if (myWink.Shortcuts == null || forceRefresh)
                     {
-                        IList<string> keys = data.Properties().Select(p => p.Name).ToList();
-                        string typeName = keys[0];
-
-                        Wink.Shortcut shortcut = new Wink.Shortcut();
-
-                        shortcut.id = data[typeName].ToString();
-                        shortcut.name = data["name"].ToString();
-                        shortcut.displayName = shortcut.name;
-                        shortcut.json = data.ToString();
-
-                        if (keys.Contains("members"))
-                        {
-                            var members = data["members"];
-                            foreach (var member in members)
-                            {
-                                Wink.Shortcut.ShortcutMember newmember = new Wink.Shortcut.ShortcutMember();
-                                newmember.id = member["object_id"].ToString();
-                                newmember.type = member["object_type"].ToString();
-
-                                var states = member["desired_state"];
-                                foreach (JProperty state in states)
-                                {
-                                    newmember.actions.Add(state.Name.ToString(), state.Value.ToString());
-                                }
-                                shortcut.members.Add(newmember);
-                            }
-                        }
-
-                        //UPDATE DEVICE DB
-                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
-                        {
-                            connection.Open();
-
-                            using (SQLiteCommand command = new SQLiteCommand(connection))
-                            {
-                                command.CommandText = "UPDATE Shortcuts SET Name=@name WHERE UserID = @UserID AND ShortcutID = @ID and Name<>@name;";
-                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
-                                command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
-                                command.Parameters.Add(new SQLiteParameter("@name", shortcut.name));
-                                command.ExecuteNonQuery();
-
-                                command.CommandText = "INSERT OR IGNORE INTO Shortcuts (UserID,ShortcutID, name) VALUES (@UserID,@ID, @name);";
-                                command.ExecuteNonQuery();
-
-                                command.CommandText = "UPDATE Shortcuts SET DisplayName=@displayname WHERE UserID = @UserID AND ShortcutID = @ID and @name <> @displayname and IFNULL(DisplayName, '') = '';";
-                                command.Parameters.Add(new SQLiteParameter("@displayname", shortcut.displayName));
-                                command.ExecuteNonQuery();
-                            }
-                        }
-
-                        Shortcuts.Add(shortcut);
+                        json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetShortcutsURL"]);
+                    }
+                    else if (jsonObject != null)
+                    {
+                        json = jsonObject;
+                        string jsonstring = json.ToString();
+                        string strShortcutID = jsonstring.Substring(jsonstring.IndexOf("scene_id\": \"") + 12);
+                        strShortcutID = strShortcutID.Remove(strShortcutID.IndexOf("\""));
+                        shortcuts = myWink.Shortcuts.Where(d => d.id == strShortcutID).ToList();
                     }
 
-                    myWink.Shortcuts = Shortcuts.OrderBy(c => c.name).ToList();
+                    if (json != null)
+                    {
+                        foreach (JObject data in json["data"])
+                        {
+                            IList<string> keys = data.Properties().Select(p => p.Name).ToList();
+
+                            Wink.Shortcut shortcut = new Wink.Shortcut();
+                            shortcut.id = data["scene_id"].ToString();
+                            
+                            if (jsonObject != null)
+                            {
+                                shortcut = new WinkHelper.ShortcutHelper().getShortcutByID(shortcut.id);
+                                myWink.Shortcuts.Remove(shortcut);
+                            }
+                                
+                            shortcut.name = data["name"].ToString();
+                            shortcut.displayName = shortcut.name;
+                            shortcut.json = data.ToString();
+
+                            if (keys.Contains("members"))
+                            {
+                                var members = data["members"];
+                                foreach (var member in members)
+                                {
+                                    Wink.Shortcut.ShortcutMember newmember = new Wink.Shortcut.ShortcutMember();
+                                    newmember.id = member["object_id"].ToString();
+                                    newmember.type = member["object_type"].ToString();
+
+                                    var states = member["desired_state"];
+                                    foreach (JProperty state in states)
+                                    {
+                                        newmember.actions.Add(state.Name.ToString(), state.Value.ToString());
+                                    }
+                                    shortcut.members.Add(newmember);
+                                }
+                            }
+
+                            shortcuts.Add(shortcut);
+
+                            //UPDATE DEVICE DB
+                            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
+                            {
+                                connection.Open();
+
+                                using (SQLiteCommand command = new SQLiteCommand(connection))
+                                {
+                                    command.CommandText = "UPDATE Shortcuts SET Name=@name WHERE UserID = @UserID AND ShortcutID = @ID and Name<>@name;";
+                                    command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
+                                    command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
+                                    command.Parameters.Add(new SQLiteParameter("@name", shortcut.name));
+                                    command.ExecuteNonQuery();
+
+                                    command.CommandText = "INSERT OR IGNORE INTO Shortcuts (UserID,ShortcutID, name) VALUES (@UserID,@ID, @name);";
+                                    command.ExecuteNonQuery();
+
+                                    command.CommandText = "UPDATE Shortcuts SET DisplayName=@displayname WHERE UserID = @UserID AND ShortcutID = @ID and @name <> @displayname and IFNULL(DisplayName, '') = '';";
+                                    command.Parameters.Add(new SQLiteParameter("@displayname", shortcut.displayName));
+                                    command.ExecuteNonQuery();
+                                }
+                            }
+                            
+                            if (jsonObject != null)
+                            {
+                                myWink.Shortcuts.Add(shortcut);
+                            }
+                        }
+                    }
+
+                    if (jsonObject == null)
+                        myWink.Shortcuts = shortcuts.OrderBy(c => c.name).ToList();
                 }
 
                 #region RETRIEVE DATABASE VALUES
@@ -1334,91 +1418,10 @@ public class WinkHelper
 
                                 if (!string.IsNullOrWhiteSpace(reader["DisplayName"].ToString()))
                                     shortcut.displayName = reader["DisplayName"].ToString();
-
-                                string subCapable = reader["subscriptionCapable"].ToString();
-                                shortcut.subscriptionCapable = Convert.ToBoolean(subCapable);
-                                shortcut.subscriptionTopic = reader["SubscriptionTopic"].ToString();
-
-                                DateTime expires = new DateTime();
-                                string date = reader["SubscriptionExpires"].ToString();
-                                DateTime.TryParse(date, out expires);
-                                shortcut.subscriptionExpires = Convert.ToDateTime(expires);
-
                             }
                         }
                     }
                 }
-                #endregion
-
-                #region PUBNUB SUBSCRIPTIONS
-                ////SHORTCUTS CAN'T HAVE SUBS AT THE MOMENT
-                //if (SettingMgmt.hasPubNub)
-                //{
-                //    foreach (Wink.Shortcut shortcut in myWink.Shortcuts)
-                //    {
-                //        if (string.IsNullOrWhiteSpace(shortcut.subscriptionTopic) || DateTime.Now > shortcut.subscriptionExpires)
-                //        {
-                //            if (shortcut.subscriptionCapable || firstRun)
-                //            {
-                //                string URL = ConfigurationManager.AppSettings["winkRootURL"] + "/scenes/" + shortcut.id + "/subscriptions";
-                //                string sendCommand = "{\"publisher_key\":\"" + PubNub.myPubNub.publishKey + "\",\"subscriber_key\":\"" + PubNub.myPubNub.subscriberKey + "\"}";
-                //                JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
-                //                if (subJSON != null)
-                //                {
-                //                    if (subJSON.ToString().Contains("404") && !firstRun)
-                //                    {
-                //                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
-                //                        {
-
-                //                            connection.Open();
-                //                            using (SQLiteCommand command = new SQLiteCommand(connection))
-                //                            {
-                //                                command.CommandText = "UPDATE Shortcuts SET subscriptionCapable='0' WHERE UserID = @UserID AND ShortcutID = @ID;";
-                //                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
-                //                                command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
-                //                                command.ExecuteNonQuery();
-
-                //                                command.CommandText = "INSERT OR IGNORE INTO Shortcuts (UserID,ShortcutID,subscriptionCapable) VALUES (@UserID, @ID,'0')";
-                //                                command.ExecuteNonQuery();
-
-                //                            }
-                //                        }
-                //                    }
-                //                    else
-                //                    {
-                //                        if (subJSON["data"] != null)
-                //                        {
-                //                            if (subJSON["data"]["topic"] != null)
-                //                                shortcut.subscriptionTopic = subJSON["data"]["topic"].ToString();
-
-                //                            if (subJSON["data"]["expires_at"] != null)
-                //                                shortcut.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
-
-                //                            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
-                //                            {
-
-                //                                connection.Open();
-                //                                using (SQLiteCommand command = new SQLiteCommand(connection))
-                //                                {
-                //                                    command.CommandText = "UPDATE Shortcuts SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE UserID = @UserID AND ShortcutID = @ID;";
-                //                                    command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
-                //                                    command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", shortcut.subscriptionTopic));
-                //                                    command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", shortcut.subscriptionExpires));
-                //                                    command.Parameters.Add(new SQLiteParameter("@ID", shortcut.id));
-                //                                    command.ExecuteNonQuery();
-
-                //                                    command.CommandText = "INSERT OR IGNORE INTO Shortcuts(UserID,ShortcutID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID,@ID,@subscriptionTopic,@subscriptionExpires,'1')";
-                //                                    command.ExecuteNonQuery();
-
-                //                                }
-                //                            }
-                //                        }
-                //                    }
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
                 #endregion
 
                 return myWink.Shortcuts;
@@ -1437,12 +1440,12 @@ public class WinkHelper
     {
         public Wink.Group getGroupByID(string GroupID)
         {
-            Wink.Group group = myWink.Groups.SingleOrDefault(s => s.id.Equals(GroupID));
+            Wink.Group group = myWink.Groups.FirstOrDefault(s => s.id.Equals(GroupID));
             return group;
         }
         public Wink.Group getGroupByName(string GroupName)
         {
-            Wink.Group group = myWink.Groups.SingleOrDefault(s => s.name.ToLower().Equals(GroupName.ToLower()));
+            Wink.Group group = myWink.Groups.FirstOrDefault(s => s.name.ToLower().Equals(GroupName.ToLower()));
             return group;
         }
 
@@ -1466,7 +1469,7 @@ public class WinkHelper
                         command.ExecuteNonQuery();
                     }
                 }
-                Wink.Group group = myWink.Groups.SingleOrDefault(d => d.id == GroupID);
+                Wink.Group group = myWink.Groups.FirstOrDefault(d => d.id == GroupID);
                 group.displayName = DisplayName;
 
                 return DisplayName;
@@ -1506,7 +1509,7 @@ public class WinkHelper
                 return -1;
             }
         }
-        internal void GroupSendCommand(string groupID, string command)
+        public void GroupSendCommand(string groupID, string command)
         {
             try
             {
@@ -1522,101 +1525,129 @@ public class WinkHelper
                 throw;
             }
         }
-
-        internal List<Wink.Group> winkGetGroups(bool forceRefresh = false)
+        public void GroupUpdate(JObject json)
+        {
+            winkGetGroups(json);
+        }
+        public List<Wink.Group> winkGetGroups(JObject jsonObject = null, bool forceRefresh = false)
         {
             try
             {
                 bool firstRun = false;
-                if (myWink.Groups == null || forceRefresh)
+                if (myWink.Groups == null || myWink.Groups.Count == 0 || jsonObject != null || forceRefresh)
                 {
-                    firstRun = true;
+                    List<Wink.Group> groups = new List<Wink.Group>();
+                    JObject json = null;
 
-                    JObject json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetGroupsURL"]);
-                    List<Wink.Group> Groups = new List<Wink.Group>();
-
-                    foreach (JObject data in json["data"])
+                    if (myWink.Shortcuts == null || forceRefresh)
                     {
-                        IList<string> keys = data.Properties().Select(p => p.Name).ToList();
-                        string typeName = keys[0];
-
-                        Wink.Group group = new Wink.Group();
-
-                        group.id = data[typeName].ToString();
-                        group.name = data["name"].ToString();
-                        group.displayName = group.name;
-                        group.json = data.ToString();
-
-                        if (keys.Contains("members"))
-                        {
-                            var members = data["members"];
-                            foreach (var member in members)
-                            {
-                                Wink.Group.GroupMember newmember = new Wink.Group.GroupMember();
-                                newmember.id = member["object_id"].ToString();
-                                newmember.type = member["object_type"].ToString();
-
-                                var states = member["desired_state"];
-                                foreach (JProperty state in states)
-                                {
-                                    if (!state.Name.Contains("_updated_at"))
-                                        newmember.actions.Add(state.Name.ToString());
-                                }
-                                group.members.Add(newmember);
-                            }
-                        }
-
-                        if (keys.Contains("reading_aggregation"))
-                        {
-                            JToken readings = data["reading_aggregation"];
-                            foreach (JProperty reading in readings)
-                            {
-                                Wink.Group.GroupStatus newreading = new Wink.Group.GroupStatus();
-                                newreading.id = group.id;
-                                newreading.name = reading.Name;
-                                newreading.last_updated = Common.FromUnixTime(reading.Value["updated_at"].ToString(), true);
-
-                                if (reading.Value["true_count"] != null)
-                                    newreading.current_status = reading.Value["true_count"].ToString();
-                                else if (reading.Value["average"] != null)
-                                    newreading.current_status = reading.Value["average"].ToString();
-
-                                group.status.Add(newreading);
-                            }
-                        }
-
-                        if (group.members.Count == 0)
-                            group.isempty = true;
-
-
-                        //UPDATE DEVICE DB
-                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
-                        {
-                            connection.Open();
-
-                            using (SQLiteCommand command = new SQLiteCommand(connection))
-                            {
-                                command.CommandText = "UPDATE Groups SET Name=@name WHERE UserID = @UserID AND GroupID = @ID and Name<>@name;";
-                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
-                                command.Parameters.Add(new SQLiteParameter("@ID", group.id));
-                                command.Parameters.Add(new SQLiteParameter("@name", group.name));
-                                command.ExecuteNonQuery();
-
-                                command.CommandText = "INSERT OR IGNORE INTO Groups (UserID,GroupID, name) VALUES (@UserID, @ID, @name);";
-                                command.ExecuteNonQuery();
-
-                                command.CommandText = "UPDATE Groups SET DisplayName=@displayname WHERE UserID = @UserID AND GroupID = @ID and @name <> @displayname and IFNULL(DisplayName, '') = '';";
-                                command.Parameters.Add(new SQLiteParameter("@displayname", group.displayName));
-                                command.ExecuteNonQuery();
-                            }
-                        }
-
-                        Groups.Add(group);
+                        firstRun = true;
+                        json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetGroupsURL"]);
+                    }
+                    else if (jsonObject != null)
+                    {
+                        json = jsonObject;
+                        string jsonstring = json.ToString();
+                        string strGroupID = jsonstring.Substring(jsonstring.IndexOf("group_id\": \"") + 12);
+                        strGroupID = strGroupID.Remove(strGroupID.IndexOf("\""));
+                        groups = myWink.Groups.Where(d => d.id == strGroupID).ToList();
                     }
 
-                    myWink.Groups = Groups.OrderBy(c => c.name).ToList();
-                }
+                    if (json != null)
+                    {
+                        foreach (JObject data in json["data"])
+                        {
+                            IList<string> keys = data.Properties().Select(p => p.Name).ToList();
 
+                            Wink.Group group = new Wink.Group();
+                            group.id = data["group_id"].ToString();
+
+                            if (jsonObject != null)
+                            {
+                                group = new WinkHelper.GroupHelper().getGroupByID(group.id);
+                                myWink.Groups.Remove(group);
+                            }
+
+                            group.name = data["name"].ToString();
+                            group.displayName = group.name;
+                            group.json = data.ToString();
+
+                            if (keys.Contains("members"))
+                            {
+                                var members = data["members"];
+                                foreach (var member in members)
+                                {
+                                    Wink.Group.GroupMember newmember = new Wink.Group.GroupMember();
+                                    newmember.id = member["object_id"].ToString();
+                                    newmember.type = member["object_type"].ToString();
+
+                                    var states = member["desired_state"];
+                                    foreach (JProperty state in states)
+                                    {
+                                        if (!state.Name.Contains("_updated_at"))
+                                            newmember.actions.Add(state.Name.ToString());
+                                    }
+                                    group.members.Add(newmember);
+                                }
+                            }
+
+                            if (keys.Contains("reading_aggregation"))
+                            {
+                                JToken readings = data["reading_aggregation"];
+                                foreach (JProperty reading in readings)
+                                {
+                                    Wink.Group.GroupStatus newreading = new Wink.Group.GroupStatus();
+                                    newreading.id = group.id;
+                                    newreading.name = reading.Name;
+                                    newreading.last_updated = Common.FromUnixTime(reading.Value["updated_at"].ToString(), true);
+
+                                    if (reading.Value["true_count"] != null)
+                                        newreading.current_status = reading.Value["true_count"].ToString();
+                                    else if (reading.Value["average"] != null)
+                                        newreading.current_status = reading.Value["average"].ToString();
+
+                                    group.status.Add(newreading);
+                                }
+                            }
+
+                            if (group.members.Count == 0)
+                                group.isempty = true;
+
+                            groups.Add(group);
+
+                            //UPDATE DEVICE DB
+                            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
+                            {
+                                connection.Open();
+
+                                using (SQLiteCommand command = new SQLiteCommand(connection))
+                                {
+                                    command.CommandText = "UPDATE Groups SET Name=@name WHERE UserID = @UserID AND GroupID = @ID and Name<>@name;";
+                                    command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
+                                    command.Parameters.Add(new SQLiteParameter("@ID", group.id));
+                                    command.Parameters.Add(new SQLiteParameter("@name", group.name));
+                                    command.ExecuteNonQuery();
+
+                                    command.CommandText = "INSERT OR IGNORE INTO Groups (UserID,GroupID, name) VALUES (@UserID, @ID, @name);";
+                                    command.ExecuteNonQuery();
+
+                                    command.CommandText = "UPDATE Groups SET DisplayName=@displayname WHERE UserID = @UserID AND GroupID = @ID and @name <> @displayname and IFNULL(DisplayName, '') = '';";
+                                    command.Parameters.Add(new SQLiteParameter("@displayname", group.displayName));
+                                    command.ExecuteNonQuery();
+                                }
+
+                            }
+
+                            if (jsonObject != null)
+                            {
+                                myWink.Groups.Add(group);
+                            }
+                        }
+                    }
+                    
+                    if (jsonObject == null)
+                        myWink.Groups = groups.OrderBy(c => c.name).ToList();
+                }
                 #region RETRIEVE DATABASE VALUES
                 foreach (Wink.Group group in myWink.Groups)
                 {
@@ -1636,93 +1667,65 @@ public class WinkHelper
 
                                 if (!string.IsNullOrWhiteSpace(reader["DisplayName"].ToString()))
                                     group.displayName = reader["DisplayName"].ToString();
-
-                                string subCapable = reader["subscriptionCapable"].ToString();
-                                group.subscriptionCapable = Convert.ToBoolean(subCapable);
-                                group.subscriptionTopic = reader["SubscriptionTopic"].ToString();
-
-                                DateTime expires = new DateTime();
-                                string date = reader["SubscriptionExpires"].ToString();
-                                DateTime.TryParse(date, out expires);
-                                group.subscriptionExpires = Convert.ToDateTime(expires);
-
                             }
                         }
                     }
                 }
                 #endregion
 
-                #region PUBNUB SUBSCRIPTIONS
-                ////GROUPS CAN'T HAVE SUBS AT THE MOMENT
-
-                //if (SettingMgmt.hasPubNub)
+                //#region PUBNUB SUBSCRIPTIONS
+                //if (SettingMgmt.usePubNub)
                 //{
                 //    foreach (Wink.Group group in myWink.Groups)
                 //    {
-                //        if (string.IsNullOrWhiteSpace(group.subscriptionTopic) || DateTime.Now > group.subscriptionExpires)
+                //        if ((string.IsNullOrWhiteSpace(group.subscriptionChannel) || DateTime.Now > group.subscriptionExpires) && (group.subscriptionCapable || firstRun))
                 //        {
-                //            if (group.subscriptionCapable || firstRun)
+                //            string URL = ConfigurationManager.AppSettings["winkRootURL"] + "groups/" + group.id + "/subscriptions";
+                //            string sendCommand = "{\"publisher_key\":\"" + ConfigurationManager.AppSettings["PubnubPublishKey"] + "\",\"subscriber_key\":\"" + ConfigurationManager.AppSettings["PubnubSubscribeKey"] + "\"}";
+                //            JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
+                //            if (subJSON != null)
                 //            {
-                //                string URL = ConfigurationManager.AppSettings["winkRootURL"] + "/groups/" + group.id + "/subscriptions";
-                //                string sendCommand = "{\"publisher_key\":\"" + PubNub.myPubNub.publishKey + "\",\"subscriber_key\":\"" + PubNub.myPubNub.subscriberKey + "\"}";
-                //                JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
-                //                if (subJSON != null)
+                //                string subCapable = string.Empty;
+
+                //                if (subJSON.ToString().Contains("404") && !firstRun)
                 //                {
-                //                    if (subJSON.ToString().Contains("404") && !firstRun)
+                //                    subCapable = "0";
+                //                    group.subscriptionCapable = false;
+                //                }
+                //                else if (subJSON["data"] != null)
+                //                {
+                //                    subCapable = "1";
+                //                    group.subscriptionCapable = true;
+
+                //                    if (subJSON["data"]["topic"] != null)
+                //                        group.subscriptionChannel = subJSON["data"]["topic"].ToString();
+
+                //                    if (subJSON["data"]["expires_at"] != null)
+                //                        group.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
+                //                }
+
+                //                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
+                //                {
+                //                    connection.Open();
+                //                    using (SQLiteCommand command = new SQLiteCommand(connection))
                 //                    {
-                //                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
-                //                        {
+                //                        command.CommandText = "UPDATE Groups SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable=@subscriptionCapable WHERE UserID=@UserID AND GroupID = @ID;";
+                //                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
+                //                        command.Parameters.Add(new SQLiteParameter("@ID", group.id));
+                //                        command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", group.subscriptionChannel));
+                //                        command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", group.subscriptionExpires));
+                //                        command.Parameters.Add(new SQLiteParameter("@subscriptionCapable", subCapable));
+                //                        command.ExecuteNonQuery();
 
-                //                            connection.Open();
-                //                            using (SQLiteCommand command = new SQLiteCommand(connection))
-                //                            {
-                //                                command.CommandText = "UPDATE Groups SET subscriptionCapable='0' WHERE UserID = @UserID AND GroupID = @ID;";
-                //                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
-                //                                command.Parameters.Add(new SQLiteParameter("@ID", group.id));
-                //                                command.ExecuteNonQuery();
-
-                //                                command.CommandText = "INSERT OR IGNORE INTO Groups(UserID, GroupID,subscriptionCapable) VALUES (@UserID,@ID,'0')";
-                //                                command.ExecuteNonQuery();
-
-                //                            }
-                //                        }
-                //                    }
-                //                    else
-                //                    {
-                //                        if (subJSON["data"] != null)
-                //                        {
-                //                            if (subJSON["data"]["topic"] != null)
-                //                                group.subscriptionTopic = subJSON["data"]["topic"].ToString();
-
-                //                            if (subJSON["data"]["expires_at"] != null)
-                //                                group.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
-
-                //                            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
-                //                            {
-
-                //                                connection.Open();
-                //                                using (SQLiteCommand command = new SQLiteCommand(connection))
-                //                                {
-                //                                    command.CommandText = "UPDATE Groups SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE UserID = @UserID AND GroupID = @ID;";
-                //                                    command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
-                //                                    command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", group.subscriptionTopic));
-                //                                    command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", group.subscriptionExpires));
-                //                                    command.Parameters.Add(new SQLiteParameter("@ID", group.id));
-                //                                    command.ExecuteNonQuery();
-
-                //                                    command.CommandText = "INSERT OR IGNORE INTO Groups(UserID,GroupID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID,@ID,@subscriptionTopic,@subscriptionExpires,'1')";
-                //                                    command.ExecuteNonQuery();
-
-                //                                }
-                //                            }
-                //                        }
+                //                        command.CommandText = "INSERT OR IGNORE INTO Groups(UserID,GroupID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID, @ID,@subscriptionTopic,@subscriptionExpires,@subscriptionCapable)";
+                //                        command.ExecuteNonQuery();
                 //                    }
                 //                }
                 //            }
                 //        }
                 //    }
                 //}
-                #endregion
+                //#endregion
 
                 return myWink.Groups;
             }
@@ -1739,12 +1742,12 @@ public class WinkHelper
     {
         public Wink.Robot getRobotByID(string RobotID)
         {
-            Wink.Robot robot = myWink.Robots.SingleOrDefault(s => s.id.Equals(RobotID));
+            Wink.Robot robot = myWink.Robots.FirstOrDefault(s => s.id.Equals(RobotID));
             return robot;
         }
         public Wink.Robot getRobotByName(string robotName)
         {
-            Wink.Robot robot = myWink.Robots.SingleOrDefault(s => s.name.ToLower().Equals(robotName.ToLower()));
+            Wink.Robot robot = myWink.Robots.FirstOrDefault(s => s.name.ToLower().Equals(robotName.ToLower()));
             return robot;
         }
         public string setRobotDisplayName(string RobotID, string DisplayName)
@@ -1767,7 +1770,7 @@ public class WinkHelper
                         command.ExecuteNonQuery();
                     }
                 }
-                Wink.Robot robot = myWink.Robots.SingleOrDefault(d => d.id == RobotID);
+                Wink.Robot robot = myWink.Robots.FirstOrDefault(d => d.id == RobotID);
                 robot.displayName = DisplayName;
 
                 return DisplayName;
@@ -1807,7 +1810,7 @@ public class WinkHelper
                 return -1;
             }
         }
-        internal void RobotChangeState(string robotID, bool newEnabledState)
+        public void RobotChangeState(string robotID, bool newEnabledState)
         {
             try
             {
@@ -1837,35 +1840,49 @@ public class WinkHelper
 
             return null;
         }
-        internal List<Wink.Robot> winkGetRobots(JObject jsonObject = null, bool forceRefresh = false)
+        public void RobotUpdate(JObject json)
+        {
+            winkGetRobots(json);
+        }
+        public List<Wink.Robot> winkGetRobots(JObject jsonObject = null, bool forceRefresh = false)
         {
             try
             {
-                bool firstRun = false;
-                if (myWink.Robots == null || forceRefresh)
+                if (myWink.Robots == null || myWink.Robots.Count == 0 || jsonObject != null || forceRefresh)
                 {
-                    List<Wink.Robot> Robots = new List<Wink.Robot>();
+                    List<Wink.Robot> robots = new List<Wink.Robot>();
                     JObject json = null;
 
                     if (myWink.Robots == null || forceRefresh)
                     {
-                        firstRun = true;
                         json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetRobotsURL"]);
                     }
                     else if (jsonObject != null)
                     {
                         json = jsonObject;
-                        Robots = myWink.Robots;
+                        string jsonstring = json.ToString();
+                        string strRobotID = jsonstring.Substring(jsonstring.IndexOf("robot_id\": \"") + 12);
+                        strRobotID = strRobotID.Remove(strRobotID.IndexOf("\""));
+                        robots = myWink.Robots.Where(d => d.id == strRobotID).ToList();
                     }
 
                     if (json != null)
                     {
                         foreach (JObject data in json["data"])
                         {
+                            IList<string> keys = data.Properties().Select(p => p.Name).ToList();
+
                             Wink.Robot robot = new Wink.Robot();
                             bool hasData = false;
 
                             robot.id = data["robot_id"].ToString();
+
+                            if (jsonObject != null)
+                            {
+                                robot = new WinkHelper.RobotHelper().getRobotByID(robot.id);
+                                myWink.Robots.Remove(robot);
+                            }
+
                             robot.name = data["name"].ToString();
                             robot.displayName = robot.name;
                             robot.enabled = data["enabled"].ToString();
@@ -1894,7 +1911,7 @@ public class WinkHelper
                                     //RENAME "MY ROBOT" WHEN IS SENSOR BATTERY WARNING
                                     if (robot.name.ToLower() == "my robot")
                                     {
-                                        Wink.Device device = myWink.Devices.SingleOrDefault(d => d.id == data["causes"][0]["observed_object_id"].ToString());
+                                        Wink.Device device = myWink.Devices.FirstOrDefault(d => d.id == data["causes"][0]["observed_object_id"].ToString());
 
                                         if (device != null)
                                         {
@@ -1940,6 +1957,8 @@ public class WinkHelper
                             if (!hasData)
                                 robot.isempty = true;
 
+                            robots.Add(robot);
+
                             //UPDATE DEVICE DB
                             using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
                             {
@@ -1962,10 +1981,14 @@ public class WinkHelper
                                 }
                             }
 
-                            Robots.Add(robot);
+                            if (jsonObject != null)
+                            {
+                                myWink.Robots.Add(robot);
+                            }
                         }
                     }
-                    myWink.Robots = Robots.OrderBy(c => c.name).ToList();
+                    if (jsonObject == null)
+                        myWink.Robots = robots.OrderBy(c => c.name).ToList();
                 }
 
                 #region RETRIEVE DATABASE VALUES
@@ -1987,92 +2010,10 @@ public class WinkHelper
 
                                 if (!string.IsNullOrWhiteSpace(reader["DisplayName"].ToString()))
                                     robot.displayName = reader["DisplayName"].ToString();
-
-                                string subCapable = reader["subscriptionCapable"].ToString();
-                                robot.subscriptionCapable = Convert.ToBoolean(subCapable);
-                                robot.subscriptionTopic = reader["SubscriptionTopic"].ToString();
-
-                                DateTime expires = new DateTime();
-                                string date = reader["SubscriptionExpires"].ToString();
-                                DateTime.TryParse(date, out expires);
-                                robot.subscriptionExpires = Convert.ToDateTime(expires);
-
                             }
                         }
                     }
                 }
-                #endregion
-
-                #region PUBNUB SUBSCRIPTIONS
-                ////ROBOTS CAN'T HAVE SUBS AT THE MOMENT
-
-                //if (SettingMgmt.hasPubNub)
-                //{
-                //    foreach (Wink.Robot robot in myWink.Robots)
-                //    {
-                //        if (string.IsNullOrWhiteSpace(robot.subscriptionTopic) || DateTime.Now > robot.subscriptionExpires)
-                //        {
-                //            if (robot.subscriptionCapable || firstRun)
-                //            {
-                //                string URL = ConfigurationManager.AppSettings["winkRootURL"] + "/robots/" + robot.id + "/subscriptions";
-                //                string sendCommand = "{\"publisher_key\":\"" + PubNub.myPubNub.publishKey + "\",\"subscriber_key\":\"" + PubNub.myPubNub.subscriberKey + "\"}";
-                //                JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
-                //                if (subJSON != null)
-                //                {
-                //                    if (subJSON.ToString().Contains("404") && !firstRun)
-                //                    {
-                //                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
-                //                        {
-
-                //                            connection.Open();
-                //                            using (SQLiteCommand command = new SQLiteCommand(connection))
-                //                            {
-                //                                command.CommandText = "UPDATE Robots SET subscriptionCapable='0' WHERE UserID = @UserID AND RobotID = @ID;";
-                //                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
-                //                                command.Parameters.Add(new SQLiteParameter("@ID", robot.id));
-                //                                command.ExecuteNonQuery();
-
-                //                                command.CommandText = "INSERT OR IGNORE INTO Robots(UserID,RobotID,subscriptionCapable) VALUES (@UserID,@ID,'0')";
-                //                                command.ExecuteNonQuery();
-
-                //                            }
-                //                        }
-                //                    }
-                //                    else
-                //                    {
-                //                        if (subJSON["data"] != null)
-                //                        {
-                //                            if (subJSON["data"]["topic"] != null)
-                //                                robot.subscriptionTopic = subJSON["data"]["topic"].ToString();
-
-                //                            if (subJSON["data"]["expires_at"] != null)
-                //                                robot.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
-
-                //                            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
-                //                            {
-
-                //                                connection.Open();
-                //                                using (SQLiteCommand command = new SQLiteCommand(connection))
-                //                                {
-                //                                    command.CommandText = "UPDATE Robots SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable='1' WHERE UserID = @UserID AND RobotID = @ID;";
-                //                                    command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
-                //                                    command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", robot.subscriptionTopic));
-                //                                    command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", robot.subscriptionExpires));
-                //                                    command.Parameters.Add(new SQLiteParameter("@ID", robot.id));
-                //                                    command.ExecuteNonQuery();
-
-                //                                    command.CommandText = "INSERT OR IGNORE INTO Robots(UserID,RobotID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID,@ID,@subscriptionTopic,@subscriptionExpires,'1')";
-                //                                    command.ExecuteNonQuery();
-
-                //                                }
-                //                            }
-                //                        }
-                //                    }
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
                 #endregion
 
                 return myWink.Robots;
@@ -2126,36 +2067,6 @@ public class Wink
 
 #endregion
 
-#region Subscriptions
-    public class Subscription
-    {
-        [SimpleProperty]
-        public string type { get; set; }
-        [SimpleProperty]
-        public string objectID { get; set; }
-        [SimpleProperty]
-        public string name { get; set; }
-        [SimpleProperty]
-        public DateTime expires { get; set; }
-    }
-    public List<Subscription> Subscriptions
-    {
-        get
-        {
-            if (_subscriptions == null)
-                _subscriptions = new List<Wink.Subscription>();
-
-            return _subscriptions;
-        }
-        set
-        {
-            _subscriptions = value;
-        }
-    }
-    private List<Subscription> _subscriptions;
-
-#endregion
-
 #region Device
     public class Device : Wink
     {
@@ -2194,10 +2105,11 @@ public class Wink
         [SimpleProperty]
         public string hub_name { get; set; }
 
-        public string json;
-        public bool subscriptionCapable = true;
-        public string subscriptionTopic;
+        public string subscriptionChannel;
         public DateTime subscriptionExpires;
+        public bool subscriptionCapable;
+
+        public string json;
         public int position = 1001;
         public List<string> desired_states = new List<string>();
         public List<DeviceStatus> sensor_states = new List<DeviceStatus>();
@@ -2237,9 +2149,7 @@ public class Wink
         public string displayName { get; set; }
 
         public string json;
-        public bool subscriptionCapable = true;
-        public string subscriptionTopic;
-        public DateTime subscriptionExpires;
+        public string subscriptionChannel;
         public int position = 1001;
 
         public List<ShortcutMember> members = new List<ShortcutMember>();
@@ -2278,12 +2188,12 @@ public class Wink
         [SimpleProperty]
         public string displayName { get; set; }
 
-        public string json;
-        public bool subscriptionCapable = true;
-        public string subscriptionTopic;
+        public string subscriptionChannel;
         public DateTime subscriptionExpires;
-        public int position = 1001;
+        public bool subscriptionCapable;
 
+        public string json;
+        public int position = 1001;
         public List<GroupMember> members = new List<GroupMember>();
         public List<GroupStatus> status = new List<GroupStatus>();
         public class GroupMember
@@ -2337,9 +2247,7 @@ public class Wink
         public string displayName { get; set; }
 
         public string json;
-        public bool subscriptionCapable = true;
-        public string subscriptionTopic;
-        public DateTime subscriptionExpires;
+        public string subscriptionChannel;
         public int position = 1001;
 
         public List<string> members = new List<string>();

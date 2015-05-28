@@ -125,12 +125,17 @@ namespace WinkAtHome
                 throw; //EventLog.WriteEntry("WinkAtHome.Common.FromUnixTime", ex.Message, EventLogEntryType.Error);
             }
         }
-        public static DateTime getLocalTime()
+        public static DateTime getLocalTime(Int32 timezoneAdjust = 99)
         {
             Int32 timezone = 0;
 
-            string strtimezone = SettingMgmt.getSetting("TimeZone-Adjuster");
-            Int32.TryParse(strtimezone, out timezone);
+            if (timezoneAdjust != 99)
+                timezone = timezoneAdjust;
+            else
+            {
+                string strtimezone = SettingMgmt.getSetting("TimeZone-Adjuster");
+                Int32.TryParse(strtimezone, out timezone);
+            }
 
             DateTime dtnow = DateTime.Now.ToUniversalTime().AddHours(timezone);
             if (DateTime.Now.IsDaylightSavingTime())
@@ -138,6 +143,18 @@ namespace WinkAtHome
 
             return dtnow;
         }
+        public static DateTime getLocalTime(DateTime uncTime)
+        {
+            Int32 timezone = 0;
+            string strtimezone = SettingMgmt.getSetting("TimeZone-Adjuster");
+            Int32.TryParse(strtimezone, out timezone);
+
+            DateTime dtnow = uncTime.ToUniversalTime().AddHours(timezone);
+            if (DateTime.Now.IsDaylightSavingTime())
+                dtnow = dtnow.AddHours(1);
+
+            return dtnow;
+        }       
         public static string Encrypt(string toEncrypt)
         {
             try
@@ -279,8 +296,6 @@ namespace WinkAtHome
                             command.ExecuteNonQuery();
                         }
                     }
-
-
 
                     //PREPARE ROBOT TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))

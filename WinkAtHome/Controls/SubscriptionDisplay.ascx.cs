@@ -1,5 +1,4 @@
-﻿using PubNubMessaging.Core;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,8 +10,10 @@ using System.Web.UI.WebControls;
 
 namespace WinkAtHome.Controls
 {
-    public partial class PubNubDisplay : System.Web.UI.UserControl
+    public partial class SubscriptionDisplay : System.Web.UI.UserControl
     {
+        private int defaultLogLength = 50;
+        
         public Int32 DisplayHeight
         {
             get
@@ -29,22 +30,6 @@ namespace WinkAtHome.Controls
                 ViewState["DisplayHeight"] = value;
             }
         }
-        public Int32 LogLength
-        {
-            get
-            {
-                object o = ViewState["LogLength"];
-                if (o != null)
-                {
-                    return (Int32)o;
-                }
-                return 15000;
-            }
-            set
-            {
-                ViewState["LogLength"] = value;
-            }
-        }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -52,7 +37,7 @@ namespace WinkAtHome.Controls
             {
                 if (!IsPostBack)
                 {
-                    hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-PubNub-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
+                    hfSettingBase.Value = Request.RawUrl.Substring(Request.RawUrl.LastIndexOf('/') + 1) + "-Subscription-MV" + ((Table)Page.Master.FindControl("tblExpand")).Visible.ToString();
 
                     bool visible = true;
                     string dataVisible = SettingMgmt.getSetting(hfSettingBase.Value + "-Visible");
@@ -63,21 +48,24 @@ namespace WinkAtHome.Controls
                         cbShow.Checked = visible;
                     }
 
+                    int loglength = defaultLogLength;
                     string length = SettingMgmt.getSetting(hfSettingBase.Value + "-LogLength");
                     if (length != null)
                     {
-                        int loglength = 15000;
                         int.TryParse(length, out loglength);
-                        LogLength = loglength;
                     }
-                    tbLogLength.Text = LogLength.ToString();
+                    hfLogLength.Value = loglength.ToString();
+                    tbLogLength.Text = hfLogLength.Value;
 
                     txtMessage.Height = DisplayHeight;
+
+                    if (Session["_subscriptionLog"] == null)
+                        Session["_subscriptionLog"] = new List<string>();
                 }
             }
             catch (Exception ex)
             {
-                throw; //EventLog.WriteEntry("WinkAtHome.PubNubDisplay.Page_Load", ex.Message, EventLogEntryType.Error);
+                throw; //EventLog.WriteEntry("WinkAtHome.SubscriptionDisplay.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -94,41 +82,36 @@ namespace WinkAtHome.Controls
 
             rowData.Visible = cbShow.Checked;
             SettingMgmt.saveSetting(hfSettingBase.Value + "-Visible", cbShow.Checked.ToString());
-            
-            int loglength = 15000;
+
+            int loglength = defaultLogLength;
             int.TryParse(tbLogLength.Text, out loglength);
             SettingMgmt.saveSetting(hfSettingBase.Value + "-LogLength", loglength.ToString());
-            LogLength = loglength;
+            hfLogLength.Value = loglength.ToString();
 
             mpeSettings.Hide();
         }
 
-        protected void tmrCheckChanges_Tick(object sender, EventArgs e)
+        protected void ibPause_Click(object sender, ImageClickEventArgs e)
         {
-            try
-            {
-                string modalshowing = "false";
-                if (Session["modalshowing"] != null)
-                    modalshowing = Session["modalshowing"].ToString();
+            System.Web.UI.Timer tmrSubscriptions = (System.Web.UI.Timer)Page.Master.FindControl("tmrSubscriptions");
 
-                if (modalshowing == "false")
-                {
-                    string currentRecord;
-                    while (PubNub.myPubNub.RecordQueue.TryDequeue(out currentRecord))
-                    {
-                        txtMessage.Text = currentRecord + Environment.NewLine + txtMessage.Text;
-                    }
+            tmrSubscriptions.Enabled = !tmrSubscriptions.Enabled;
 
-                    if (txtMessage.Text.Length > LogLength)
-                    {
-                        txtMessage.Text = txtMessage.Text.Substring(0, LogLength) + Environment.NewLine + "...(truncated)";
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw; //EventLog.WriteEntry("WinkAtHome.Master.tmrCheckChanges_Tick", ex.Message, EventLogEntryType.Error);
-            }
+            if (tmrSubscriptions.Enabled)
+                ibPause.ImageUrl = "~/Images/pause.png";
+            else
+                ibPause.ImageUrl = "~/Images/play.png";
+        }
+
+        protected void ibErase_Click(object sender, ImageClickEventArgs e)
+        {
+            txtMessage.Text = "";
+            Session["_subscriptionLog"] = string.Empty;
+        }
+
+        protected void ibReconnect_Click(object sender, ImageClickEventArgs e)
+        {
+            new WinkHelper.SubscriptionHelper().refreshSubscriptions();
         }
     }
 }

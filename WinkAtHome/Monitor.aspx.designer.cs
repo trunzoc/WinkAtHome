@@ -58,21 +58,21 @@ namespace WinkAtHome {
         protected global::WinkAtHome.Controls.Devices ucDevices;
         
         /// <summary>
-        /// rowPubNub control.
+        /// rowSubscriptions control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TableRow rowPubNub;
+        protected global::System.Web.UI.WebControls.TableRow rowSubscriptions;
         
         /// <summary>
-        /// ucPubNub control.
+        /// ucSubscription control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::WinkAtHome.Controls.PubNubDisplay ucPubNub;
+        protected global::WinkAtHome.Controls.SubscriptionDisplay ucSubscription;
     }
 }

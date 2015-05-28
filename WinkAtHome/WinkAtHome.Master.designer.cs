@@ -40,22 +40,22 @@ namespace WinkAtHome {
         protected global::Telerik.Web.UI.RadAjaxManager RadAjaxManager1;
         
         /// <summary>
-        /// upPubNub control.
+        /// upSubscriptions control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel upPubNub;
+        protected global::System.Web.UI.UpdatePanel upSubscriptions;
         
         /// <summary>
-        /// tmrPubNub control.
+        /// tmrSubscriptions control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.Timer tmrPubNub;
+        protected global::System.Web.UI.Timer tmrSubscriptions;
         
         /// <summary>
         /// upRefresh control.
@@ -326,15 +326,6 @@ namespace WinkAtHome {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.LinkButton lbLogout;
-        
-        /// <summary>
-        /// rowMenuAdds control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TableRow rowMenuAdds;
         
         /// <summary>
         /// tblCollapsed control.

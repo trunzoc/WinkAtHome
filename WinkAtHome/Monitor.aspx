@@ -2,7 +2,7 @@
 <%@ Register Src="~/Controls/Devices.ascx" TagName="ucDevices" TagPrefix="ucD" %>
 <%@ Register Src="~/Controls/Groups.ascx" TagName="ucGroups" TagPrefix="ucG" %>
 <%@ Register Src="~/Controls/Robots.ascx" TagName="ucRobots" TagPrefix="ucR" %>
-<%@ Register Src="~/Controls/PubNubDisplay.ascx" TagName="ucPubNub" TagPrefix="ucP" %>
+<%@ Register Src="~/Controls/SubscriptionDisplay.ascx" TagName="ucSubscription" TagPrefix="ucP" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="cphMain" runat="server" BorderWidth="0" CellPadding="0" CellSpacing="0">
     <asp:Table ID="Table1" runat="server" Width="100%" CellPadding="0" CellSpacing="0">
@@ -26,9 +26,9 @@
                 <ucD:ucDevices ID="ucDevices" runat="server" ControllableOnly="true" />
             </asp:TableCell>
         </asp:TableRow>
-        <asp:TableRow ID="rowPubNub">
+        <asp:TableRow ID="rowSubscriptions">
             <asp:TableCell>
-                <ucP:ucPubNub ID="ucPubNub" runat="server" DisplayHeight="500" />
+                <ucP:ucSubscription ID="ucSubscription" runat="server" DisplayHeight="500" />
             </asp:TableCell>
         </asp:TableRow>
     </asp:Table>
