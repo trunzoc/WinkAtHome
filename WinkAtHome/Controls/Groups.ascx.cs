@@ -36,7 +36,7 @@ namespace WinkAtHome.Controls
                     cbShow.Checked = visible;
                 }
 
-                string hideEmpty = SettingMgmt.getSetting("Hide-Empty-Groups").ToLower();
+                string hideEmpty = SettingMgmt.getSetting("Hide-Empty-Groups");
                 if (hideEmpty != null)
                 {
                     bool visible = true;

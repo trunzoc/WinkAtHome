@@ -21,7 +21,7 @@
                 </asp:TableRow>
                 <asp:TableRow>
                     <asp:TableCell HorizontalAlign="Center">
-                        <asp:ImageButton ID="ibPayPal" runat="server" Height="30" ImageUrl="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" OnClientClick="javascript:window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5NLDWXRPQXSN6', '_blank');" AlternateText="PayPal - The safer, easier way to pay online!" />
+                        <asp:ImageButton ID="ibPayPal" runat="server" Height="25" ImageUrl="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" OnClientClick="javascript:window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5NLDWXRPQXSN6', '_blank');" AlternateText="PayPal - The safer, easier way to pay online!" />
                     </asp:TableCell>
                     <asp:TableCell VerticalAlign="Top">
                         <asp:ImageButton ID="ibYouTube" runat="server" Height="80" ImageUrl="http://www.youtube.com/yt/brand/media/image/YouTube-logo-full_color.png" OnClientClick="javascript:window.open('https://www.youtube.com/user/trunzoc/videos', '_blank');" AlternateText="My YouTube Channel" />

@@ -10,6 +10,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using WinkAtHome;
 
@@ -120,12 +122,10 @@ public class WinkHelper
             return null;
         }
     }
-    protected JObject winkCallAPI(string url, string method = "", string sendcommand = "", bool requiresToken = true)
+    protected JObject winkCallAPI(string url, string method = "", string sendcommand = "", bool requiresToken = true, string TokenOverride = null)
     {
         try
         {
-            Wink myWink = (Wink)HttpContext.Current.Session["_wink"];
-
             String responseString = string.Empty;
             JObject jsonResponse = new JObject();
 
@@ -134,7 +134,10 @@ public class WinkHelper
                 xhr.Headers[HttpRequestHeader.ContentType] = "application/json";
 
                 if (requiresToken)
-                    xhr.Headers.Add("Authorization", "Bearer " + HttpContext.Current.Session["_winkToken"].ToString());
+                {
+                    string token = TokenOverride != null ? TokenOverride : HttpContext.Current.Session["_winkToken"].ToString();
+                    xhr.Headers.Add("Authorization", "Bearer " + token);
+                }
 
                 byte[] result = null;
 
@@ -364,62 +367,62 @@ public class WinkHelper
 #region Subscriptions
     public class SubscriptionHelper: WinkHelper
     {
-        public string getSubscriptionChannels()
-        {
-            List<String> listChannels = new List<string>();
+        //public string getSubscriptionChannels()
+        //{
+        //    List<String> listChannels = new List<string>();
 
-            if (myWink.Devices != null && myWink.Devices.Count > 0)
-            {
-                List<String> deviceChannels = myWink.Devices.Select(d => d.subscriptionChannel).ToList();
-                listChannels.AddRange(deviceChannels);
-            }
-            if (myWink.Shortcuts != null && myWink.Shortcuts.Count > 0)
-            {
-                List<String> shortcutChannels = myWink.Shortcuts.Select(s => s.subscriptionChannel).ToList();
-                listChannels.AddRange(shortcutChannels);
-            }
-            if (myWink.Groups != null && myWink.Groups.Count > 0)
-            {
-                List<String> groupChannels = myWink.Groups.Select(s => s.subscriptionChannel).ToList();
-                listChannels.AddRange(groupChannels);
-            }
+        //    if (myWink.Devices != null && myWink.Devices.Count > 0)
+        //    {
+        //        List<String> deviceChannels = myWink.Devices.Select(d => d.subscriptionChannel).ToList();
+        //        listChannels.AddRange(deviceChannels);
+        //    }
+        //    if (myWink.Shortcuts != null && myWink.Shortcuts.Count > 0)
+        //    {
+        //        List<String> shortcutChannels = myWink.Shortcuts.Select(s => s.subscriptionChannel).ToList();
+        //        listChannels.AddRange(shortcutChannels);
+        //    }
+        //    if (myWink.Groups != null && myWink.Groups.Count > 0)
+        //    {
+        //        List<String> groupChannels = myWink.Groups.Select(s => s.subscriptionChannel).ToList();
+        //        listChannels.AddRange(groupChannels);
+        //    }
 
-            listChannels.RemoveAll(l => l == "");
+        //    listChannels.RemoveAll(l => l == "");
 
-            if (listChannels.Count > 0)
-            {
-                string strTopics = String.Join(",", listChannels.Distinct());
-                return strTopics;
-            }
+        //    if (listChannels.Count > 0)
+        //    {
+        //        string strTopics = String.Join(",", listChannels.Distinct());
+        //        return strTopics;
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
         
-        public Object getObjectBySubscriptionByChannel(string SubscriptionChannel)
-        {
-            Object device = myWink.Devices.FirstOrDefault(d => d.subscriptionChannel == SubscriptionChannel);
-            if (device != null)
-                return device;
-            else
-            {
-                Object group = myWink.Groups.FirstOrDefault(d => d.subscriptionChannel == SubscriptionChannel);
-                if (group != null)
-                    return group;
-                else
-                {
-                    Object robot = myWink.Robots.FirstOrDefault(d => d.subscriptionChannel == SubscriptionChannel);
-                    if (robot != null)
-                        return robot;
-                    else
-                    {
-                        Object shortcut = myWink.Shortcuts.FirstOrDefault(d => d.subscriptionChannel == SubscriptionChannel);
-                        if (shortcut != null)
-                            return shortcut;
-                    }
-                }
-            }
-            return null;
-        }
+        //public Object getObjectBySubscriptionByChannel(string SubscriptionChannel)
+        //{
+        //    Object device = myWink.Devices.FirstOrDefault(d => d.subscriptionChannel == SubscriptionChannel);
+        //    if (device != null)
+        //        return device;
+        //    else
+        //    {
+        //        Object group = myWink.Groups.FirstOrDefault(d => d.subscriptionChannel == SubscriptionChannel);
+        //        if (group != null)
+        //            return group;
+        //        else
+        //        {
+        //            Object robot = myWink.Robots.FirstOrDefault(d => d.subscriptionChannel == SubscriptionChannel);
+        //            if (robot != null)
+        //                return robot;
+        //            else
+        //            {
+        //                Object shortcut = myWink.Shortcuts.FirstOrDefault(d => d.subscriptionChannel == SubscriptionChannel);
+        //                if (shortcut != null)
+        //                    return shortcut;
+        //            }
+        //        }
+        //    }
+        //    return null;
+        //}
 
         public void refreshSubscriptions(string type = "all")
         {
@@ -427,52 +430,7 @@ public class WinkHelper
             {
                 if (type == "all" || type == "devices")
                 {
-                    foreach (Wink.Device device in myWink.Devices)
-                    {
-                        string APIURL = ConfigurationManager.AppSettings["winkRootURL"] + device.type + "/" + device.id + "/subscriptions";
-                        string callbackURL = ConfigurationManager.AppSettings["SubscriptionCallbackURL"] + myWink.winkUser.userID + "/" + device.type + "/" + device.id;
-                        string sendCommand = "{\"callback\":\"" + callbackURL + "\"}";//,\"secret\":\"" + "MDkyZmZmZWMtNDM1Yi00MjI4LThhM2UtZjI4OGFjNWExNjU3" + "\"}";
-                        JObject subJSON = winkCallAPI(APIURL, "POST", sendCommand);
-                        if (subJSON != null)
-                        {
-                            string subCapable = string.Empty;
-
-                            if (subJSON.ToString().Contains("404"))
-                            {
-                                subCapable = "0";
-                                device.subscriptionCapable = false;
-                            }
-                            else if (subJSON["data"] != null)
-                            {
-                                subCapable = "1";
-                                device.subscriptionCapable = true;
-
-                                if (subJSON["data"]["topic"] != null)
-                                    device.subscriptionChannel = subJSON["data"]["topic"].ToString();
-
-                                if (subJSON["data"]["expires_at"] != null)
-                                    device.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
-                            }
-
-                            using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
-                            {
-                                connection.Open();
-                                using (SQLiteCommand command = new SQLiteCommand(connection))
-                                {
-                                    command.CommandText = "UPDATE Devices SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable=@subscriptionCapable WHERE UserID=@UserID AND DeviceID = @ID;";
-                                    command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
-                                    command.Parameters.Add(new SQLiteParameter("@ID", device.id));
-                                    command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", device.subscriptionChannel));
-                                    command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", device.subscriptionExpires));
-                                    command.Parameters.Add(new SQLiteParameter("@subscriptionCapable", subCapable));
-                                    command.ExecuteNonQuery();
-
-                                    command.CommandText = "INSERT OR IGNORE INTO Devices(UserID,DeviceID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID, @ID,@subscriptionTopic,@subscriptionExpires,@subscriptionCapable)";
-                                    command.ExecuteNonQuery();
-                                }
-                            }
-                        }
-                    }
+                    new DeviceHelper().DeviceGetSubscriptions();
                 }
             }
             catch (Exception ex)
@@ -659,8 +617,75 @@ public class WinkHelper
 
             return device;
         }
+        public void DeviceGetSubscriptions(string token = null, List<Wink.Device> deviceList = null)
+        {
+            try
+            {
+                Dictionary<string, string> devices = new Dictionary<string, string>();
+                if (deviceList != null)
+                    devices = deviceList.ToDictionary(d => d.id, d => d.type);
+                else if (myWink.Devices != null)
+                    devices = myWink.Devices.ToDictionary(d => d.id, d => d.type);
 
-        public List<Wink.Device> winkGetDevices(JObject jsonObject = null, bool forceRefresh = false)
+
+                foreach (KeyValuePair<string,string> device in devices)
+                {
+                    string APIURL = ConfigurationManager.AppSettings["winkRootURL"] + device.Value + "/" + device.Key + "/subscriptions";
+                    string callbackURL = ConfigurationManager.AppSettings["SubscriptionCallbackURL"] + myWink.winkUser.userID + "/" + device.Value + "/" + device.Key;
+                    string sendCommand = "{\"callback\":\"" + callbackURL + "\"}";//,\"secret\":\"" + "MDkyZmZmZWMtNDM1Yi00MjI4LThhM2UtZjI4OGFjNWExNjU3" + "\"}";
+                    JObject subJSON = winkCallAPI(APIURL, "POST", sendCommand, true, token != null ? token : null);
+                    if (subJSON != null)
+                    {
+                        string subCapable = string.Empty;
+                        string subTopic = string.Empty;
+                        DateTime subExpires = new DateTime();
+
+                        if (subJSON.ToString().Contains("404"))
+                        {
+                            subCapable = "0";
+                            //device.subscriptionCapable = false;
+                        }
+                        else if (subJSON["data"] != null)
+                        {
+                            subCapable = "1";
+                            //device.subscriptionCapable = true;
+
+                            if (subJSON["data"]["topic"] != null)
+                                subTopic = subJSON["data"]["topic"].ToString();
+                            //    device.subscriptionChannel = subJSON["data"]["topic"].ToString();
+
+                            if (subJSON["data"]["expires_at"] != null)
+                                subExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
+                            //    device.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
+                        }
+
+                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
+                        {
+                            connection.Open();
+                            using (SQLiteCommand command = new SQLiteCommand(connection))
+                            {
+                                command.CommandText = "UPDATE Devices SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable=@subscriptionCapable WHERE UserID=@UserID AND DeviceID = @ID;";
+                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
+                                command.Parameters.Add(new SQLiteParameter("@ID", device.Key));
+                                //command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", device.subscriptionChannel));
+                                //command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", device.subscriptionExpires));
+                                command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", subTopic));
+                                command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", subExpires));
+                                command.Parameters.Add(new SQLiteParameter("@subscriptionCapable", subCapable));
+                                command.ExecuteNonQuery();
+
+                                command.CommandText = "INSERT OR IGNORE INTO Devices(UserID,DeviceID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID, @ID,@subscriptionTopic,@subscriptionExpires,@subscriptionCapable)";
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        public void winkGetDevices(JObject jsonObject = null, bool forceRefresh = false)
         {
             try
             {
@@ -699,11 +724,26 @@ public class WinkHelper
                                 string typeName = keys[0];
 
                                 Wink.Device device = new Wink.Device();
+
                                 device.json = data.ToString();
                                 device.name = data["name"] != null ? data["name"].ToString() : "error: name";
                                 if (jsonObject != null)
                                 {
                                     device = new WinkHelper.DeviceHelper().getDeviceByName(device.name);
+                                    
+                                    if (keys.Contains("last_reading"))
+                                    {
+                                        var readings = data["last_reading"];
+                                        string brightness = readings["brightness"] != null ? readings["brightness"].ToString() : null;
+                                        string desiredbrightness = readings["desired_brightness"] != null ? readings["desired_brightness"].ToString() : null;
+                                        string power = readings["powered"] != null ? readings["powered"].ToString() : null;
+                                        string desiredpower = readings["desired_powered"] != null ? readings["desired_powered"].ToString() : null;
+
+                                        if ((!string.IsNullOrWhiteSpace(desiredbrightness) && (desiredbrightness != brightness)) || (!string.IsNullOrWhiteSpace(desiredpower) && (desiredpower != power)))
+                                            return;
+                                    }
+
+
                                     myWink.Devices.Remove(device);
                                 }
                                 else
@@ -711,6 +751,7 @@ public class WinkHelper
                                     device.iscontrollable = false;
 
                                     device.id = data[typeName] != null ? data[typeName].ToString() : "error: typeName";
+
                                     device.displayName = device.name;
                                     device.type = data[typeName] != null ? typeName.Replace("_id", "s").Replace("switchs", "switches") : "error: type";
                                     device.menu_type = device.type;
@@ -753,8 +794,6 @@ public class WinkHelper
                                 if (keys.Contains("desired_state"))
                                 {
                                     JObject states = (JObject)data["desired_state"];
-                                    desired_states = states.ToString();
-
                                     getDesired_States(device, states);
                                 }
                                 else
@@ -762,12 +801,9 @@ public class WinkHelper
                                     device.issensor = true;
                                 }
 
-
                                 if (keys.Contains("last_reading"))
                                 {
                                     JObject readings = (JObject)data["last_reading"];
-                                    last_readings = readings.ToString();
-
                                     getLast_Readings(device, readings);
                                 }
 
@@ -1137,9 +1173,9 @@ public class WinkHelper
                                 DateTime expires = new DateTime();
                                 string date = row["SubscriptionExpires"].ToString();
                                 DateTime.TryParse(date, out expires);
-                                device.subscriptionExpires = Convert.ToDateTime(expires);
-                                device.subscriptionCapable = Convert.ToBoolean(row["subscriptionCapable"].ToString());
-                                device.subscriptionChannel = row["SubscriptionTopic"].ToString();
+                                //device.subscriptionExpires = Convert.ToDateTime(expires);
+                                //device.subscriptionCapable = Convert.ToBoolean(row["subscriptionCapable"].ToString());
+                                //device.subscriptionChannel = row["SubscriptionTopic"].ToString();
                             }
                         }
                     }
@@ -1156,9 +1192,10 @@ public class WinkHelper
                 #endregion
 
                 if (firstRun)
-                    new WinkHelper.SubscriptionHelper().refreshSubscriptions("devices");
-
-                return myWink.Devices;
+                {
+                    string token = myWink.Token;
+                    ThreadPool.QueueUserWorkItem(o => DeviceGetSubscriptions(token, myWink.Devices));
+                }
             }
             catch (Exception ex)
             {
@@ -2105,9 +2142,9 @@ public class Wink
         [SimpleProperty]
         public string hub_name { get; set; }
 
-        public string subscriptionChannel;
-        public DateTime subscriptionExpires;
-        public bool subscriptionCapable;
+        //public string subscriptionChannel;
+        //public DateTime subscriptionExpires;
+        //public bool subscriptionCapable;
 
         public string json;
         public int position = 1001;

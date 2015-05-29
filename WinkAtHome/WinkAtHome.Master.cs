@@ -17,7 +17,7 @@ using System.Configuration;
 
 namespace WinkAtHome
 {
-    public partial class WinkAtHome : System.Web.UI.MasterPage
+    public partial class WinkAtHome : System.Web.UI.MasterPage 
     {
         Wink myWink = HttpContext.Current.Session["_wink"] == null ? new Wink() : (Wink)HttpContext.Current.Session["_wink"];
         List<WinkEvent> deviceEvents = new List<WinkEvent>();
@@ -25,7 +25,23 @@ namespace WinkAtHome
         List<WinkEvent> shortcutEvents = new List<WinkEvent>();
         List<WinkEvent> robotEvents = new List<WinkEvent>();
         List<string> subscriptionMessages = new List<string>();
-
+        public List<KeyValuePair<Guid, DateTime>> completedEvents
+        {
+            get
+            {
+                object o = Session["completedEvents"];
+                if (o != null)
+                {
+                    return (List<KeyValuePair<Guid, DateTime>>)o;
+                }
+                Session["completedEvents"] = new List<KeyValuePair<Guid, DateTime>>();
+                return (List<KeyValuePair<Guid, DateTime>>)Session["completedEvents"];
+            }
+            set
+            {
+                Session["completedEvents"] = value;
+            }
+        }
         protected void Page_Load(object sender, EventArgs e)
         {
             try
@@ -225,72 +241,85 @@ namespace WinkAtHome
                         {
                             foreach (KeyValuePair<Guid, WinkEvent> pair in events)
                             {
-                                WinkEvent winkevent;
-                                WinkEventService.MessageQueue.TryRemove(pair.Key, out winkevent);
-                                if (winkevent != null)
+                                KeyValuePair<Guid, DateTime> thisone = completedEvents.SingleOrDefault(d => d.Key == pair.Key);
+                                if (thisone.Key == new Guid())
                                 {
-                                    winkevent.messageReceived = Common.getLocalTime(winkevent.messageReceived);
-                                    if (winkevent.objectType.ToLower().Contains("action:"))
+                                    WinkEvent winkevent;
+                                    WinkEventService.MessageQueue.TryGetValue(pair.Key, out winkevent);
+                                    if (winkevent != null)
                                     {
-                                        subscriptionMessages.Add(winkevent.objectType + ": " + winkevent.messageReceived.ToString() + Environment.NewLine + winkevent.json);
-                                    }
-                                    else
-                                    {
-                                        switch (winkevent.objectType)
+                                        completedEvents.Add(new KeyValuePair<Guid, DateTime>(pair.Key, DateTime.Now));
+                                        winkevent.messageReceived = Common.getLocalTime(winkevent.messageReceived);
+                                        if (winkevent.objectType.ToLower().Contains("action:"))
                                         {
-                                            case "group":
-                                                groupEvents.Add(winkevent);
-                                                break;
-                                            case "shortcut":
-                                                shortcutEvents.Add(winkevent);
-                                                break;
-                                            case "robot":
-                                                robotEvents.Add(winkevent);
-                                                break;
-                                            default:
-                                                deviceEvents.Add(winkevent);
-                                                break;
+                                            subscriptionMessages.Add(winkevent.objectType + ": " + winkevent.messageReceived.ToString() + Environment.NewLine + winkevent.json);
+                                        }
+                                        else
+                                        {
+                                            switch (winkevent.objectType)
+                                            {
+                                                case "group":
+                                                    groupEvents.Add(winkevent);
+                                                    break;
+                                                case "shortcut":
+                                                    shortcutEvents.Add(winkevent);
+                                                    break;
+                                                case "robot":
+                                                    robotEvents.Add(winkevent);
+                                                    break;
+                                                default:
+                                                    deviceEvents.Add(winkevent);
+                                                    break;
+                                            }
                                         }
                                     }
                                 }
                             }
+
+                            foreach (WinkEvent winkevent in deviceEvents)
+                            {
+                                myWink.DeviceHasChanges = true;
+                                Wink.Device device = myWink.Devices.SingleOrDefault(d => d.id == winkevent.objectID);
+
+                                subscriptionMessages.Add("DEVICE ACTION (" + device.name + "): " + winkevent.messageReceived.ToString() + Environment.NewLine + winkevent.json);
+
+                                string deviceResult = winkevent.json;
+                                deviceResult = "{\"data\": [" + deviceResult + "]}";
+                                JObject currentJSON = JObject.Parse(deviceResult);
+                                new WinkHelper.DeviceHelper().DeviceUpdate(currentJSON);
+                                break;
+                            }
+                            //while (mySubscriptions.ShortcutQueue.TryDequeue(out currentJSON))
+                            //{
+                            //    myWink.ShortcutHasChanges = true;
+                            //    new WinkHelper.ShortcutHelper().ShortcutUpdate(currentJSON);
+                            //}
+                            //while (mySubscriptions.GroupQueue.TryDequeue(out currentJSON))
+                            //{
+                            //    myWink.GroupHasChanges = true;
+                            //    new WinkHelper.GroupHelper().GroupUpdate(currentJSON);
+                            //}
+                            //while (mySubscriptions.RobotQueue.TryDequeue(out currentJSON))
+                            //{
+                            //    myWink.RobotHasChanges = true;
+                            //    new WinkHelper.RobotHelper().RobotUpdate(currentJSON);
+                            //}
+
+                            //if (mySubscriptions.MessageQueue.Count > 0)
+                            //{
+                            //}
+
+                            updateAllMasterPanels();
                         }
                     }
 
-                    foreach (WinkEvent winkevent in deviceEvents)
+                    List<KeyValuePair<Guid, DateTime>> deleteUs = completedEvents.Where(c => c.Value < DateTime.Now.AddSeconds(-30)).ToList();
+                    foreach (KeyValuePair<Guid, DateTime> pair in deleteUs)
                     {
-                        myWink.DeviceHasChanges = true;
-                        Wink.Device device = myWink.Devices.SingleOrDefault(d => d.id == winkevent.objectID);
-                        
-                        subscriptionMessages.Add("DEVICE ACTION (" + device.name + "): " + winkevent.messageReceived.ToString() + Environment.NewLine + winkevent.json);
-
-                        string deviceResult = winkevent.json;
-                        deviceResult = "{\"data\": [" + deviceResult + "]}";
-                        JObject currentJSON = JObject.Parse(deviceResult);
-                        new WinkHelper.DeviceHelper().DeviceUpdate(currentJSON);
-                        break;
+                        WinkEvent winkevent;
+                        WinkEventService.MessageQueue.TryRemove(pair.Key, out winkevent);
+                        completedEvents.Remove(pair);
                     }
-                    //while (mySubscriptions.ShortcutQueue.TryDequeue(out currentJSON))
-                    //{
-                    //    myWink.ShortcutHasChanges = true;
-                    //    new WinkHelper.ShortcutHelper().ShortcutUpdate(currentJSON);
-                    //}
-                    //while (mySubscriptions.GroupQueue.TryDequeue(out currentJSON))
-                    //{
-                    //    myWink.GroupHasChanges = true;
-                    //    new WinkHelper.GroupHelper().GroupUpdate(currentJSON);
-                    //}
-                    //while (mySubscriptions.RobotQueue.TryDequeue(out currentJSON))
-                    //{
-                    //    myWink.RobotHasChanges = true;
-                    //    new WinkHelper.RobotHelper().RobotUpdate(currentJSON);
-                    //}
-
-                    //if (mySubscriptions.MessageQueue.Count > 0)
-                    //{
-                    //}
-
-                    updateAllMasterPanels();
                 }
             }
             catch (Exception ex)

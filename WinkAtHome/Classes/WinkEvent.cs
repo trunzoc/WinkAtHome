@@ -121,5 +121,6 @@ namespace WinkAtHome
         public string objectType;
         public string objectID;
         public string json;
+        public string seenBy;
     }
 }
