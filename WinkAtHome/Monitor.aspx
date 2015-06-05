@@ -2,7 +2,7 @@
 <%@ Register Src="~/Controls/Devices.ascx" TagName="ucDevices" TagPrefix="ucD" %>
 <%@ Register Src="~/Controls/Groups.ascx" TagName="ucGroups" TagPrefix="ucG" %>
 <%@ Register Src="~/Controls/Robots.ascx" TagName="ucRobots" TagPrefix="ucR" %>
-<%@ Register Src="~/Controls/SubscriptionDisplay.ascx" TagName="ucSubscription" TagPrefix="ucP" %>
+<%@ Register Src="~/Controls/SubscriptionDisplay.ascx" TagName="ucSubscriptionDisplay" TagPrefix="ucP" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="cphMain" runat="server" BorderWidth="0" CellPadding="0" CellSpacing="0">
     <asp:Table ID="Table1" runat="server" Width="100%" CellPadding="0" CellSpacing="0">
@@ -26,11 +26,14 @@
                 <ucD:ucDevices ID="ucDevices" runat="server" ControllableOnly="true" />
             </asp:TableCell>
         </asp:TableRow>
-        <asp:TableRow ID="rowSubscriptions">
+<%--        <asp:TableRow ID="rowSubscriptions">
             <asp:TableCell>
-                <ucP:ucSubscription ID="ucSubscription" runat="server" DisplayHeight="500" />
+                <ucP:ucSubscriptionDisplay ID="ucSubscription" runat="server" Height="500" />
             </asp:TableCell>
-        </asp:TableRow>
+        </asp:TableRow>--%>
     </asp:Table>
 </asp:Content>
 
+<asp:Content ID="Content2" ContentPlaceHolderID="cphLeft" runat="server">
+    <ucP:ucSubscriptionDisplay ID="ucSubscriptionLeft" runat="server" Width="175" showLongLogDetail="false" showFullHeader="false" />
+</asp:Content>

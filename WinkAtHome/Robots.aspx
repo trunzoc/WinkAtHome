@@ -4,3 +4,6 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="cphMain" runat="server">
     <ucR:ucRobots ID="ucRobots" runat="server" />
 </asp:Content>
+
+<asp:Content ID="Content2" ContentPlaceHolderID="cphLeft" runat="server">
+</asp:Content>

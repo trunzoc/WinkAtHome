@@ -22,22 +22,31 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.HiddenField hfSettingBase;
         
         /// <summary>
-        /// hfLogLength control.
+        /// hfMainHeight control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfLogLength;
+        protected global::System.Web.UI.WebControls.HiddenField hfMainHeight;
         
         /// <summary>
-        /// Table1 control.
+        /// tblData control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Table Table1;
+        protected global::System.Web.UI.WebControls.Table tblData;
+        
+        /// <summary>
+        /// rowFullHeader control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowFullHeader;
         
         /// <summary>
         /// Table7 control.
@@ -202,6 +211,42 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.WebControls.LinkButton ibSettingsClose;
         
         /// <summary>
+        /// rowShortHeader control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TableRow rowShortHeader;
+        
+        /// <summary>
+        /// Table3 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Table Table3;
+        
+        /// <summary>
+        /// Label3 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label3;
+        
+        /// <summary>
+        /// ibPauseShort control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ImageButton ibPauseShort;
+        
+        /// <summary>
         /// rowData control.
         /// </summary>
         /// <remarks>
@@ -220,12 +265,21 @@ namespace WinkAtHome.Controls {
         protected global::System.Web.UI.UpdatePanel upData;
         
         /// <summary>
-        /// txtMessage control.
+        /// pnlEvents control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtMessage;
+        protected global::System.Web.UI.WebControls.Panel pnlEvents;
+        
+        /// <summary>
+        /// dlEvents control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DataList dlEvents;
     }
 }

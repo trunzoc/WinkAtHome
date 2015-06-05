@@ -24,35 +24,73 @@
     </style>
     
 </head>
-<body style="background-color:#eeeeee;margin: 0px ">
+<body style="background-color:#eeeeee;margin: 0px" >
+    <script type="text/javascript">
+        var myVar = setInterval(function () { checkForSubscriptionMessages() }, 2000);
+
+        function checkForSubscriptionMessages() {
+            var hfSubscriptionCallbackURL = document.getElementById('<%= hfSubscriptionCallbackURL.ClientID%>');
+            var url = hfSubscriptionCallbackURL.value;
+            var nonce = Math.random();
+            url += "/" + nonce;
+
+            var hfPauseSubscriptions = document.getElementById('<%= hfPauseSubscriptions.ClientID%>');
+            var pause = hfPauseSubscriptions.value.toLowerCase();
+
+            if (pause != "true") {
+                http = new XMLHttpRequest();
+                http.open('GET', url, true);
+                http.send(null);
+                http.onreadystatechange = function () {
+                    if (http.readyState == 4) {
+                        if (http.status == 200) {
+                            var response = http.responseText
+
+                            if (response > 0) {
+                                var btnSubscriptions = document.getElementById('<%= btnSubscriptions.ClientID %>');
+                                btnSubscriptions.click();
+                            }
+                        }
+                    }
+                };
+                var tbRefreshed = document.getElementById('<%= tbRefreshed.ClientID%>');
+
+                var d = new Date();
+                tbRefreshed.value = d.toLocaleString();
+            }
+        }
+
+        function getMainHeight() {
+            var tblMain = document.getElementById('<%= tblMain.ClientID%>')
+            var height = tblMain.offsetHeight;
+            return height;
+        }
+    </script>
+
 
     <form id="form1" runat="server">
     <div>
-        <telerik:RadScriptManager ID="RadScriptManager1" runat="server"/>
+        <ajaxToolkit:ToolkitScriptManager ID="ToolkitScriptManager1" runat="server">
+        </ajaxToolkit:ToolkitScriptManager>
         
         <telerik:RadAjaxManager ID="RadAjaxManager1" runat="server">
         </telerik:RadAjaxManager>
 
-        <asp:UpdatePanel ID="upSubscriptions" runat="server" UpdateMode="Always" >
-            <Triggers>
-                <asp:AsyncPostBackTrigger ControlID="tmrSubscriptions" />
-            </Triggers>
-            <ContentTemplate>
-                <asp:Timer ID="tmrSubscriptions" runat="server" Interval="5000" OnTick="tmrSubscriptions_Tick" />
-            </ContentTemplate>
-        </asp:UpdatePanel>
-
         <asp:UpdatePanel ID="upRefresh" runat="server" UpdateMode="conditional">
             <Triggers>
-                <asp:PostBackTrigger ControlID="tmrRefresh" />
-                <asp:PostBackTrigger ControlID="ibRefresh" />
+                <asp:AsyncPostBackTrigger ControlID="tmrRefresh" />
+                <asp:AsyncPostBackTrigger ControlID="ibRefresh" />
             </Triggers>
             <ContentTemplate>
+
+                <asp:HiddenField ID="hfPauseSubscriptions" runat="server" Value="false" />
+                <asp:HiddenField ID="hfSubscriptionCallbackURL" runat="server" />
+                <asp:Button ID="btnSubscriptions" runat="server" Text="Button" OnClick="btnSubscriptions_Click" style="display:none;" />
 
                 <asp:Table ID="Table1" runat="server" CellPadding="0" CellSpacing="0" Width="100%">
                     <asp:TableRow>
-                        <asp:TableCell ColumnSpan="2" style="padding-bottom:10px" VerticalAlign="Top">
-                            <table style="background-color:#22b9ec;" width="100%" border="0">
+                        <asp:TableCell ColumnSpan="3" style="padding-bottom:10px" VerticalAlign="Top">
+                            <table style="background-color:#22b9ec; width:100%;" border="0">
                                 <tr>
                                     <td align="left" width="170px">
                                         <asp:Image ID="Image1" runat="server" ImageUrl="~/Images/WinkatHome.png" Height="75px" />
@@ -70,12 +108,12 @@
                                         <table>
                                             <tr>
                                                 <td align="left">
-                                                    <asp:Label ID="Label4" runat="server" Text="Last refreshed: " ForeColor="White" Font-Size="Small" />
+                                                    <asp:Label ID="Label4" runat="server" Text="Last Updated: " ForeColor="White" Font-Size="Small" />
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <asp:Label ID="lblRefreshed" runat="server" Text="Last refreshed: " ForeColor="White" Font-Size="Small" />
+                                                    <asp:TextBox ID="tbRefreshed" runat="server" Text="NEVER!" ForeColor="White" Font-Size="Small" ReadOnly="true" BorderWidth="0" BackColor="#22b9ec" />
                                                 </td>
                                             </tr>
                                         </table>
@@ -196,12 +234,21 @@
                                 </asp:TableHeaderRow>
                             </asp:Table>                    
                         </asp:TableCell>
-                        <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top" BorderColor="#22b9ec">
-                            <asp:ContentPlaceHolder ID="cphMain" runat="server" />
+                        <asp:TableCell HorizontalAlign="left"  VerticalAlign="Top" >
+                            <asp:Table ID="tblMain" runat="server" Width="100%" BorderColor="#22b9ec" BorderWidth="0" CellPadding="0" CellSpacing="0">
+                                <asp:TableRow>
+                                    <asp:TableCell>
+                                        <asp:ContentPlaceHolder ID="cphMain" runat="server" />
+                                    </asp:TableCell>
+                                </asp:TableRow>
+                            </asp:Table>
+                        </asp:TableCell>
+                        <asp:TableCell VerticalAlign="Top" Height="100%">
+                            <asp:ContentPlaceHolder ID="cphLeft" runat="server" />
                         </asp:TableCell>
                     </asp:TableRow>
                     <asp:TableRow>
-                        <asp:TableCell ColumnSpan="2" HorizontalAlign="Center" style="padding-top:30px">
+                        <asp:TableCell ColumnSpan="3" HorizontalAlign="Center" style="padding-top:30px">
                             <ucF:ucFooter ID="ucFooter" runat="server" />
                         </asp:TableCell>
                     </asp:TableRow>

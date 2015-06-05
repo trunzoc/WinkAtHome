@@ -84,7 +84,7 @@ namespace WinkAtHome
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -119,11 +119,15 @@ namespace WinkAtHome
 
                 return epoch;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return DateTime.MinValue;
                 throw; //EventLog.WriteEntry("WinkAtHome.Common.FromUnixTime", ex.Message, EventLogEntryType.Error);
             }
+        }
+        public static double ToUnixTime(DateTime dateTime)
+        {
+            return (dateTime - new DateTime(1970, 1, 1).ToLocalTime()).TotalSeconds;
         }
         public static DateTime getLocalTime(Int32 timezoneAdjust = 99)
         {
@@ -179,7 +183,7 @@ namespace WinkAtHome
                 tdes.Clear();
                 return Convert.ToBase64String(resultArray, 0, resultArray.Length);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
                 throw; //EventLog.WriteEntry("WinkAtHome.Common.Encrypt", ex.Message, EventLogEntryType.Error);
@@ -211,7 +215,7 @@ namespace WinkAtHome
                 tdes.Clear();
                 return UTF8Encoding.UTF8.GetString(resultArray);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -223,7 +227,7 @@ namespace WinkAtHome
             {
             return Math.Round(((9.0 / 5.0) * c) + 32);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return -1;
             }
@@ -235,7 +239,7 @@ namespace WinkAtHome
             {
                 return Math.Round((5.0 / 9.0) * (f - 32), 2);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return -1;
             }
@@ -263,10 +267,17 @@ namespace WinkAtHome
                         command.ExecuteNonQuery();
                     }
 
+                    //PREPARE SUBSCRIPTIONS TABLE
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS PubSubMessages(ID VARCHAR NOT NULL ON CONFLICT IGNORE, messageReceived DATETIME, userID VARCHAR, objectType VARCHAR, objectID VARCHAR, text VARCHAR, Archived BOOL DEFAULT false, whenArchived DATETIME, checkSessionIDs VARCHAR);";
+                        command.ExecuteNonQuery();
+                    }
+
                     //PREPARE DEVICES TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "CREATE TABLE IF NOT EXISTS Devices(UserID VARCHAR NOT NULL, DeviceID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001,  Mfg VARCHAR,  Model VARCHAR,  ModelName VARCHAR, PRIMARY KEY (UserID, DeviceID));";
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS Devices(UserID VARCHAR NOT NULL, DeviceID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, Position SMALLINT DEFAULT 1001,  Mfg VARCHAR,  Model VARCHAR,  ModelName VARCHAR, PRIMARY KEY (UserID, DeviceID));";
                         command.ExecuteNonQuery();
 
                         command.CommandText = "PRAGMA table_info(Devices);";
@@ -300,21 +311,21 @@ namespace WinkAtHome
                     //PREPARE ROBOT TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "CREATE TABLE IF NOT EXISTS Robots(UserID VARCHAR NOT NULL, RobotID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, RobotID));";
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS Robots(UserID VARCHAR NOT NULL, RobotID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, RobotID));";
                         command.ExecuteNonQuery();
                     }
 
                     //PREPARE GROUP TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "CREATE TABLE IF NOT EXISTS Groups(UserID VARCHAR NOT NULL, GroupID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, GroupID));";
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS Groups(UserID VARCHAR NOT NULL, GroupID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, GroupID));";
                         command.ExecuteNonQuery();
                     }
 
                     //PREPARE SHORTCUT TABLE
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = "CREATE TABLE IF NOT EXISTS Shortcuts(UserID VARCHAR NOT NULL, ShortcutID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, SubscriptionTopic VARCHAR, SubscriptionExpires DATETIME, subscriptionCapable BOOLEAN NOT NULL DEFAULT 0, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, ShortcutID));";
+                        command.CommandText = "CREATE TABLE IF NOT EXISTS Shortcuts(UserID VARCHAR NOT NULL, ShortcutID VARCHAR NOT NULL ON CONFLICT REPLACE, Name VARCHAR, DisplayName VARCHAR, Position SMALLINT DEFAULT 1001, PRIMARY KEY (UserID, ShortcutID));";
                         command.ExecuteNonQuery();
                     }
 
@@ -324,11 +335,10 @@ namespace WinkAtHome
                         command.CommandText = "CREATE TABLE IF NOT EXISTS Users(UserID VARCHAR PRIMARY KEY NOT NULL, Email VARCHAR NOT NULL ON CONFLICT REPLACE, Last_Login DATETIME);";
                         command.ExecuteNonQuery();
                     }
-                    connection.Close();
-                    connection.Dispose();
+
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Common.prepareDatabase", ex.Message, EventLogEntryType.Error);
             }

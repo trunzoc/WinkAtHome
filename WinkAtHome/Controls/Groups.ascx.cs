@@ -69,7 +69,7 @@ namespace WinkAtHome.Controls
                 dlGroups.DataSource = groups;
                 dlGroups.DataBind();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -323,7 +323,7 @@ namespace WinkAtHome.Controls
                         else
                             lblPositionBad.Visible = true;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         lblPositionBad.Visible = true;
                     }
@@ -334,7 +334,7 @@ namespace WinkAtHome.Controls
                         groupHelper.setGroupDisplayName(item.id, tbDisplayName.Text);
                         saveNameSuccess = true;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                     }
                 }
@@ -350,7 +350,7 @@ namespace WinkAtHome.Controls
                 else
                     mpeInfo.Show();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //throw; //EventLog.WriteEntry("WinkAtHome.Groups.btnClose_Click", ex.Message, EventLogEntryType.Error);
             }

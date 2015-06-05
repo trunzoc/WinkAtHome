@@ -96,7 +96,7 @@ namespace WinkAtHome
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Login.Page_Load", ex.Message, EventLogEntryType.Error);
             }
@@ -142,7 +142,7 @@ namespace WinkAtHome
                     Response.Redirect(loginURL, false);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Login.btnLogin_Click", ex.Message, EventLogEntryType.Error);
             }

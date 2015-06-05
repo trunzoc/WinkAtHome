@@ -40,7 +40,7 @@ namespace WinkAtHome
                     BindData();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Settings.Page_Load", ex.Message, EventLogEntryType.Error);
             }
@@ -57,7 +57,7 @@ namespace WinkAtHome
                 dlAdditionalSettings.DataSource = SettingMgmt.Settings.Where(s => !s.isRequired);
                 dlAdditionalSettings.DataBind();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Settings.BindData", ex.Message, EventLogEntryType.Error);
             }
@@ -97,7 +97,7 @@ namespace WinkAtHome
                 lblMessage.Text = "Settings Saved Succesfully";
                 lblMessage.ForeColor = System.Drawing.Color.Green;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 lblMessage.Text = "Settings Were Not Saved";
                 lblMessage.ForeColor = System.Drawing.Color.Red;
@@ -121,7 +121,7 @@ namespace WinkAtHome
                 Session.Abandon();
                 Response.Redirect("~/Login.aspx");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 lblMessage.Text = "Settings Were Not Wiped";
                 lblMessage.ForeColor = System.Drawing.Color.Red;
@@ -144,7 +144,7 @@ namespace WinkAtHome
                 rowEditText.Visible = true;
                 rowEditButton.Visible = true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Settings.btnManualEdit_Click", ex.Message, EventLogEntryType.Error);
             }
@@ -162,7 +162,7 @@ namespace WinkAtHome
                 lblMessage.Text = "Settings Saved Succesfully";
                 lblMessage.ForeColor = System.Drawing.Color.Green;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 lblMessage.Text = "Settings Were Not Saved";
                 lblMessage.ForeColor = System.Drawing.Color.Red;
@@ -201,7 +201,7 @@ namespace WinkAtHome
                 rowEditText.Visible = true;
                 rowEditButton.Visible = false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Settings.btnRawDevData_Click", ex.Message, EventLogEntryType.Error);
             }
@@ -232,7 +232,7 @@ namespace WinkAtHome
 
                 Response.Redirect(strPage);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Settings.btnDefault_Click", ex.Message, EventLogEntryType.Error);
             }

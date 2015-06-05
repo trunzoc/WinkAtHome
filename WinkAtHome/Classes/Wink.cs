@@ -17,7 +17,41 @@ using WinkAtHome;
 
 public class WinkHelper
 {
-    Wink myWink = HttpContext.Current.Session["_wink"] == null ? new Wink() : (Wink)HttpContext.Current.Session["_wink"];
+    Wink myWink = HttpContext.Current != null ? HttpContext.Current.Session["_wink"] == null ? new Wink() : (Wink)HttpContext.Current.Session["_wink"] : null;
+    public DateTime lastDeviceSubscribed
+    {
+        get
+        {
+            object o = HttpContext.Current.Session["lastDeviceSubscribed"];
+            if (o != null)
+            {
+                return (DateTime)o;
+            }
+            HttpContext.Current.Session["lastDeviceSubscribed"] = new DateTime();
+            return (DateTime)HttpContext.Current.Session["lastDeviceSubscribed"];
+        }
+        set
+        {
+            HttpContext.Current.Session["lastDeviceSubscribed"] = value;
+        }
+    }
+    public DateTime lastGroupSubscribed
+    {
+        get
+        {
+            object o = HttpContext.Current.Session["lastGroupSubscribed"];
+            if (o != null)
+            {
+                return (DateTime)o;
+            }
+            HttpContext.Current.Session["lastGroupSubscribed"] = new DateTime();
+            return (DateTime)HttpContext.Current.Session["lastGroupSubscribed"];
+        }
+        set
+        {
+            HttpContext.Current.Session["lastGroupSubscribed"] = value;
+        }
+    }
 
 #region public Functions
     public bool validateWinkCredentialsByUsername(string username, string password)
@@ -35,7 +69,7 @@ public class WinkHelper
                 return true;
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
         }
 
@@ -54,7 +88,7 @@ public class WinkHelper
                 return true;
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
         }
 
@@ -75,7 +109,7 @@ public class WinkHelper
             if (user != null)
                 return true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
         }
 
@@ -165,10 +199,10 @@ public class WinkHelper
                         //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"garage_door_id\": \"8552\",\"name\": \"zTest Chamberlain\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1420250978,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"af309d2e12b86bd1e5e63123db745dad703e46fb|garage_door-8552|user-123172\"}},\"user_ids\": [\"123172\"],\"triggers\": [],\"desired_state\": {\"position\": 1.0},\"manufacturer_device_model\": \"chamberlain_vgdo\",\"manufacturer_device_id\": \"1180839\",\"device_manufacturer\": \"chamberlain\",\"model_name\": \"MyQ Garage Door Controller\",\"upc_id\": \"26\",\"linked_service_id\": \"59900\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428535030.025161,\"position\": 1.0,\"position_updated_at\": 1428535020.76,\"position_opened\": \"N/A\",\"position_opened_updated_at\": 1428534916.709,\"battery\": 1.0,\"battery_updated_at\": 1428534350.3417819,\"fault\": false,\"fault_updated_at\": 1428534350.3417749,\"control_enabled\": true,\"control_enabled_updated_at\": 1428534350.3417563,\"desired_position\": 0.0,\"desired_position_updated_at\": 1428535030.0404377},\"lat_lng\": [33.162135,-97.090945],\"location\": \"\",\"order\": 0},");
 
                         //Add Honeywell Thermostat
-                        //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"thermostat_id\": \"27239\",\"name\": \"zTest Honeywell\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419909349,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"f5cb03e4101d1668ff7933a703a864b4984fce5a|thermostat-27239|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"mode\": \"heat_only\",\"powered\": true,\"min_set_point\": 20.0,\"max_set_point\": 22.777777777777779},\"manufacturer_device_model\": \"MANHATTAN\",\"manufacturer_device_id\": \"798165\",\"device_manufacturer\": \"honeywell\",\"model_name\": \"Honeywell Wi-Fi Smart Thermostat\",\"upc_id\": \"151\",\"hub_id\": null,\"local_id\": \"00D02D49A90A\",\"radio_type\": null,\"linked_service_id\": \"57563\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428536316.8312173,\"mode\": \"heat_only\",\"mode_updated_at\": 1428536316.8312581,\"powered\": true,\"powered_updated_at\": 1428536316.831265,\"min_set_point\": 20.0,\"min_set_point_updated_at\": 1428536316.8312485,\"max_set_point\": 22.777777777777779,\"max_set_point_updated_at\": 1428536316.8312287,\"temperature\": 22.777777777777779,\"temperature_updated_at\": 1428536316.8312783,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.6666666666666667,\"deadband_updated_at\": 1428536316.831311,\"min_min_set_point\": 4.4444444444444446,\"min_min_set_point_updated_at\": 1428536316.8313046,\"max_min_set_point\": 29.444444444444443,\"max_min_set_point_updated_at\": 1428536316.8312914,\"min_max_set_point\": 16.666666666666668,\"min_max_set_point_updated_at\": 1428536316.8312984,\"max_max_set_point\": 37.222222222222221,\"max_max_set_point_updated_at\": 1428536316.831285,\"modes_allowed\": [\"auto\",\"cool_only\",\"heat_only\"],\"modes_allowed_updated_at\": 1428536316.8313177,\"units\": \"f\",\"units_updated_at\": 1428536316.8312719,\"desired_mode\": \"heat_only\",\"desired_mode_updated_at\": 1428365474.3775809,\"desired_powered\": true,\"desired_powered_updated_at\": 1424823532.9645114,\"desired_min_set_point\": 20.0,\"desired_min_set_point_updated_at\": 1428509375.1094887,\"desired_max_set_point\": 22.777777777777779,\"desired_max_set_point_updated_at\": 1428509375.109503},\"lat_lng\": [33.162074,-97.090928],\"location\": \"\",\"smart_schedule_enabled\": false},");
+                                responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"thermostat_id\": \"27239\",\"name\": \"zTest Honeywell\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419909349,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"f5cb03e4101d1668ff7933a703a864b4984fce5a|thermostat-27239|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"desired_state\": {\"mode\": \"heat_only\",\"powered\": true,\"min_set_point\": 20.0,\"max_set_point\": 22.777777777777779},\"manufacturer_device_model\": \"MANHATTAN\",\"manufacturer_device_id\": \"798165\",\"device_manufacturer\": \"honeywell\",\"model_name\": \"Honeywell Wi-Fi Smart Thermostat\",\"upc_id\": \"151\",\"hub_id\": null,\"local_id\": \"00D02D49A90A\",\"radio_type\": null,\"linked_service_id\": \"57563\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428536316.8312173,\"mode\": \"heat_only\",\"mode_updated_at\": 1428536316.8312581,\"powered\": true,\"powered_updated_at\": 1428536316.831265,\"min_set_point\": 20.0,\"min_set_point_updated_at\": 1428536316.8312485,\"max_set_point\": 22.777777777777779,\"max_set_point_updated_at\": 1428536316.8312287,\"temperature\": 22.777777777777779,\"temperature_updated_at\": 1428536316.8312783,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.6666666666666667,\"deadband_updated_at\": 1428536316.831311,\"min_min_set_point\": 4.4444444444444446,\"min_min_set_point_updated_at\": 1428536316.8313046,\"max_min_set_point\": 29.444444444444443,\"max_min_set_point_updated_at\": 1428536316.8312914,\"min_max_set_point\": 16.666666666666668,\"min_max_set_point_updated_at\": 1428536316.8312984,\"max_max_set_point\": 37.222222222222221,\"max_max_set_point_updated_at\": 1428536316.831285,\"modes_allowed\": [\"auto\",\"cool_only\",\"heat_only\"],\"modes_allowed_updated_at\": 1428536316.8313177,\"units\": \"f\",\"units_updated_at\": 1428536316.8312719,\"desired_mode\": \"heat_only\",\"desired_mode_updated_at\": 1428365474.3775809,\"desired_powered\": true,\"desired_powered_updated_at\": 1424823532.9645114,\"desired_min_set_point\": 20.0,\"desired_min_set_point_updated_at\": 1428509375.1094887,\"desired_max_set_point\": 22.777777777777779,\"desired_max_set_point_updated_at\": 1428509375.109503},\"lat_lng\": [33.162074,-97.090928],\"location\": \"\",\"smart_schedule_enabled\": false},");
 
                         //Add Nest Thermostat
-                        //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"thermostat_id\": \"49534\",\"name\": \"zTest Nest\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1427241058,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"0e67d43624e47b3633273f1236b7cde2c1823ac7|thermostat-49410|user-81926\"}},\"user_ids\": [\"81926\"],\"triggers\": [],\"desired_state\": {\"mode\": \"cool_only\",\"powered\": true,\"min_set_point\": 21.0,\"max_set_point\": 22.0,\"users_away\": false,\"fan_timer_active\": false},\"manufacturer_device_model\": \"nest\",\"manufacturer_device_id\": \"pHNukJTND3MHRBT9zks77kxx11Qobba_\",\"device_manufacturer\": \"nest\",\"model_name\": \"Learning Thermostat\",\"upc_id\": \"168\",\"hub_id\": null,\"local_id\": null,\"radio_type\": null,\"linked_service_id\": \"92972\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428516397.2914052,\"mode\": \"cool_only\",\"mode_updated_at\": 1428516397.2914376,\"powered\": true,\"powered_updated_at\": 1428516397.2914565,\"min_set_point\": 21.0,\"min_set_point_updated_at\": 1428461324.5980272,\"max_set_point\": 22.0,\"max_set_point_updated_at\": 1428516397.2914746,\"users_away\": false,\"users_away_updated_at\": 1428516397.2914917,\"fan_timer_active\": false,\"fan_timer_active_updated_at\": 1428516397.2914684,\"temperature\": 22.0,\"temperature_updated_at\": 1428516397.2914257,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.5,\"deadband_updated_at\": 1428516397.2914317,\"min_min_set_point\": null,\"min_min_set_point_updated_at\": null,\"max_min_set_point\": null,\"max_min_set_point_updated_at\": null,\"min_max_set_point\": null,\"min_max_set_point_updated_at\": null,\"max_max_set_point\": null,\"max_max_set_point_updated_at\": null,\"modes_allowed\": [\"auto\",\"heat_only\",\"cool_only\"],\"modes_allowed_updated_at\": 1428516397.2914805,\"units\": \"f\",\"units_updated_at\": 1428516397.2914197,\"eco_target\": false,\"eco_target_updated_at\": 1428516397.2914433,\"manufacturer_structure_id\": \"kdCrRKp3UahHp8xWEoJBRYX9xnQWDsoU1sb5ej9Mp5Zb41WEIOKJtg\",\"manufacturer_structure_id_updated_at\": 1428516397.2914503,\"has_fan\": true,\"has_fan_updated_at\": 1428516397.2914622,\"fan_duration\": 0,\"fan_duration_updated_at\": 1428516397.2914863,\"last_error\": null,\"last_error_updated_at\": 1427241058.6980464,\"desired_mode\": \"cool_only\",\"desired_mode_updated_at\": 1427593066.90498,\"desired_powered\": true,\"desired_powered_updated_at\": 1428462838.6427567,\"desired_min_set_point\": 21.0,\"desired_min_set_point_updated_at\": 1428427791.3297703,\"desired_max_set_point\": 22.0,\"desired_max_set_point_updated_at\": 1428497187.9092989,\"desired_users_away\": false,\"desired_users_away_updated_at\": 1428440888.9921448,\"desired_fan_timer_active\": false,\"desired_fan_timer_active_updated_at\": 1427241058.6981435},\"lat_lng\": [null,null],\"location\": \"\",\"smart_schedule_enabled\": false},");
+                                responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"thermostat_id\": \"49534\",\"name\": \"zTest Nest\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1427241058,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"0e67d43624e47b3633273f1236b7cde2c1823ac7|thermostat-49410|user-81926\"}},\"user_ids\": [\"81926\"],\"triggers\": [],\"desired_state\": {\"mode\": \"cool_only\",\"powered\": true,\"min_set_point\": 21.0,\"max_set_point\": 22.0,\"users_away\": false,\"fan_timer_active\": false},\"manufacturer_device_model\": \"nest\",\"manufacturer_device_id\": \"pHNukJTND3MHRBT9zks77kxx11Qobba_\",\"device_manufacturer\": \"nest\",\"model_name\": \"Learning Thermostat\",\"upc_id\": \"168\",\"hub_id\": null,\"local_id\": null,\"radio_type\": null,\"linked_service_id\": \"92972\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1428516397.2914052,\"mode\": \"cool_only\",\"mode_updated_at\": 1428516397.2914376,\"powered\": true,\"powered_updated_at\": 1428516397.2914565,\"min_set_point\": 21.0,\"min_set_point_updated_at\": 1428461324.5980272,\"max_set_point\": 22.0,\"max_set_point_updated_at\": 1428516397.2914746,\"users_away\": false,\"users_away_updated_at\": 1428516397.2914917,\"fan_timer_active\": false,\"fan_timer_active_updated_at\": 1428516397.2914684,\"temperature\": 22.0,\"temperature_updated_at\": 1428516397.2914257,\"external_temperature\": null,\"external_temperature_updated_at\": null,\"deadband\": 1.5,\"deadband_updated_at\": 1428516397.2914317,\"min_min_set_point\": null,\"min_min_set_point_updated_at\": null,\"max_min_set_point\": null,\"max_min_set_point_updated_at\": null,\"min_max_set_point\": null,\"min_max_set_point_updated_at\": null,\"max_max_set_point\": null,\"max_max_set_point_updated_at\": null,\"modes_allowed\": [\"auto\",\"heat_only\",\"cool_only\"],\"modes_allowed_updated_at\": 1428516397.2914805,\"units\": \"f\",\"units_updated_at\": 1428516397.2914197,\"eco_target\": false,\"eco_target_updated_at\": 1428516397.2914433,\"manufacturer_structure_id\": \"kdCrRKp3UahHp8xWEoJBRYX9xnQWDsoU1sb5ej9Mp5Zb41WEIOKJtg\",\"manufacturer_structure_id_updated_at\": 1428516397.2914503,\"has_fan\": true,\"has_fan_updated_at\": 1428516397.2914622,\"fan_duration\": 0,\"fan_duration_updated_at\": 1428516397.2914863,\"last_error\": null,\"last_error_updated_at\": 1427241058.6980464,\"desired_mode\": \"cool_only\",\"desired_mode_updated_at\": 1427593066.90498,\"desired_powered\": true,\"desired_powered_updated_at\": 1428462838.6427567,\"desired_min_set_point\": 21.0,\"desired_min_set_point_updated_at\": 1428427791.3297703,\"desired_max_set_point\": 22.0,\"desired_max_set_point_updated_at\": 1428497187.9092989,\"desired_users_away\": false,\"desired_users_away_updated_at\": 1428440888.9921448,\"desired_fan_timer_active\": false,\"desired_fan_timer_active_updated_at\": 1427241058.6981435},\"lat_lng\": [null,null],\"location\": \"\",\"smart_schedule_enabled\": false},");
 
                         //Add Refuel
                         //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"propane_tank_id\": \"6521\",\"name\": \"zTest Refuel\",\"locale\": \"en_us\",\"units\": {\"temperature\": \"f\"},\"created_at\": 1419569612,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"5055752531a8aac104827ec4ba2a3366038ee15a|propane_tank-6521|user-123172\"}},\"user_ids\": [\"123172\",\"157050\"],\"triggers\": [],\"device_manufacturer\": \"quirky_ge\",\"model_name\": \"Refuel\",\"upc_id\": \"17\",\"last_reading\": {\"connection\": true,\"battery\": 0.52,\"remaining\": 0.5},\"lat_lng\": [33.162101,-97.090547],\"location\": \"76210\",\"mac_address\": \"0c2a6907025a\",\"serial\": \"ACAB00033589\",\"tare\": 18.0,\"tank_changed_at\": 1421352479},");
@@ -183,9 +217,6 @@ public class WinkHelper
                         //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"button_id\": \"13333\", \"name\": \"zTest Smart Button 1\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"2894740376a764e392d566474aac56f634c3731f|button-13333|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"4\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855697.7729235, \"pressed\": false, \"pressed_updated_at\": 1428855697.7729335, \"long_pressed\": null, \"long_pressed_updated_at\": null }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
                         //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"button_id\": \"13334\", \"name\": \"zTest Smart Button 2\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545701, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"51c9e90c1b352231a0ce9bdbfa1295c052af91f2|button-13334|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"manufacturer_device_model\": null, \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"gang_id\": \"6776\", \"hub_id\": \"132595\", \"local_id\": \"5\", \"radio_type\": \"project_one\", \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428855697.9626672, \"pressed\": false, \"pressed_updated_at\": 1428855697.962677, \"long_pressed\": null, \"long_pressed_updated_at\": null }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
                         //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{ \"gang_id\": \"6776\", \"name\": \"zTest Gang\", \"locale\": \"en_us\", \"units\": {}, \"created_at\": 1428545678, \"hidden_at\": null, \"capabilities\": {}, \"subscription\": { \"pubnub\": { \"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\", \"channel\": \"1d8877fe2c53439330ef7e72548c6fa38e111420|gang-6776|user-145398\" } }, \"user_ids\": [ \"145398\" ], \"desired_state\": {}, \"manufacturer_device_model\": \"wink_project_one\", \"manufacturer_device_id\": null, \"device_manufacturer\": null, \"model_name\": null, \"upc_id\": null, \"hub_id\": \"132595\", \"local_id\": null, \"radio_type\": null, \"last_reading\": { \"connection\": true, \"connection_updated_at\": 1428545678.122422 }, \"lat_lng\": [ null, null ], \"location\": \"\" },");
-
-                        //Spotter
-                        //responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"last_event\":{\"brightness_occurred_at\":1428961404.2836313,\"loudness_occurred_at\":1427547964.9292188,\"vibration_occurred_at\":1428879300.9600453},\"sensor_threshold_events\":[],\"sensor_pod_id\":\"40794\",\"name\":\"zTest Spotter\",\"locale\":\"en_us\",\"units\":{\"temperature\":\"f\"},\"created_at\":1422657639,\"hidden_at\":null,\"capabilities\":{\"sensor_types\":[{\"type\":\"percentage\",\"field\":\"battery\"},{\"type\":\"percentage\",\"field\":\"brightness\"},{\"type\":\"boolean\",\"field\":\"external_power\"},{\"type\":\"integer_percentage\",\"field\":\"humidity\"},{\"type\":\"percentage\",\"field\":\"loudness\"},{\"type\":\"float\",\"field\":\"temperature\"},{\"type\":\"boolean\",\"field\":\"vibration\"}]},\"subscription\":{\"pubnub\":{\"subscribe_key\":\"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\":\"959bda140ade2f77ded3fd968bfac2242489175e|sensor_pod-40794|user-186645\"}},\"user_ids\":[\"186645\"],\"triggers\":[],\"desired_state\":{},\"manufacturer_device_model\":\"quirky_ge_spotter\",\"manufacturer_device_id\":null,\"device_manufacturer\":\"quirky_ge\",\"model_name\":\"Spotter\",\"upc_id\":\"25\",\"gang_id\":null,\"hub_id\":null,\"local_id\":null,\"radio_type\":null,\"last_reading\":{\"connection\":true,\"connection_updated_at\":1428969581.0099306,\"agent_session_id\":null,\"agent_session_id_updated_at\":1425384214.8524168,\"battery\":0.98,\"battery_updated_at\":1428969581.0099251,\"brightness\":1.0,\"brightness_updated_at\":1428969581.0098875,\"external_power\":true,\"external_power_updated_at\":1428969581.0098965,\"humidity\":35,\"humidity_updated_at\":1428969581.0099025,\"loudness\":0.0,\"loudness_updated_at\":1428969581.0099192,\"temperature\":19.0,\"temperature_updated_at\":1428969581.0099139,\"vibration\":false,\"vibration_updated_at\":1428969581.0099082,\"brightness_true\":\"N/A\",\"brightness_true_updated_at\":1428961404.2836313,\"loudness_true\":\"N/A\",\"loudness_true_updated_at\":1427547964.9292188,\"vibration_true\":\"N/A\",\"vibration_true_updated_at\":1428879300.9600453},\"lat_lng\":[0.0,0.0],\"location\":\"\",\"mac_address\":\"0c2a690656b3\",\"serial\":\"ABAB00029469\",\"uuid\":\"005f5493-2ab6-46fa-ab7d-f2932c37dd4a\"},");
 
                         //Rachio Iro
                         //        responseString = responseString.Replace("{\"data\":[", "{\"data\":[" + "{\"sprinkler_id\": \"1483\",\"name\": \"Sprinkler\",\"locale\": \"en_us\",\"units\": {},\"created_at\": 1429295028,\"hidden_at\": null,\"capabilities\": {},\"subscription\": {\"pubnub\": {\"subscribe_key\": \"sub-c-f7bf7f7e-0542-11e3-a5e8-02ee2ddab7fe\",\"channel\": \"ecbd8151da8524635b2dfd777c4f55f33a042285|sprinkler-1483|user-186645\"}},\"user_ids\": [\"186645\"],\"desired_state\": {\"master_valve\": false,\"rain_sensor\": false,\"schedule_enabled\": false,\"run_zone_indices\": [],\"run_zone_durations\": []},\"manufacturer_device_model\": \"rachio_iro\",\"manufacturer_device_id\": \"b26d4e70-f4df-481a-9149-c9bac4c3a09e\",\"device_manufacturer\": \"rachio\",\"model_name\": \"Iro\",\"upc_id\": \"152\",\"linked_service_id\": \"100792\",\"last_reading\": {\"connection\": true,\"connection_updated_at\": 1429477160.725,\"master_valve\": false,\"master_valve_updated_at\": 1429477160.725,\"rain_sensor\": false,\"rain_sensor_updated_at\": 1429477160.725,\"schedule_enabled\": false,\"schedule_enabled_updated_at\": 1429477160.725,\"run_zone_indices\": [],\"run_zone_indices_updated_at\": 1429361044.5683227,\"run_zone_durations\": [],\"run_zone_durations_updated_at\": 1429361044.5683227,\"desired_master_valve\": false,\"desired_master_valve_updated_at\": 1429361044.6298194,\"desired_rain_sensor\": false,\"desired_rain_sensor_updated_at\": 1429361042.534966,\"desired_schedule_enabled\": false,\"desired_schedule_enabled_updated_at\": 1429361044.6298397,\"desired_run_zone_indices\": [],\"desired_run_zone_indices_updated_at\": 1429361042.5349822,\"desired_run_zone_durations\": [],\"desired_run_zone_durations_updated_at\": 1429361042.5349896},\"lat_lng\": [41.38983,-81.42602],\"location\": \"\",\"zones\": [{\"name\": \"Top Driveway\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6298468,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6298535,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6298602,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6298668,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.629873,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6298814},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 0,\"zone_id\": \"12501\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Driveway Bottom\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6298881,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6298945,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299007,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299071,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299136,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6299202},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 1,\"zone_id\": \"12502\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Tree Lawn\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6299269,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6299338,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299408,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299474,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299543,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.629961},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 2,\"zone_id\": \"12503\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Right\",\"desired_state\": {\"enabled\": false,\"enabled_updated_at\": 1429361044.6299675,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6299734,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6299799,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6299863,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6299949,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6300077},\"last_reading\": {\"enabled\": false,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 3,\"zone_id\": \"12504\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Mailbox\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6300216,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6300349,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6300464,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.630054,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6300609,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6300678},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 4,\"zone_id\": \"12505\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Center\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6300743,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6300812,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6300881,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6300948,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301012,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301079},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 5,\"zone_id\": \"12506\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Back Left\",\"desired_state\": {\"enabled\": true,\"enabled_updated_at\": 1429361044.6301141,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6301203,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6301262,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6301327,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301389,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301456},\"last_reading\": {\"enabled\": true,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 6,\"zone_id\": \"12507\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"},{\"name\": \"Zone 8\",\"desired_state\": {\"enabled\": false,\"enabled_updated_at\": 1429361044.630152,\"shade\": \"none\",\"shade_updated_at\": 1429361044.6301584,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429361044.6301646,\"soil\": \"top_soil\",\"soil_updated_at\": 1429361044.6301739,\"slope\": \"flat\",\"slope_updated_at\": 1429361044.6301811,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429361044.6301878},\"last_reading\": {\"enabled\": false,\"enabled_updated_at\": 1429477160.725,\"shade\": \"none\",\"shade_updated_at\": 1429477160.725,\"nozzle\": \"fixed_spray_head\",\"nozzle_updated_at\": 1429477160.725,\"soil\": \"top_soil\",\"soil_updated_at\": 1429477160.725,\"slope\": \"flat\",\"slope_updated_at\": 1429477160.725,\"vegetation\": \"grass\",\"vegetation_updated_at\": 1429477160.725,\"powered\": false,\"powered_updated_at\": 1429361044.5683227},\"zone_index\": 7,\"zone_id\": \"12508\",\"parent_object_type\": \"sprinkler\",\"parent_object_id\": \"1483\"}]},");
@@ -344,6 +375,7 @@ public class WinkHelper
                                 command.CommandText = "UPDATE Shortcuts SET UserID=@UserID WHERE UserID='single'";
                                 command.ExecuteNonQuery();
                             }
+        
                         }
 
                         HttpContext.Current.Session["_winkUser"] = myWink.winkUser;
@@ -430,10 +462,16 @@ public class WinkHelper
             {
                 if (type == "all" || type == "devices")
                 {
-                    new DeviceHelper().DeviceGetSubscriptions();
+                    ThreadPool.QueueUserWorkItem(o => new DeviceHelper().DeviceGetSubscriptions(myWink));
+                    lastDeviceSubscribed = DateTime.Now;
+                }
+                if (type == "all" || type == "groups")
+                {
+                    ThreadPool.QueueUserWorkItem(o => new GroupHelper().GroupGetSubscriptions(myWink));
+                    lastGroupSubscribed = DateTime.Now;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -499,13 +537,13 @@ public class WinkHelper
 
                 return DisplayName;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
                 throw; //EventLog.WriteEntry("WinkAtHome.Wink.setDeviceDisplayName", ex.Message, EventLogEntryType.Error);
             }
         }
-        public int setDevicePosition(string DeviceID, int Position)
+        public void setDevicePosition(string DeviceID, int Position)
         {
             try
             {
@@ -525,13 +563,10 @@ public class WinkHelper
                         command.ExecuteNonQuery();
                     }
                 }
-
-                return Position;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Wink.setDevicePosition", ex.Message, EventLogEntryType.Error);
-                return -1;
             }
         }
         public JObject DeviceGetJSON()
@@ -557,7 +592,7 @@ public class WinkHelper
                     winkCallAPI(url, "PUT", command);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -568,7 +603,8 @@ public class WinkHelper
             {
                 foreach (var state in states)
                 {
-                    device.desired_states.Add(state.Key);
+                    device.desired_states.Remove(state.Key);
+                    device.desired_states.Add(state.Key, state.Value.ToString());
                 }
 
                 if (device.desired_states.Count > 0)
@@ -597,7 +633,7 @@ public class WinkHelper
             {
                 foreach (var reading in readings)
                 {
-                    if (!reading.Key.Contains("_updated_at"))
+                    if (!reading.Key.Contains("_updated_at") && !reading.Key.Contains("_changed_at"))
                     {
                         Wink.Device.DeviceStatus deviceStatus = new Wink.Device.DeviceStatus();
                         deviceStatus.id = device.id;
@@ -609,87 +645,77 @@ public class WinkHelper
                             string lastupdated = readings[reading.Key + "_updated_at"].ToString();
                             deviceStatus.last_updated = Common.FromUnixTime(lastupdated, true);
                         }
-
+                        if (readings[reading.Key + "_changed_at"] != null)
+                        {
+                            string lastchanged = readings[reading.Key + "_changed_at"].ToString();
+                            deviceStatus.last_changed = Common.FromUnixTime(lastchanged, true);
+                        }
                         device.status.Add(deviceStatus);
                     }
+                }
+
+                string power = readings["powered"] != null ? readings["powered"].ToString() : null;
+                KeyValuePair<string, string> desiredpower = device.desired_states.SingleOrDefault(d => d.Key == "powered");
+                if (!string.IsNullOrWhiteSpace(desiredpower.Value) && desiredpower.Value != power)
+                {
+                    Wink.Device.DeviceStatus deviceStatus = device.status.SingleOrDefault(s => s.name == "powered");
+                    deviceStatus.current_status = desiredpower.Value;
+                }
+
+                string brightness = readings["brightness"] != null ? readings["brightness"].ToString() : null;
+                KeyValuePair<string, string> desiredbrightness = device.desired_states.SingleOrDefault(d => d.Key == "brightness");
+                if (!string.IsNullOrWhiteSpace(desiredbrightness.Value) && desiredbrightness.Value != brightness)
+                {
+                    Wink.Device.DeviceStatus deviceStatus = device.status.SingleOrDefault(s => s.name == "brightness");
+                    deviceStatus.current_status = desiredbrightness.Value;
                 }
             }
 
             return device;
         }
-        public void DeviceGetSubscriptions(string token = null, List<Wink.Device> deviceList = null)
+        public void DeviceGetSubscriptions(Wink wink = null)
         {
             try
             {
                 Dictionary<string, string> devices = new Dictionary<string, string>();
-                if (deviceList != null)
-                    devices = deviceList.ToDictionary(d => d.id, d => d.type);
-                else if (myWink.Devices != null)
-                    devices = myWink.Devices.ToDictionary(d => d.id, d => d.type);
+                string userID = null;
+                string token = null;
 
+                if (wink != null)
+                {
+                    devices = wink.Devices.ToDictionary(d => d.id, d => d.type);
+                    userID = wink.winkUser.userID;
+                    token = wink.Token;
+                }
+                else if (myWink != null)
+                {
+                    devices = myWink.Devices.ToDictionary(d => d.id, d => d.type);
+                    userID = myWink.winkUser.userID;
+                    token = myWink.Token;
+                }
 
                 foreach (KeyValuePair<string,string> device in devices)
                 {
                     string APIURL = ConfigurationManager.AppSettings["winkRootURL"] + device.Value + "/" + device.Key + "/subscriptions";
-                    string callbackURL = ConfigurationManager.AppSettings["SubscriptionCallbackURL"] + myWink.winkUser.userID + "/" + device.Value + "/" + device.Key;
-                    string sendCommand = "{\"callback\":\"" + callbackURL + "\"}";//,\"secret\":\"" + "MDkyZmZmZWMtNDM1Yi00MjI4LThhM2UtZjI4OGFjNWExNjU3" + "\"}";
-                    JObject subJSON = winkCallAPI(APIURL, "POST", sendCommand, true, token != null ? token : null);
-                    if (subJSON != null)
-                    {
-                        string subCapable = string.Empty;
-                        string subTopic = string.Empty;
-                        DateTime subExpires = new DateTime();
+                    string callbackURL = ConfigurationManager.AppSettings["SubscriptionCallbackURL"] + userID + "/device-" + device.Value + "/" + device.Key;
+                    string sendCommand = "{\"callback\":\"" + callbackURL + "\",\"secret\":\"" + "MDkyZmZmZWMtNDM1Yi00MjI4LThhM2UtZjI4OGFjNWExNjU3" + "\"}";
+                    JObject subJSON = winkCallAPI(APIURL, "POST", sendCommand, true, token);
+                }
 
-                        if (subJSON.ToString().Contains("404"))
-                        {
-                            subCapable = "0";
-                            //device.subscriptionCapable = false;
-                        }
-                        else if (subJSON["data"] != null)
-                        {
-                            subCapable = "1";
-                            //device.subscriptionCapable = true;
-
-                            if (subJSON["data"]["topic"] != null)
-                                subTopic = subJSON["data"]["topic"].ToString();
-                            //    device.subscriptionChannel = subJSON["data"]["topic"].ToString();
-
-                            if (subJSON["data"]["expires_at"] != null)
-                                subExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
-                            //    device.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
-                        }
-
-                        using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
-                        {
-                            connection.Open();
-                            using (SQLiteCommand command = new SQLiteCommand(connection))
-                            {
-                                command.CommandText = "UPDATE Devices SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable=@subscriptionCapable WHERE UserID=@UserID AND DeviceID = @ID;";
-                                command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
-                                command.Parameters.Add(new SQLiteParameter("@ID", device.Key));
-                                //command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", device.subscriptionChannel));
-                                //command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", device.subscriptionExpires));
-                                command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", subTopic));
-                                command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", subExpires));
-                                command.Parameters.Add(new SQLiteParameter("@subscriptionCapable", subCapable));
-                                command.ExecuteNonQuery();
-
-                                command.CommandText = "INSERT OR IGNORE INTO Devices(UserID,DeviceID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID, @ID,@subscriptionTopic,@subscriptionExpires,@subscriptionCapable)";
-                                command.ExecuteNonQuery();
-                            }
-                        }
-                    }
+                if (userID != null)
+                {
+                    WinkEventHelper.storeNewSubscriptionMessage(userID, "Subscription Event", "", "Device Subscriptions Have Been Refreshed");
                 }
             }
             catch (Exception ex)
             {
+                string error = ex.Message;
             }
         }
         public void winkGetDevices(JObject jsonObject = null, bool forceRefresh = false)
         {
             try
             {
-                bool firstRun = false;
                 if (myWink.Devices == null || myWink.Devices.Count == 0 || jsonObject != null || forceRefresh)
                 {
                     List<Wink.Device> devices = new List<Wink.Device>();
@@ -697,7 +723,6 @@ public class WinkHelper
 
                     if (myWink.Devices == null || forceRefresh)
                     {
-                        firstRun = true;
                         json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetAllDevicesURL"]);
                     }
                     else if (jsonObject != null)
@@ -711,6 +736,8 @@ public class WinkHelper
 
                     if (json != null)
                     {
+                        Int32 sensorAlertTimeout = Convert.ToInt32(SettingMgmt.getSetting("Robot-Alert-Minutes-Since-Last-Trigger"));
+
                         foreach (JObject data in json["data"])
                         {
                             IEnumerable<string> ikeys = data.Properties().Select(p => p.Name);
@@ -730,20 +757,6 @@ public class WinkHelper
                                 if (jsonObject != null)
                                 {
                                     device = new WinkHelper.DeviceHelper().getDeviceByName(device.name);
-                                    
-                                    if (keys.Contains("last_reading"))
-                                    {
-                                        var readings = data["last_reading"];
-                                        string brightness = readings["brightness"] != null ? readings["brightness"].ToString() : null;
-                                        string desiredbrightness = readings["desired_brightness"] != null ? readings["desired_brightness"].ToString() : null;
-                                        string power = readings["powered"] != null ? readings["powered"].ToString() : null;
-                                        string desiredpower = readings["desired_powered"] != null ? readings["desired_powered"].ToString() : null;
-
-                                        if ((!string.IsNullOrWhiteSpace(desiredbrightness) && (desiredbrightness != brightness)) || (!string.IsNullOrWhiteSpace(desiredpower) && (desiredpower != power)))
-                                            return;
-                                    }
-
-
                                     myWink.Devices.Remove(device);
                                 }
                                 else
@@ -1058,16 +1071,15 @@ public class WinkHelper
                                     {
                                         if (keys.Contains("capabilities"))
                                         {
-                                            var capabilityList = data["capabilities"];
+                                            JToken capabilityList = data["capabilities"];
                                             if (capabilityList != null)
                                             {
-                                                var sensor_types = capabilityList["sensor_types"];
+                                                JToken sensor_types = capabilityList["sensor_types"];
                                                 if (sensor_types != null)
                                                 {
-                                                    foreach (var type in sensor_types)
+                                                    foreach (JToken type in sensor_types)
                                                     {
                                                         string sensorname = type["field"].ToString();
-                                                        //if (sensorname != "battery" && sensorname != "external_power")
                                                         capabilities.Add(sensorname);
                                                     }
                                                 }
@@ -1096,12 +1108,20 @@ public class WinkHelper
                                                 if (intValue > 1000000000)
                                                     status.current_status = Common.FromUnixTime(strValue, true).ToString();
 
-                                                if (status.name.ToLower() != "battery" && status.name.ToLower() != "external_power")
+                                                Wink.Device.DeviceStatus changedStatus = device.status.FirstOrDefault(s => s.name == capability + "_changed_at");
+                                                if (changedStatus != null)
+                                                {
+                                                    DateTime changedAt = Common.FromUnixTime(changedStatus.current_status, true);
+                                                    status.last_changed = changedAt;
+                                                }
+
+
+                                                if (status.name.ToLower() != "battery" && status.name.ToLower() != "external_power"
+                                                    && (status.last_changed == null || status.last_changed > DateTime.Now.AddMinutes(sensorAlertTimeout * -1)))
                                                 {
                                                     if (status.current_status.ToLower() == "true" || status.current_status.ToLower() == "1")
                                                         device.sensortripped = "true";
                                                 }
-
                                                 device.sensor_states.Add(status);
                                             }
                                         }
@@ -1111,6 +1131,7 @@ public class WinkHelper
 
                                 devices.Add(device);
 
+                                #region UPDATE DATABASE
                                 //UPDATE DEVICE DB
                                 using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
                                 {
@@ -1131,6 +1152,7 @@ public class WinkHelper
                                         command.ExecuteNonQuery();
                                     }
                                 }
+                                #endregion
 
                                 if (jsonObject != null)
                                 {
@@ -1169,13 +1191,6 @@ public class WinkHelper
 
                                 if (!string.IsNullOrWhiteSpace(row["DisplayName"].ToString()))
                                     device.displayName = row["DisplayName"].ToString();
-
-                                DateTime expires = new DateTime();
-                                string date = row["SubscriptionExpires"].ToString();
-                                DateTime.TryParse(date, out expires);
-                                //device.subscriptionExpires = Convert.ToDateTime(expires);
-                                //device.subscriptionCapable = Convert.ToBoolean(row["subscriptionCapable"].ToString());
-                                //device.subscriptionChannel = row["SubscriptionTopic"].ToString();
                             }
                         }
                     }
@@ -1191,13 +1206,13 @@ public class WinkHelper
                 }
                 #endregion
 
-                if (firstRun)
+                if (lastDeviceSubscribed < DateTime.Now.AddMinutes(-60))
                 {
-                    string token = myWink.Token;
-                    ThreadPool.QueueUserWorkItem(o => DeviceGetSubscriptions(token, myWink.Devices));
+                    ThreadPool.QueueUserWorkItem(o => DeviceGetSubscriptions(myWink));
+                    lastDeviceSubscribed = DateTime.Now;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -1237,19 +1252,20 @@ public class WinkHelper
                         command.CommandText = "INSERT OR IGNORE INTO Shortcuts (UserID,ShortcutID, displayname) VALUES (@UserID, @ID, @displayname);";
                         command.ExecuteNonQuery();
                     }
+
                 }
                 Wink.Shortcut shortcut = myWink.Shortcuts.FirstOrDefault(d => d.id == ShortcutID);
                 shortcut.displayName = DisplayName;
 
                 return DisplayName;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
                 throw; //EventLog.WriteEntry("WinkAtHome.Wink.setShortcutDisplayName", ex.Message, EventLogEntryType.Error);
             }
         }
-        public int setShortcutPosition(string ShortcutID, int Position)
+        public void setShortcutPosition(string ShortcutID, int Position)
         {
             try
             {
@@ -1268,14 +1284,12 @@ public class WinkHelper
                         command.CommandText = "INSERT OR IGNORE INTO Shortcuts (UserID,ShortcutID, position) VALUES (@UserID, @ID, @Position);";
                         command.ExecuteNonQuery();
                     }
-                }
 
-                return Position;
+                }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Wink.setShortcutPosition", ex.Message, EventLogEntryType.Error);
-                return -1;
             }
         }
         public void ShortcutActivate(string shortcutID)
@@ -1333,7 +1347,7 @@ public class WinkHelper
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -1423,6 +1437,7 @@ public class WinkHelper
                                     command.Parameters.Add(new SQLiteParameter("@displayname", shortcut.displayName));
                                     command.ExecuteNonQuery();
                                 }
+
                             }
                             
                             if (jsonObject != null)
@@ -1457,13 +1472,14 @@ public class WinkHelper
                                     shortcut.displayName = reader["DisplayName"].ToString();
                             }
                         }
+    
                     }
                 }
                 #endregion
 
                 return myWink.Shortcuts;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -1511,13 +1527,13 @@ public class WinkHelper
 
                 return DisplayName;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
                 throw; //EventLog.WriteEntry("WinkAtHome.Wink.setGroupDisplayName", ex.Message, EventLogEntryType.Error);
             }
         }
-        public int setGroupPosition(string GroupID, int Position)
+        public void setGroupPosition(string GroupID, int Position)
         {
             try
             {
@@ -1537,13 +1553,10 @@ public class WinkHelper
                         command.ExecuteNonQuery();
                     }
                 }
-
-                return Position;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Wink.setGroupPosition", ex.Message, EventLogEntryType.Error);
-                return -1;
             }
         }
         public void GroupSendCommand(string groupID, string command)
@@ -1557,7 +1570,7 @@ public class WinkHelper
                     winkCallAPI(url, "POST", command);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -1566,11 +1579,49 @@ public class WinkHelper
         {
             winkGetGroups(json);
         }
-        public List<Wink.Group> winkGetGroups(JObject jsonObject = null, bool forceRefresh = false)
+        public void GroupGetSubscriptions(Wink wink = null)
         {
             try
             {
-                bool firstRun = false;
+                List<string> groups = new List<string>();
+                string userID = null;
+                string token = null;
+
+                if (wink != null)
+                {
+                    groups = wink.Groups.Select(d => d.id).ToList();
+                    userID = wink.winkUser.userID;
+                    token = wink.Token;
+                }
+                else if (myWink != null)
+                {
+                    groups = myWink.Groups.Select(d => d.id).ToList();
+                    userID = myWink.winkUser.userID;
+                    token = myWink.Token;
+                }
+
+                foreach (string group in groups)
+                {
+                    string APIURL = ConfigurationManager.AppSettings["winkRootURL"] + "groups/" + group + "/subscriptions";
+                    string callbackURL = ConfigurationManager.AppSettings["SubscriptionCallbackURL"] + userID + "/group/" + group;
+                    string sendCommand = "{\"callback\":\"" + callbackURL + "\",\"secret\":\"" + "MDkyZmZmZWMtNDM1Yi00MjI4LThhM2UtZjI4OGFjNWExNjU3" + "\"}";
+                    JObject subJSON = winkCallAPI(APIURL, "POST", sendCommand, true, token);
+                }
+
+                if (userID != null)
+                {
+                    WinkEventHelper.storeNewSubscriptionMessage(userID, "Subscription Event", "", "Group Subscriptions Have Been Refreshed");
+                }
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message;
+            }
+        }
+        public void winkGetGroups(JObject jsonObject = null, bool forceRefresh = false)
+        {
+            try
+            {
                 if (myWink.Groups == null || myWink.Groups.Count == 0 || jsonObject != null || forceRefresh)
                 {
                     List<Wink.Group> groups = new List<Wink.Group>();
@@ -1578,7 +1629,6 @@ public class WinkHelper
 
                     if (myWink.Shortcuts == null || forceRefresh)
                     {
-                        firstRun = true;
                         json = winkCallAPI(ConfigurationManager.AppSettings["winkRootURL"] + ConfigurationManager.AppSettings["winkGetGroupsURL"]);
                     }
                     else if (jsonObject != null)
@@ -1601,6 +1651,18 @@ public class WinkHelper
 
                             if (jsonObject != null)
                             {
+                                if (keys.Contains("last_reading"))
+                                {
+                                    var readings = data["last_reading"];
+                                    string brightness = readings["brightness"] != null ? readings["brightness"].ToString() : null;
+                                    string desiredbrightness = readings["desired_brightness"] != null ? readings["desired_brightness"].ToString() : null;
+                                    string power = readings["powered"] != null ? readings["powered"].ToString() : null;
+                                    string desiredpower = readings["desired_powered"] != null ? readings["desired_powered"].ToString() : null;
+
+                                    if ((!string.IsNullOrWhiteSpace(desiredbrightness) && (desiredbrightness != brightness)) || (!string.IsNullOrWhiteSpace(desiredpower) && (desiredpower != power)))
+                                        return;
+                                }
+
                                 group = new WinkHelper.GroupHelper().getGroupByID(group.id);
                                 myWink.Groups.Remove(group);
                             }
@@ -1652,6 +1714,7 @@ public class WinkHelper
 
                             groups.Add(group);
 
+                            #region UPDATE DATABASE
                             //UPDATE DEVICE DB
                             using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
                             {
@@ -1674,6 +1737,7 @@ public class WinkHelper
                                 }
 
                             }
+                            #endregion
 
                             if (jsonObject != null)
                             {
@@ -1706,67 +1770,18 @@ public class WinkHelper
                                     group.displayName = reader["DisplayName"].ToString();
                             }
                         }
+    
                     }
                 }
                 #endregion
 
-                //#region PUBNUB SUBSCRIPTIONS
-                //if (SettingMgmt.usePubNub)
+                //if (lastGroupSubscribed < DateTime.Now.AddMinutes(-60))
                 //{
-                //    foreach (Wink.Group group in myWink.Groups)
-                //    {
-                //        if ((string.IsNullOrWhiteSpace(group.subscriptionChannel) || DateTime.Now > group.subscriptionExpires) && (group.subscriptionCapable || firstRun))
-                //        {
-                //            string URL = ConfigurationManager.AppSettings["winkRootURL"] + "groups/" + group.id + "/subscriptions";
-                //            string sendCommand = "{\"publisher_key\":\"" + ConfigurationManager.AppSettings["PubnubPublishKey"] + "\",\"subscriber_key\":\"" + ConfigurationManager.AppSettings["PubnubSubscribeKey"] + "\"}";
-                //            JObject subJSON = winkCallAPI(URL, "POST", sendCommand);
-                //            if (subJSON != null)
-                //            {
-                //                string subCapable = string.Empty;
-
-                //                if (subJSON.ToString().Contains("404") && !firstRun)
-                //                {
-                //                    subCapable = "0";
-                //                    group.subscriptionCapable = false;
-                //                }
-                //                else if (subJSON["data"] != null)
-                //                {
-                //                    subCapable = "1";
-                //                    group.subscriptionCapable = true;
-
-                //                    if (subJSON["data"]["topic"] != null)
-                //                        group.subscriptionChannel = subJSON["data"]["topic"].ToString();
-
-                //                    if (subJSON["data"]["expires_at"] != null)
-                //                        group.subscriptionExpires = Common.FromUnixTime(subJSON["data"]["expires_at"].ToString());
-                //                }
-
-                //                using (SQLiteConnection connection = new SQLiteConnection("Data Source=" + Common.dbPath + ";Version=3;"))
-                //                {
-                //                    connection.Open();
-                //                    using (SQLiteCommand command = new SQLiteCommand(connection))
-                //                    {
-                //                        command.CommandText = "UPDATE Groups SET subscriptionTopic=@subscriptionTopic,subscriptionExpires=@subscriptionExpires,subscriptionCapable=@subscriptionCapable WHERE UserID=@UserID AND GroupID = @ID;";
-                //                        command.Parameters.Add(new SQLiteParameter("@UserID", myWink.winkUser.userID));
-                //                        command.Parameters.Add(new SQLiteParameter("@ID", group.id));
-                //                        command.Parameters.Add(new SQLiteParameter("@subscriptionTopic", group.subscriptionChannel));
-                //                        command.Parameters.Add(new SQLiteParameter("@subscriptionExpires", group.subscriptionExpires));
-                //                        command.Parameters.Add(new SQLiteParameter("@subscriptionCapable", subCapable));
-                //                        command.ExecuteNonQuery();
-
-                //                        command.CommandText = "INSERT OR IGNORE INTO Groups(UserID,GroupID,subscriptionTopic,subscriptionExpires,subscriptionCapable) VALUES (@UserID, @ID,@subscriptionTopic,@subscriptionExpires,@subscriptionCapable)";
-                //                        command.ExecuteNonQuery();
-                //                    }
-                //                }
-                //            }
-                //        }
-                //    }
+                //    ThreadPool.QueueUserWorkItem(o => GroupGetSubscriptions(myWink));
+                //    lastGroupSubscribed = DateTime.Now;
                 //}
-                //#endregion
-
-                return myWink.Groups;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -1806,19 +1821,20 @@ public class WinkHelper
                         command.CommandText = "INSERT OR IGNORE INTO Robots (UserID,RobotID, displayname) VALUES (@UserID,@ID, @displayname);";
                         command.ExecuteNonQuery();
                     }
+
                 }
                 Wink.Robot robot = myWink.Robots.FirstOrDefault(d => d.id == RobotID);
                 robot.displayName = DisplayName;
 
                 return DisplayName;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
                 throw; //EventLog.WriteEntry("WinkAtHome.Wink.setRobotDisplayName", ex.Message, EventLogEntryType.Error);
             }
         }
-        public int setRobotPosition(string RobotID, int Position)
+        public void setRobotPosition(string RobotID, int Position)
         {
             try
             {
@@ -1837,14 +1853,12 @@ public class WinkHelper
                         command.CommandText = "INSERT OR IGNORE INTO Robots (UserID,RobotID, position) VALUES (@UserID,@ID, @Position);";
                         command.ExecuteNonQuery();
                     }
-                }
 
-                return Position;
+                }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Wink.setRobotPosition", ex.Message, EventLogEntryType.Error);
-                return -1;
             }
         }
         public void RobotChangeState(string robotID, bool newEnabledState)
@@ -1864,7 +1878,7 @@ public class WinkHelper
                     robot.enabled = newstate;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -2016,6 +2030,7 @@ public class WinkHelper
                                     command.Parameters.Add(new SQLiteParameter("@displayname", robot.displayName));
                                     command.ExecuteNonQuery();
                                 }
+
                             }
 
                             if (jsonObject != null)
@@ -2049,13 +2064,14 @@ public class WinkHelper
                                     robot.displayName = reader["DisplayName"].ToString();
                             }
                         }
+    
                     }
                 }
                 #endregion
 
                 return myWink.Robots;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -2142,13 +2158,9 @@ public class Wink
         [SimpleProperty]
         public string hub_name { get; set; }
 
-        //public string subscriptionChannel;
-        //public DateTime subscriptionExpires;
-        //public bool subscriptionCapable;
-
         public string json;
         public int position = 1001;
-        public List<string> desired_states = new List<string>();
+        public Dictionary<string, string> desired_states = new Dictionary<string, string>();
         public List<DeviceStatus> sensor_states = new List<DeviceStatus>();
         public List<DeviceStatus> status = new List<DeviceStatus>();
         public class DeviceStatus
@@ -2157,6 +2169,7 @@ public class Wink
             public string name;
             public string current_status;
             public DateTime? last_updated;
+            public DateTime? last_changed;
 
         }
     }
@@ -2186,7 +2199,6 @@ public class Wink
         public string displayName { get; set; }
 
         public string json;
-        public string subscriptionChannel;
         public int position = 1001;
 
         public List<ShortcutMember> members = new List<ShortcutMember>();
@@ -2224,10 +2236,6 @@ public class Wink
         public bool isempty { get; set; }
         [SimpleProperty]
         public string displayName { get; set; }
-
-        public string subscriptionChannel;
-        public DateTime subscriptionExpires;
-        public bool subscriptionCapable;
 
         public string json;
         public int position = 1001;
@@ -2284,7 +2292,6 @@ public class Wink
         public string displayName { get; set; }
 
         public string json;
-        public string subscriptionChannel;
         public int position = 1001;
 
         public List<string> members = new List<string>();

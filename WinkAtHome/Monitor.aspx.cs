@@ -14,14 +14,7 @@ namespace WinkAtHome
         {
             if (!IsPostBack)
             {
-                bool showSubscriptions = false;
-                string strShowSubscriptions = SettingMgmt.getSetting("Show-Subscription-Log-In-Monitor");
-                if (!string.IsNullOrWhiteSpace(strShowSubscriptions))
-                {
-                    if (strShowSubscriptions.ToLower() == "true")
-                        showSubscriptions = true;
-                }
-                rowSubscriptions.Visible = showSubscriptions;
+
             }
         }
     }

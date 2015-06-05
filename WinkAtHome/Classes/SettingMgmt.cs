@@ -45,7 +45,7 @@ namespace WinkAtHome
                 else
                     return null;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
                 throw; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.getSetting", ex.Message, EventLogEntryType.Error);
@@ -109,7 +109,9 @@ namespace WinkAtHome
 
                                 foreach (DataRow row in dtTable.Rows)
                                 {
-                                    defaultcommand.CommandText = "INSERT OR IGNORE INTO Settings(UserID,Name,DefaultValue,IsEncrypted,IsRequired) VALUES ('" + row[0] + "',@name,@defaultvalue,@isEncypted,@isRequired)";
+                                    string userID = row[0].ToString();
+                                    defaultcommand.CommandText = "INSERT OR IGNORE INTO Settings(UserID,Name,DefaultValue,IsEncrypted,IsRequired) VALUES (@userID,@name,@defaultvalue,@isEncypted,@isRequired)";
+                                    defaultcommand.Parameters.Add(new SQLiteParameter("@userID", userID));
                                     defaultcommand.ExecuteNonQuery();
                                 }
                             }
@@ -148,13 +150,14 @@ namespace WinkAtHome
                                 settings.Add(setting);
                             }
                         }
+    
                     }
 
                     HttpContext.Current.Session["_settings"] = settings;
                 }
                 return (List<Setting>)HttpContext.Current.Session["_settings"];
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.loadSettings", ex.Message, EventLogEntryType.Error);
             }
@@ -186,11 +189,12 @@ namespace WinkAtHome
                         command.CommandText = "DELETE FROM Settings WHERE UserID = @UserID AND IFNULL(Value, '') = '' and IFNULL(DefaultValue, '') = '' and IsEncrypted = 'false'";
                         command.ExecuteNonQuery();
                     }
+
                 }
 
                 loadSettings(true);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.saveSetting", ex.Message, EventLogEntryType.Error);
                 throw;
@@ -207,7 +211,7 @@ namespace WinkAtHome
                     saveSetting(jo.Key, jo.Value.ToString());
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.saveSetting", ex.Message, EventLogEntryType.Error);
                 throw;
@@ -234,11 +238,12 @@ namespace WinkAtHome
                         command.ExecuteNonQuery();
 
                     }
+
                 }
 
                 loadSettings(true);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.SettingsMgmt.wipeSettings", ex.Message, EventLogEntryType.Error);
             }

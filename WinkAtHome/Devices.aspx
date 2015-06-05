@@ -4,3 +4,6 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="cphMain" runat="server">
     <ucD:ucDevices ID="ucDevices" runat="server" ControllableOnly="false" />
 </asp:Content>
+
+<asp:Content ID="Content2" ContentPlaceHolderID="cphLeft" runat="server">
+</asp:Content>

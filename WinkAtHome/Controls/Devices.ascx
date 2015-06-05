@@ -89,7 +89,7 @@
                                         <asp:Table ID="tblDefault" runat="server" Visible="false" Height="100%">
                                             <asp:TableRow>
                                                 <asp:TableCell VerticalAlign="Bottom" Width="1">
-                                                    <asp:Image ID="imgBattery" runat="server" ImageUrl="~/Images/Battery/Battery0.png" Width="15" Visible="false" style="position:relative; left:20px;" onmouseover="this.style.cursor='Help'" onmouseout="this.style.cursor='default'" />
+                                                    <asp:Image ID="imgBattery" runat="server" ImageUrl="~/Images/Battery/Battery0.png" Width="15" Visible="false" style="position:relative; left:20px;" />
                                                 </asp:TableCell>
                                                 <asp:TableCell VerticalAlign="Top" Width="1">
                                                     <asp:Label ID="Label1" runat="server" ForeColor="#b5c8cf" Font-Size="Small" Text='<%# ((IDataItemContainer)Container).DisplayIndex + 1 %>' />
@@ -166,16 +166,13 @@
 
                                                     <asp:button id="btnShowThermostat" runat="server" style="display:none;" />
 
-                                                    <ajaxtoolkit:ModalPopupExtender ID="mdeThermostats" runat="server" PopupControlID="pnlThermostats" TargetControlID="btnShowThermostat"
+                                                    <ajaxtoolkit:ModalPopupExtender ID="mpeThermostats" runat="server" PopupControlID="pnlThermostats" TargetControlID="btnShowThermostat"
                                                         BackgroundCssClass="modalBackground" Y="200">
                                                     </ajaxtoolkit:ModalPopupExtender>
 
                                                     <asp:Panel ID="pnlThermostats" runat="server" Width="250" Height="350" BorderWidth="1"  style="display:none" BackColor="#eeeeee">
                                                         <br />
                                                         <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional" ChildrenAsTriggers="true">
-                                                            <Triggers>
-                                                                <asp:PostBackTrigger ControlID="lbCancelThermostat"/>
-                                                            </Triggers>
                                                             <ContentTemplate>
                                                                 
                                                                 <asp:HiddenField ID="hfDeadband" runat="server" />
@@ -282,7 +279,7 @@
                                                                 <asp:Table ID="Table4" runat="server" BorderColor="LightGray" CellPadding="10" BorderWidth="0" Width="100%">
                                                                     <asp:TableHeaderRow>
                                                                         <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Center" style="padding:10px;">
-                                                                            <asp:LinkButton ID="lbCancelThermostat" runat="server" Text="Close" ForeColor="White" style="text-decoration: none;" OnClick="btnClose_Click" />
+                                                                            <asp:LinkButton ID="lbCloseThermostat" runat="server" Text="Close" ForeColor="White" style="text-decoration: none;" OnClick="lbCloseThermostat_Click" />
                                                                         </asp:TableHeaderCell>
                                                                     </asp:TableHeaderRow>
                                                                     <asp:TableRow>
@@ -386,10 +383,10 @@
                                                                 <table style="width:100%">
                                                             </HeaderTemplate>
                                                             <ItemTemplate>
-                                                                    <td align="right" style="width:100px">
+                                                                    <td style="text-align:right; width:100px">
                                                                         <asp:Label ID="lblPropertyName" runat="server" Text='<%# Eval("Key") + ": " %>' Font-Size="Small" />
                                                                     </td>
-                                                                    <td align="left">
+                                                                    <td style="text-align:left;">
                                                                         <asp:Label ID="lblPropertyValue" runat="server" Text='<%# Eval("Value") %>' Font-Size="Small" />
                                                                     </td>
                                                             </ItemTemplate>
@@ -463,7 +460,7 @@
                                                 </asp:TableRow>
                                                 <asp:TableRow BackColor="#22b9ec">
                                                     <asp:TableHeaderCell HorizontalAlign="Center" style="padding:10px;" ColumnSpan="2">
-                                                        <asp:LinkButton ID="lbInfoClose" runat="server" Text="Save & Close" ForeColor="White" style="text-decoration: none;" OnClick="btnClose_Click" CommandArgument='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' />
+                                                        <asp:LinkButton ID="lbInfoClose" runat="server" Text="Save & Close" ForeColor="White" style="text-decoration: none;" OnClick="lbInfoClose_Click" CommandArgument='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' />
                                                     </asp:TableHeaderCell>
                                                 </asp:TableRow>
                                             </asp:Table>

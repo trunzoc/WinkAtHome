@@ -27,7 +27,7 @@ namespace WinkAtHome
                     Response.Redirect("~/" + startpage, false);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Default.Page_Load", ex.Message, EventLogEntryType.Error);
             }

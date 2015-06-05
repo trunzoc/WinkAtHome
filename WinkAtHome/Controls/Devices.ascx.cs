@@ -249,6 +249,9 @@ namespace WinkAtHome.Controls
                                 string url = "~/Images/Battery/Battery" + imgLevel + ".png";
                                 imgBattery.ImageUrl = url;
                             }
+
+                            imgBattery.Attributes.Add("onmouseover","this.style.cursor='Help'");
+                            imgBattery.Attributes.Add("onmouseout", "this.style.cursor='default'");
                         }
                     }
                 }
@@ -271,7 +274,7 @@ namespace WinkAtHome.Controls
 
         protected void displayDevices(DataListItem item)
         {
-            ImageButton img = (ImageButton)item.FindControl("imgIcon");
+            ImageButton imgIcon = (ImageButton)item.FindControl("imgIcon");
             RadSlider rs = (RadSlider)item.FindControl("rsBrightness");
             HiddenField hfMainCommand = (HiddenField)item.FindControl("hfMainCommand");
             HiddenField hfCurrentStatus = (HiddenField)item.FindControl("hfCurrentStatus");
@@ -296,14 +299,14 @@ namespace WinkAtHome.Controls
                 {
                     hasConnection = false;
                     state = "false";
-                    hfCurrentStatus.Value = state;
-
-                    Label lblName = (Label)item.FindControl("lblName");
-                    lblName.ForeColor = System.Drawing.Color.Red;
-                    lblName.Text += "<br />NOT CONNECTED";
                 }
                 else
+                {
                     hasConnection = true;
+                    state = stat.current_status.ToLower();
+                }
+
+                hfCurrentStatus.Value = state;
             }
             else
             {
@@ -312,33 +315,41 @@ namespace WinkAtHome.Controls
 
             if (hasConnection || noConnectionValue)
             {
-                if (keys.Contains("powered") || keys.Contains("locked"))
+                if (hasConnection && state == "false")
+                {
+                    hfMainCommand.Value = "connection";
+                    hfCurrentStatus.Value = state;
+
+                    Label lblName = (Label)item.FindControl("lblName");
+                    lblName.ForeColor = System.Drawing.Color.Red;
+                    lblName.ToolTip = "This Device is disconnected";
+                }
+                else if (keys.Contains("powered") || keys.Contains("locked"))
                 {
                     Wink.Device.DeviceStatus stat = status.Single(p => p.name == "powered" || p.name == "locked");
                     state = stat.current_status.ToLower();
                     hfMainCommand.Value = stat.name;
                     hfCurrentStatus.Value = state;
                     if (device.iscontrollable)
-                        img.Enabled = true;
+                        imgIcon.Enabled = true;
                 }
                 else if (keys.Contains("brightness") || keys.Contains("position") || keys.Contains("remaining"))
                 {
                     Wink.Device.DeviceStatus stat = status.Single(p => p.name == "brightness" || p.name == "position" || p.name == "remaining");
-                    
+
                     Double converted = 0;
                     Double.TryParse(stat.current_status, out converted);
-                    converted = converted * 100; 
-                    
+                    converted = converted * 100;
+
                     state = converted > 0 ? "true" : "false";
                     hfMainCommand.Value = stat.name;
                     hfCurrentStatus.Value = state;
 
                     if (device.iscontrollable)
-                        img.Enabled = true;
+                        imgIcon.Enabled = true;
                 }
                 else if (hasConnection)
                 {
-                    state = hasConnection.ToString().ToLower();
                     hfMainCommand.Value = "connection";
                     hfCurrentStatus.Value = state;
                 }
@@ -360,7 +371,7 @@ namespace WinkAtHome.Controls
                         if (File.Exists(imgPath))
                         {
                             string url = "~/Images/Devices/outlets" + state + ".png";
-                            img.ImageUrl = url;
+                            imgIcon.ImageUrl = url;
                         }
                     }
                     else
@@ -369,10 +380,10 @@ namespace WinkAtHome.Controls
                         if (File.Exists(imgPath))
                         {
                             string url = "~/Images/Devices/" + device.manufacturer + state + ".png";
-                            img.ImageUrl = url;
+                            imgIcon.ImageUrl = url;
                         }
                         else
-                            img.ImageUrl = "~/Images/Devices/lights" + state + ".png";
+                            imgIcon.ImageUrl = "~/Images/Devices/lights" + state + ".png";
                     }
                 }
                 else if (devicetype == "outlets")
@@ -381,10 +392,10 @@ namespace WinkAtHome.Controls
                     if (File.Exists(imgPath))
                     {
                         string url = "~/Images/Devices/" + device.menu_type + device.type + state + ".png";
-                        img.ImageUrl = url;
+                        imgIcon.ImageUrl = url;
                     }
                     else
-                        img.ImageUrl = "~/Images/Devices/outlets" + state + ".png";
+                        imgIcon.ImageUrl = "~/Images/Devices/outlets" + state + ".png";
                 }
                 else if (hfLevelCommand.Value == "position" || hfLevelCommand.Value == "remaining")
                 {
@@ -405,7 +416,7 @@ namespace WinkAtHome.Controls
                     if (File.Exists(imgPath))
                     {
                         string url = "~/Images/Devices/" + devicetype + imgDegree + ".png";
-                        img.ImageUrl = url;
+                        imgIcon.ImageUrl = url;
                     }
                 }
                 else
@@ -414,7 +425,7 @@ namespace WinkAtHome.Controls
                     if (File.Exists(imgPath))
                     {
                         string url = "~/Images/Devices/" + devicetype + state + ".png";
-                        img.ImageUrl = url;
+                        imgIcon.ImageUrl = url;
                     }
 
                 }
@@ -442,7 +453,7 @@ namespace WinkAtHome.Controls
 
         protected void displaySensors(DataListItem item)
         {
-            ImageButton img = (ImageButton)item.FindControl("imgIcon");
+            ImageButton imgIcon = (ImageButton)item.FindControl("imgIcon");
             Table tblDefault = (Table)item.FindControl("tblDefault");
             tblDefault.Visible = true;
             bool alert = false;
@@ -454,13 +465,23 @@ namespace WinkAtHome.Controls
             IList<string> keys = status.Select(p => p.name).ToList();
             string state = string.Empty;
 
+            bool disconnected = false;
             if (keys.Contains("connection"))
             {
                 Wink.Device.DeviceStatus stat = status.Single(p => p.name == "connection");
-                bool reverse = !Convert.ToBoolean(stat.current_status);
+                disconnected = !Convert.ToBoolean(stat.current_status);
+                bool reverse = disconnected;
                 alert = reverse;
                 state = reverse.ToString().ToLower();
             }
+            if (disconnected)
+            {
+                Label lblName = (Label)item.FindControl("lblName");
+                lblName.ForeColor = System.Drawing.Color.Red;
+                lblName.Font.Bold = true;
+                lblName.ToolTip = "This Device is disconnected";
+            }
+
 
             //Sesnor_States
             DataTable dtStatus = new DataTable();
@@ -507,11 +528,11 @@ namespace WinkAtHome.Controls
             if (File.Exists(imgPath))
             {
                 string url = "~/Images/Sensors/" + devicetype + state + ".png";
-                img.ImageUrl = url;
+                imgIcon.ImageUrl = url;
             }
             else
             {
-                img.ImageUrl = "";
+                imgIcon.ImageUrl = "";
             }
 
             ((Image)item.FindControl("imgAlert")).Visible = alert;
@@ -869,7 +890,7 @@ namespace WinkAtHome.Controls
 
             Wink.Device device = deviceHelper.getDeviceByID(hfDeviceID.Value);
             Wink.Device.DeviceStatus status = device.status.Single(p => p.name == "mode");
-            status.current_status = mode;
+            status.current_status = sendmode;
         }
 
         protected void ibThermChange_Click(object sender, ImageClickEventArgs e)
@@ -962,8 +983,18 @@ namespace WinkAtHome.Controls
 
             Session["modalshowing"] = "true";
 
-            ModalPopupExtender mdeThermostats = (ModalPopupExtender)ib.NamingContainer.FindControl("mdeThermostats");
-            mdeThermostats.Show();
+            ModalPopupExtender mpeThermostats = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeThermostats");
+            mpeThermostats.Show();
+        }
+        protected void lbCloseThermostat_Click(object sender, EventArgs e)
+        {
+            Session["modalshowing"] = "false";
+
+            LinkButton ib = (LinkButton)sender;
+            ModalPopupExtender mpeThermostats = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeThermostats");
+            mpeThermostats.Hide();
+
+            BindData();
         }
         
         protected void ibInfo_Click(object sender, EventArgs e)
@@ -976,7 +1007,7 @@ namespace WinkAtHome.Controls
             mpeInfo.Show();
         }
 
-        protected void btnClose_Click(object sender, EventArgs e)
+        protected void lbInfoClose_Click(object sender, EventArgs e)
         {
             try
             {
@@ -1026,7 +1057,7 @@ namespace WinkAtHome.Controls
                         else
                             lblPositionBad.Visible = true;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         lblPositionBad.Visible = true;
                     }
@@ -1037,7 +1068,7 @@ namespace WinkAtHome.Controls
                         deviceHelper.setDeviceDisplayName(item.id, tbDisplayName.Text);
                         saveNameSuccess = true;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                     }
                 }
@@ -1053,7 +1084,7 @@ namespace WinkAtHome.Controls
                 else
                     mpeInfo.Show();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Devices.btnClose_Click", ex.Message, EventLogEntryType.Error);
             }
@@ -1100,7 +1131,7 @@ namespace WinkAtHome.Controls
                 mpeHubDevices.Show();
                 Session["modalshowing"] = "true";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Devices.ibHubDevices_Click", ex.Message, EventLogEntryType.Error);
             }
@@ -1114,5 +1145,6 @@ namespace WinkAtHome.Controls
             mpeHubDevices.Hide();
             Session["modalshowing"] = "false";
         }
+
     }
 }

@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Web;
@@ -12,22 +14,88 @@ namespace WinkAtHome.Controls
 {
     public partial class SubscriptionDisplay : System.Web.UI.UserControl
     {
+        Wink myWink = HttpContext.Current.Session["_wink"] == null ? new Wink() : (Wink)HttpContext.Current.Session["_wink"];
         private int defaultLogLength = 50;
         
-        public Int32 DisplayHeight
+        public Int32 Height
         {
             get
             {
-                object o = ViewState["DisplayHeight"];
+                object o = ViewState["Height"];
                 if (o != null)
                 {
                     return (Int32)o;
                 }
-                return 500;
+                return 0;
             }
             set
             {
-                ViewState["DisplayHeight"] = value;
+                ViewState["Height"] = value;
+            }
+        }
+        public Int32 Width
+        {
+            get
+            {
+                object o = ViewState["Width"];
+                if (o != null)
+                {
+                    return (Int32)o;
+                }
+                return 0;
+            }
+            set
+            {
+                ViewState["Width"] = value;
+            }
+        }
+
+        public Int32 logLength
+        {
+            get
+            {
+                object o = ViewState["logLength"];
+                if (o != null)
+                {
+                    return (Int32)o;
+                }
+                return defaultLogLength;
+            }
+            set
+            {
+                ViewState["logLength"] = value;
+            }
+        }
+        public bool showLongLogDetail
+        {
+            get
+            {
+                object o = ViewState["showLongLogDetail"];
+                if (o != null)
+                {
+                    return (bool)o;
+                }
+                return true;
+            }
+            set
+            {
+                ViewState["showLongLogDetail"] = value;
+            }
+        }
+        public bool showFullHeader
+        {
+            get
+            {
+                object o = ViewState["showFullHeader"];
+                if (o != null)
+                {
+                    return (bool)o;
+                }
+                return true;
+            }
+            set
+            {
+                ViewState["showFullHeader"] = value;
             }
         }
 
@@ -54,20 +122,47 @@ namespace WinkAtHome.Controls
                     {
                         int.TryParse(length, out loglength);
                     }
-                    hfLogLength.Value = loglength.ToString();
-                    tbLogLength.Text = hfLogLength.Value;
+                    logLength = loglength;
+                    tbLogLength.Text = loglength.ToString();
 
-                    txtMessage.Height = DisplayHeight;
+                    hfMainHeight.Value = Height.ToString();
+                    if (Height > 0)
+                        pnlEvents.Height = Height;
+                    if (Width > 0)
+                        pnlEvents.Width = Width;
 
-                    if (Session["_subscriptionLog"] == null)
-                        Session["_subscriptionLog"] = new List<string>();
+                    rowFullHeader.Visible = showFullHeader;
+                    rowShortHeader.Visible = !showFullHeader;
+
+                    BindData();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.SubscriptionDisplay.Page_Load", ex.Message, EventLogEntryType.Error);
             }
         }
+
+        public void BindData()
+        {
+            dlEvents.DataSource = null;
+            dlEvents.DataBind();
+
+            List<WinkEvent> sessionList = ((List<WinkEvent>)Session["_subscriptionLog" + (showLongLogDetail ? "Long" : "Short")]).OrderByDescending(i => i.messageReceived).ToList();
+            Int32 getLength = logLength > sessionList.Count ? sessionList.Count : logLength;
+
+            if (getLength < sessionList.Count)
+            {
+                dlEvents.ShowHeader = true;
+            }
+
+            dlEvents.DataSource = sessionList.GetRange(0, getLength);
+            dlEvents.DataBind();
+
+            //Page.ClientScript.RegisterStartupScript(this.GetType(), "resizePanel", "setHeight()", true);
+            ScriptManager.RegisterStartupScript(Page, typeof(Page), "resizePanel", "setHeight()", true); 
+        }
+
 
         protected void ibSettings_Click(object sender, ImageClickEventArgs e)
         {
@@ -86,33 +181,47 @@ namespace WinkAtHome.Controls
             int loglength = defaultLogLength;
             int.TryParse(tbLogLength.Text, out loglength);
             SettingMgmt.saveSetting(hfSettingBase.Value + "-LogLength", loglength.ToString());
-            hfLogLength.Value = loglength.ToString();
+            logLength = loglength;
 
             mpeSettings.Hide();
         }
 
         protected void ibPause_Click(object sender, ImageClickEventArgs e)
         {
-            System.Web.UI.Timer tmrSubscriptions = (System.Web.UI.Timer)Page.Master.FindControl("tmrSubscriptions");
+            HiddenField hfPauseSubscriptions = (HiddenField)Page.Master.FindControl("hfPauseSubscriptions");
 
-            tmrSubscriptions.Enabled = !tmrSubscriptions.Enabled;
+            bool paused = false;
+            bool.TryParse(hfPauseSubscriptions.Value, out paused);
 
-            if (tmrSubscriptions.Enabled)
-                ibPause.ImageUrl = "~/Images/pause.png";
-            else
+            paused = !paused;
+            hfPauseSubscriptions.Value = paused.ToString();
+
+            if (paused)
+            {
                 ibPause.ImageUrl = "~/Images/play.png";
+                ibPauseShort.ImageUrl = "~/Images/play.png";
+            }
+            else
+            {
+                ibPause.ImageUrl = "~/Images/pause.png";
+                ibPauseShort.ImageUrl = "~/Images/pause.png";
+            }
         }
 
         protected void ibErase_Click(object sender, ImageClickEventArgs e)
         {
-            txtMessage.Text = "";
-            Session["_subscriptionLog"] = string.Empty;
+            Session["_subscriptionLogShort"] = new List<WinkEvent>();
+            Session["_subscriptionLogLong"] = new List<WinkEvent>();
+            BindData();
         }
 
         protected void ibReconnect_Click(object sender, ImageClickEventArgs e)
         {
+            WinkEventHelper.storeNewSubscriptionMessage(myWink.winkUser.userID, "Subscription Event", "", "Subscriptions Refresh Started");
+        
             new WinkHelper.SubscriptionHelper().refreshSubscriptions();
         }
+
     }
 }
 

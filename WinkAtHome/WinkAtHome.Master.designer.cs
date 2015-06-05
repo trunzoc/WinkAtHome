@@ -22,13 +22,13 @@ namespace WinkAtHome {
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
         
         /// <summary>
-        /// RadScriptManager1 control.
+        /// ToolkitScriptManager1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::Telerik.Web.UI.RadScriptManager RadScriptManager1;
+        protected global::AjaxControlToolkit.ToolkitScriptManager ToolkitScriptManager1;
         
         /// <summary>
         /// RadAjaxManager1 control.
@@ -40,24 +40,6 @@ namespace WinkAtHome {
         protected global::Telerik.Web.UI.RadAjaxManager RadAjaxManager1;
         
         /// <summary>
-        /// upSubscriptions control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.UpdatePanel upSubscriptions;
-        
-        /// <summary>
-        /// tmrSubscriptions control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.Timer tmrSubscriptions;
-        
-        /// <summary>
         /// upRefresh control.
         /// </summary>
         /// <remarks>
@@ -65,6 +47,33 @@ namespace WinkAtHome {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.UpdatePanel upRefresh;
+        
+        /// <summary>
+        /// hfPauseSubscriptions control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfPauseSubscriptions;
+        
+        /// <summary>
+        /// hfSubscriptionCallbackURL control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfSubscriptionCallbackURL;
+        
+        /// <summary>
+        /// btnSubscriptions control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnSubscriptions;
         
         /// <summary>
         /// Table1 control.
@@ -121,13 +130,13 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.Label Label4;
         
         /// <summary>
-        /// lblRefreshed control.
+        /// tbRefreshed control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblRefreshed;
+        protected global::System.Web.UI.WebControls.TextBox tbRefreshed;
         
         /// <summary>
         /// tmrRefresh control.
@@ -373,6 +382,15 @@ namespace WinkAtHome {
         protected global::System.Web.UI.WebControls.LinkButton lbLogoutCollapsed;
         
         /// <summary>
+        /// tblMain control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Table tblMain;
+        
+        /// <summary>
         /// cphMain control.
         /// </summary>
         /// <remarks>
@@ -380,6 +398,15 @@ namespace WinkAtHome {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphMain;
+        
+        /// <summary>
+        /// cphLeft control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ContentPlaceHolder cphLeft;
         
         /// <summary>
         /// ucFooter control.

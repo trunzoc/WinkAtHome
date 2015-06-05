@@ -57,7 +57,7 @@ namespace WinkAtHome.Controls
                     BindData();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Robots.Page_Load", ex.Message, EventLogEntryType.Error);
             }
@@ -84,7 +84,7 @@ namespace WinkAtHome.Controls
                 dlRobots.DataSource = robots;
                 dlRobots.DataBind();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Robots.BindData", ex.Message, EventLogEntryType.Error);
             }
@@ -170,7 +170,7 @@ namespace WinkAtHome.Controls
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Robots.dlRobots_ItemDataBound", ex.Message, EventLogEntryType.Error);
             }
@@ -190,7 +190,7 @@ namespace WinkAtHome.Controls
                 BindData();
                 //Response.Redirect(Request.RawUrl);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Robots.imgIcon_Click", ex.Message, EventLogEntryType.Error);
             }
@@ -207,7 +207,7 @@ namespace WinkAtHome.Controls
                 ModalPopupExtender mpeInfo = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeInfo");
                 mpeInfo.Show();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Robots.ibInfo_Click", ex.Message, EventLogEntryType.Error);
             }
@@ -263,7 +263,7 @@ namespace WinkAtHome.Controls
                         else
                             lblPositionBad.Visible = true;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         lblPositionBad.Visible = true;
                     }
@@ -274,7 +274,7 @@ namespace WinkAtHome.Controls
                         robotHelper.setRobotDisplayName(item.id, tbDisplayName.Text);
                         saveNameSuccess = true;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                     }
                 }
@@ -290,7 +290,7 @@ namespace WinkAtHome.Controls
                 else
                     mpeInfo.Show();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Robots.btnClose_Click", ex.Message, EventLogEntryType.Error);
             }

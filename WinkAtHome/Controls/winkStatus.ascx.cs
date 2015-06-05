@@ -28,7 +28,7 @@ namespace WinkAtHome.Controls
                     lblStatusLastUpdate.Text = "Last Updated: " + dictStatuses[2]["LastUpdated"];
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.winkStatus.Page_Load", ex.Message, EventLogEntryType.Error);
             }
@@ -59,7 +59,7 @@ namespace WinkAtHome.Controls
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.winkStatus.rptStatus_ItemDataBound", ex.Message, EventLogEntryType.Error);
             }

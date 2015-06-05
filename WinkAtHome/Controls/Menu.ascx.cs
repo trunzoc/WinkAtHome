@@ -68,7 +68,7 @@ namespace WinkAtHome.Controls
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Menu.Page_Load", ex.Message, EventLogEntryType.Error);
             }
@@ -114,7 +114,7 @@ namespace WinkAtHome.Controls
                     Response.Redirect(URL);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Menu.RadMenu1_ItemClick", ex.Message, EventLogEntryType.Error);
             }

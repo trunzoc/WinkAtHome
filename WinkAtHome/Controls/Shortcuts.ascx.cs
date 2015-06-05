@@ -39,7 +39,7 @@ namespace WinkAtHome.Controls
                     BindData();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Shortcuts.Page_Load", ex.Message, EventLogEntryType.Error);
             }
@@ -55,7 +55,7 @@ namespace WinkAtHome.Controls
                 dlShortcuts.DataSource = myWink.Shortcuts.OrderBy(c => c.position).ThenBy(c => c.displayName).ToList();
                 dlShortcuts.DataBind();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Shortcuts.BindData", ex.Message, EventLogEntryType.Error);
             }
@@ -98,7 +98,7 @@ namespace WinkAtHome.Controls
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Shortcuts.dlShortcuts_ItemDataBound", ex.Message, EventLogEntryType.Error);
             }
@@ -120,7 +120,7 @@ namespace WinkAtHome.Controls
                     master.updateAllMasterPanels(true,true);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Shortcuts.imgIcon_Click", ex.Message, EventLogEntryType.Error);
             }
@@ -158,7 +158,7 @@ namespace WinkAtHome.Controls
                 ModalPopupExtender mpeInfo = (ModalPopupExtender)ib.NamingContainer.FindControl("mpeInfo");
                 mpeInfo.Show();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Shortcuts.ibInfo_Click", ex.Message, EventLogEntryType.Error);
             }
@@ -214,7 +214,7 @@ namespace WinkAtHome.Controls
                         else
                             lblPositionBad.Visible = true;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         lblPositionBad.Visible = true;
                     }
@@ -225,7 +225,7 @@ namespace WinkAtHome.Controls
                         shortcutHelper.setShortcutDisplayName(item.id, tbDisplayName.Text);
                         saveNameSuccess = true;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                     }
                 }
@@ -241,7 +241,7 @@ namespace WinkAtHome.Controls
                 else
                     mpeInfo.Show();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw; //EventLog.WriteEntry("WinkAtHome.Shortcuts.btnClose_Click", ex.Message, EventLogEntryType.Error);
             }
