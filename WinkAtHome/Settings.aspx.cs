@@ -24,9 +24,6 @@ namespace WinkAtHome
 
                 if (!IsPostBack)
                 {
-                    System.Web.UI.Timer tmrSubscriptions = (System.Web.UI.Timer)Page.Master.FindControl("tmrSubscriptions");
-                    tmrSubscriptions.Enabled = false;
-
                     tbVersion.Text = Common.currentVersion;
                     tbDBPath.Text = Common.isLocalHost ? Common.dbPath : "Shhh.  It's a secret";
                     tbAccessToken.Text = Session["_winkToken"].ToString();
@@ -197,7 +194,24 @@ namespace WinkAtHome
                         tbEdit.Text = "There was an error getting Robot JSON data";
 
                 }
+                else if (cmdarg == "groups")
+                {
+                    JObject json = new WinkHelper.GroupHelper().GroupGetJSON();
+                    if (json != null)
+                        tbEdit.Text = json.ToString();
+                    else
+                        tbEdit.Text = "There was an error getting Group JSON data";
 
+                }
+                else if (cmdarg == "shortcuts")
+                {
+                    JObject json = new WinkHelper.ShortcutHelper().ShortcutGetJSON();
+                    if (json != null)
+                        tbEdit.Text = json.ToString();
+                    else
+                        tbEdit.Text = "There was an error getting Group JSON data";
+
+                }
                 rowEditText.Visible = true;
                 rowEditButton.Visible = false;
             }

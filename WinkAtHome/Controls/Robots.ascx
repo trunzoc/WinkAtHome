@@ -24,9 +24,9 @@
                             <asp:TableCell Width="40">
                                 <asp:ImageButton ID="ibSettings" runat="server" ImageUrl="~/Images/wrench.png" Height="30" ToolTip="Panel Settings" OnClick="ibSettings_Click" />
                                 <asp:button id="btnShowSettings" runat="server" style="display:none;" />
-                                <ajaxtoolkit:ModalPopupExtender ID="mpeSettings" runat="server" PopupControlID="pnlSettings" 
+                                <asp:ModalPopupExtender ID="mpeSettings" runat="server" PopupControlID="pnlSettings" 
                                     TargetControlID="btnShowSettings" CancelControlID="imgInfoClose" BackgroundCssClass="modalBackground" Y="50">
-                                </ajaxtoolkit:ModalPopupExtender>
+                                </asp:ModalPopupExtender>
                                 <asp:Panel ID="pnlSettings" runat="server" style="display:none">
                                     <asp:Table ID="Table9" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee" BorderWidth="1" Width="300">
                                         <asp:TableHeaderRow BackColor="#22b9ec">
@@ -113,9 +113,9 @@
 
                                                     <asp:button id="btnShowInfo" runat="server" style="display:none;" />
 
-                                                    <ajaxtoolkit:ModalPopupExtender ID="mpeInfo" runat="server" PopupControlID="pnlInfo"
+                                                    <asp:ModalPopupExtender ID="mpeInfo" runat="server" PopupControlID="pnlInfo"
                                                         TargetControlID="btnShowInfo" CancelControlID="imgInfoClose" BackgroundCssClass="modalBackground" Y="50">
-                                                    </ajaxtoolkit:ModalPopupExtender>
+                                                    </asp:ModalPopupExtender>
                                                     <asp:Panel ID="pnlInfo" runat="server" BorderWidth="1"  style="display:none">
                                                         <asp:Table ID="Table6" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee" BorderWidth="1">
                                                             <asp:TableHeaderRow BackColor="#22b9ec">

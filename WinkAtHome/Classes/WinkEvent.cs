@@ -101,7 +101,7 @@ namespace WinkAtHome
     public class WinkEventHelper
     {
         private static DateTime lastCleaned = DateTime.Now;
-        private static int cleanupInterval = 15;
+        private static int cleanupInterval = 30;
 
         public static void storeNewSubscriptionMessage(string userID, string objectType, string objectID, string text)
         {

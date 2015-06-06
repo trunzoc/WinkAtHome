@@ -24,9 +24,9 @@
                             <asp:TableCell Width="40">
                                 <asp:ImageButton ID="ibSettings" runat="server" ImageUrl="~/Images/wrench.png" Height="30" ToolTip="Panel Settings" OnClick="ibSettings_Click" />
                                 <asp:button id="btnShowSettings" runat="server" style="display:none;" />
-                                <ajaxtoolkit:ModalPopupExtender ID="mpeSettings" runat="server" PopupControlID="pnlSettings" 
+                                <asp:ModalPopupExtender ID="mpeSettings" runat="server" PopupControlID="pnlSettings" 
                                     TargetControlID="btnShowSettings" CancelControlID="imgInfoClose" BackgroundCssClass="modalBackground" Y="50">
-                                </ajaxtoolkit:ModalPopupExtender>
+                                </asp:ModalPopupExtender>
                                 <asp:Panel ID="pnlSettings" runat="server" style="display:none">
                                     <asp:Table ID="Table9" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee" BorderWidth="1" Width="300">
                                         <asp:TableHeaderRow BackColor="#22b9ec">
@@ -166,9 +166,9 @@
 
                                                     <asp:button id="btnShowThermostat" runat="server" style="display:none;" />
 
-                                                    <ajaxtoolkit:ModalPopupExtender ID="mpeThermostats" runat="server" PopupControlID="pnlThermostats" TargetControlID="btnShowThermostat"
+                                                    <asp:ModalPopupExtender ID="mpeThermostats" runat="server" PopupControlID="pnlThermostats" TargetControlID="btnShowThermostat"
                                                         BackgroundCssClass="modalBackground" Y="200">
-                                                    </ajaxtoolkit:ModalPopupExtender>
+                                                    </asp:ModalPopupExtender>
 
                                                     <asp:Panel ID="pnlThermostats" runat="server" Width="250" Height="350" BorderWidth="1"  style="display:none" BackColor="#eeeeee">
                                                         <br />
@@ -309,9 +309,9 @@
                                             Visible='<%# ((Wink.Device)((IDataItemContainer)Container).DataItem).menu_type.ToLower() == "hubs" %>' />
                                                 
                                         <asp:button id="btnShowHubDevices" runat="server" style="display:none;" />
-                                        <ajaxtoolkit:ModalPopupExtender ID="mpeHubDevices" runat="server" PopupControlID="pnlHubDevices"
+                                        <asp:ModalPopupExtender ID="mpeHubDevices" runat="server" PopupControlID="pnlHubDevices"
                                             TargetControlID="btnShowHubDevices" CancelControlID="imgInfoClose" BackgroundCssClass="modalBackground" Y="50">
-                                        </ajaxtoolkit:ModalPopupExtender>
+                                        </asp:ModalPopupExtender>
                                         <asp:Panel ID="pnlHubDevices" runat="server" Height="500" style="display:none">
                                             <asp:Table ID="Table8" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee" BorderWidth="1">
                                                 <asp:TableHeaderRow BackColor="#22b9ec">
@@ -356,9 +356,9 @@
                                         <asp:ImageButton ID="ibInfo" runat="server" ImageUrl="~/Images/info.png" Height="20" ToolTip='<%# "Show Device data for " + ((Wink.Device)((IDataItemContainer)Container).DataItem).id %>' OnClick="ibInfo_Click" />
 
                                         <asp:button id="btnShowInfo" runat="server" style="display:none;" />
-                                        <ajaxtoolkit:ModalPopupExtender ID="mpeInfo" runat="server" PopupControlID="pnlInfo"
+                                        <asp:ModalPopupExtender ID="mpeInfo" runat="server" PopupControlID="pnlInfo"
                                             TargetControlID="btnShowInfo" CancelControlID="imgInfoClose" BackgroundCssClass="modalBackground" Y="50">
-                                        </ajaxtoolkit:ModalPopupExtender>
+                                        </asp:ModalPopupExtender>
                                         <asp:Panel ID="pnlInfo" runat="server" Height="500" style="display:none">
                                             <asp:Table ID="Table6" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee" BorderWidth="1">
                                                 <asp:TableHeaderRow BackColor="#22b9ec">

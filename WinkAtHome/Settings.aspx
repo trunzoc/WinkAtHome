@@ -17,7 +17,7 @@
         }
     </script>
 
-    <asp:Table ID="Table1" runat="server" Width="800" BorderWidth="0" CellPadding="0" CellSpacing="0">
+    <asp:Table ID="Table1" runat="server" Width="850" BorderWidth="0" CellPadding="0" CellSpacing="0">
         <asp:TableHeaderRow>
             <asp:TableHeaderCell BackColor="#22b9ec" HorizontalAlign="Left" style="padding:10px;">
                 <asp:Label ID="lblHeader" runat="server" Text="Settings" ForeColor="White" />
@@ -179,7 +179,9 @@
             <asp:TableCell HorizontalAlign="Justify">
                 <asp:Button ID="btnManualEdit" runat="server" Text="Manually Edit Settings" OnClick="btnManualEdit_Click" />&nbsp;
                 <asp:Button ID="btnDeviceJSON" runat="server" Text="Show Device JSON" OnClick="btnRawDevData_Click" CommandArgument="devices" />&nbsp;
+                <asp:Button ID="btnGroupJSON" runat="server" Text="Show Group JSON" OnClick="btnRawDevData_Click" CommandArgument="groups" />&nbsp;
                 <asp:Button ID="btnRobotJSON" runat="server" Text="Show Robot JSON" OnClick="btnRawDevData_Click" CommandArgument="robots" />&nbsp;
+                <asp:Button ID="btnShortcutJSON" runat="server" Text="Show Shortcut JSON" OnClick="btnRawDevData_Click" CommandArgument="shortcuts" />&nbsp;
                 <asp:Button ID="btnWipe" runat="server" Text="Wipe Settings" OnClick="btnWipe_Click" OnClientClick="if ( ! deleteConfirmation()) return false;" />
             </asp:TableCell>
         </asp:TableRow>

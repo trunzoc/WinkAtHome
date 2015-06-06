@@ -70,12 +70,9 @@
 
     <form id="form1" runat="server">
     <div>
-        <ajaxToolkit:ToolkitScriptManager ID="ToolkitScriptManager1" runat="server">
-        </ajaxToolkit:ToolkitScriptManager>
+        <asp:ScriptManager ID="ScriptManager1" runat="server">
+        </asp:ScriptManager>
         
-        <telerik:RadAjaxManager ID="RadAjaxManager1" runat="server">
-        </telerik:RadAjaxManager>
-
         <asp:UpdatePanel ID="upRefresh" runat="server" UpdateMode="conditional">
             <Triggers>
                 <asp:AsyncPostBackTrigger ControlID="tmrRefresh" />
@@ -124,9 +121,9 @@
                                     </td>
                                     <td align="left" width="30">
                                         <asp:ImageButton ID="ibRefreshSettings" runat="server" ImageUrl="~/Images/wrench.png" Height="30" ToolTip="Refresh Settings" />
-                                        <ajaxtoolkit:ModalPopupExtender ID="mpRefreshSettings" runat="server" PopupControlID="pnlRefreshSettings" 
+                                        <asp:ModalPopupExtender ID="mpRefreshSettings" runat="server" PopupControlID="pnlRefreshSettings" 
                                             TargetControlID="ibRefreshSettings" CancelControlID="imgInfoClose" BackgroundCssClass="modalBackground" Y="50">
-                                        </ajaxtoolkit:ModalPopupExtender>
+                                        </asp:ModalPopupExtender>
                                         <asp:Panel ID="pnlRefreshSettings" runat="server" BorderWidth="1"  style="display:none">
                                             <asp:Table ID="Table3" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee" BorderWidth="1" Width="300">
                                                 <asp:TableHeaderRow BackColor="#22b9ec">
@@ -178,7 +175,7 @@
                     </asp:TableRow>
                     <asp:TableRow>
                         <asp:TableCell ID="cellMenu" VerticalAlign="Top" Width="40">
-                            <asp:Table ID="tblExpand" runat="server" CellPadding="0" CellSpacing="0" Width="300px" Visible="true">
+                            <asp:Table ID="tblExpand" runat="server" CellPadding="0" CellSpacing="0" Width="200px" Visible="true">
                                 <asp:TableRow>
                                     <asp:TableCell style="padding-bottom:20px">
                                         <ucM:ucMenu ID="ucMenu" runat="server" />
@@ -243,7 +240,7 @@
                                 </asp:TableRow>
                             </asp:Table>
                         </asp:TableCell>
-                        <asp:TableCell VerticalAlign="Top" Height="100%">
+                        <asp:TableCell VerticalAlign="Top" Height="100%" Width="40px">
                             <asp:ContentPlaceHolder ID="cphLeft" runat="server" />
                         </asp:TableCell>
                     </asp:TableRow>
@@ -256,9 +253,9 @@
 
 
                 <asp:Button ID="btnUpdates" runat="server" Text="Button" style="display:none;" />
-                <ajaxtoolkit:ModalPopupExtender ID="mpeUpdate" runat="server" PopupControlID="pnlUpdate" 
+                <asp:ModalPopupExtender ID="mpeUpdate" runat="server" PopupControlID="pnlUpdate" 
                     TargetControlID="btnUpdates" CancelControlID="imgInfoClose" BackgroundCssClass="modalBackground" Y="50">
-                </ajaxtoolkit:ModalPopupExtender>
+                </asp:ModalPopupExtender>
                 <asp:Panel ID="pnlUpdate" runat="server" style="display:none">
                     <asp:Table ID="Table9" runat="server" CellPadding="5" CellSpacing="5" BackColor="#eeeeee">
                         <asp:TableRow>

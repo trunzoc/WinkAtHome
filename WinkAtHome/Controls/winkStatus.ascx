@@ -24,7 +24,7 @@
                         </tr>
                 </HeaderTemplate>
                 <ItemTemplate>
-                    <tr>
+                    <tr style="background-color:#dddddd">
                         <td align="left">
                             <asp:Label ID="Label2" runat="server" Text='<%# Eval("Key") %>' Font-Size="Small" />
                         </td>
@@ -33,6 +33,16 @@
                         </td>
                     </tr>
                 </ItemTemplate>
+                <AlternatingItemTemplate>
+                    <tr>
+                        <td align="left">
+                            <asp:Label ID="Label2" runat="server" Text='<%# Eval("Key") %>' Font-Size="Small" />
+                        </td>
+                        <td align="right">
+                            <asp:Label ID="lblStatus" runat="server" Text='<%# Eval("Value") %>' Font-Size="Small"  />
+                        </td>
+                    </tr>
+                </AlternatingItemTemplate>
                 <FooterTemplate>
                     </table>
                 </FooterTemplate>
@@ -52,6 +62,18 @@
                         </tr>
                 </HeaderTemplate>
                 <ItemTemplate>
+                    <tr style="background-color:#dddddd">
+                        <td align="left" width="250px">
+                            <asp:Label ID="Label2" runat="server" Text='<%# Eval("Key") %>' Font-Size="Small" />
+                        </td>
+                    </tr>
+                    <tr style="background-color:#dddddd">
+                        <td align="right">
+                            <asp:Label ID="Label3" runat="server" Text="Status: " Font-Size="Small"  /><asp:Label ID="lblStatus" runat="server" Text='<%# Eval("Value") %>' Font-Size="Small"  />
+                        </td>
+                    </tr>
+                </ItemTemplate>
+                <AlternatingItemTemplate>
                     <tr>
                         <td align="left" width="250px">
                             <asp:Label ID="Label2" runat="server" Text='<%# Eval("Key") %>' Font-Size="Small" />
@@ -62,7 +84,7 @@
                             <asp:Label ID="Label3" runat="server" Text="Status: " Font-Size="Small"  /><asp:Label ID="lblStatus" runat="server" Text='<%# Eval("Value") %>' Font-Size="Small"  />
                         </td>
                     </tr>
-                </ItemTemplate>
+                </AlternatingItemTemplate>
                 <FooterTemplate>
                     </table>
                 </FooterTemplate>

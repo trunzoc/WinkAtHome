@@ -176,6 +176,7 @@
     <Content Include="Images\Thermostats\thermbackbig.png" />
     <Content Include="Images\update.png" />
     <Content Include="Images\YouTube.png" />
+    <Content Include="MonitorTabs.aspx" />
     <Content Include="Monitor.aspx" />
     <Content Include="Devices.aspx" />
     <Content Include="DLLs\AjaxControlToolkit.dll" />
@@ -317,6 +318,13 @@
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorTabs.aspx.cs">
+      <DependentUpon>MonitorTabs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MonitorTabs.aspx.designer.cs">
+      <DependentUpon>MonitorTabs.aspx</DependentUpon>
     </Compile>
     <Compile Include="Monitor.aspx.cs">
       <DependentUpon>Monitor.aspx</DependentUpon>
